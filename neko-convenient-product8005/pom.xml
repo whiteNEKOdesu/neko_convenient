@@ -7,11 +7,11 @@
         <artifactId>neko-convenient</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
-    <groupId>neko.convenient-member</groupId>
-    <artifactId>neko-convenient-member8003</artifactId>
+    <groupId>neko.convenient.product</groupId>
+    <artifactId>neko-convenient-product8005</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>neko-convenient-member8003</name>
-    <description>用户服务</description>
+    <name>neko-convenient-product8005</name>
+    <description>商品服务</description>
     <properties>
         <java.version>1.8</java.version>
     </properties>
