@@ -6,7 +6,7 @@ spring:
       pixelmode: block
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://192.168.30.131:3307/neko_convenient_member?characterEncoding=utf8&useSSL=false&rewriteBatchedStatements=true&autoReConnect=true
+    url: jdbc:mysql://192.168.30.131:3308/neko_convenient_member?characterEncoding=utf8&useSSL=false&rewriteBatchedStatements=true&autoReConnect=true
     username: root
     password: 123456
     type: com.zaxxer.hikari.HikariDataSource
