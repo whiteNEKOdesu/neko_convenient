@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="neko.nekonote.mapper.UserStorageMapper">
+    <select id="getUserStorageByStorageId" resultType="neko.nekonote.entity.UserStorage">
+        select storage.*,note.uid from user_storage storage
+        join user_note note
+        on storage.reference_note_id = note.note_id
+        where storage.storage_id = #{storageId} and storage.is_delete = 0
+    </select>
+
+    <select id="getUserStorageByReferenceNoteId" resultType="neko.nekonote.entity.UserStorage">
+        select storage.*,note.uid from user_storage storage
+        join user_note note
+        on storage.reference_note_id = note.note_id
+        where storage.reference_note_id = #{referenceNoteId} and storage.is_delete = 0
+    </select>
+
+    <select id="getUserStorageByLimitedPage" resultType="neko.nekonote.entity.UserStorage">
+        select storage.*,note.uid from user_storage storage
+        join user_note note
+        on storage.reference_note_id = note.note_id
+        where storage.is_delete = 0 and
+            storage.reference_note_id = #{objectId}
+        order by storage.storage_id desc limit #{start},#{limited}
+    </select>
+
+    <select id="getUserStorageByLimitedPageNumber" resultType="int">
+        select count(storage.storage_id) from user_storage storage
+        join user_note note
+        on storage.reference_note_id = note.note_id
+        where storage.is_delete = 0 and
+            storage.reference_note_id = #{objectId}
+        order by storage.storage_id desc
+    </select>
+
+    <select id="getUserStorageByQueryLimitedPage" resultType="neko.nekonote.entity.UserStorage">
+        select storage.*,note.uid from user_storage storage
+        join user_note note
+        on storage.reference_note_id = note.note_id
+        where storage.is_delete = 0 and
+              storage.reference_note_id = #{objectId}
+        order by storage.storage_id desc limit #{start},#{limited}
+    </select>
+
+    <select id="getUserStorageByQueryLimitedPageNumber" resultType="int">
+        select count(storage.storage_id) from user_storage storage
+        join user_note note
+        on storage.reference_note_id = note.note_id
+        where storage.is_delete = 0 and
+            storage.reference_note_id = #{objectId}
+        order by storage.storage_id desc
+    </select>
+
+    <insert id="newUserStorage">
+        insert into user_storage(reference_note_id, storage_name, storage_path, is_delete,
+                                 origin_file_name, create_time, update_time)
+            values(#{referenceNoteId}, #{storageName}, #{storagePath}, #{isDelete},
+                   #{originFileName}, #{createTime}, #{updateTime})
+    </insert>
+
+    <update id="updateIsDelete">
+        update user_storage
+        set is_delete = #{isDelete}, update_time = #{updateTime}
+        where storage_id= #{storageId}
+    </update>
+
+    <update id="updateStorageName">
+        update user_storage
+        set storage_name = #{storageName}, update_time = #{updateTime}
+        where storage_id= #{storageId}
+    </update>
+</mapper>
