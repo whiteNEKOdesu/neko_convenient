@@ -37,6 +37,11 @@ public class WeightRoleRelation implements Serializable {
 
     private Integer roleId;
 
+    /**
+     * 角色类型，冗余字段
+     */
+    private String roleType;
+
     private LocalDateTime createTime;
 
     private LocalDateTime updateTime;

@@ -1,12 +1,13 @@
 package neko.convenient.nekoconvenientmember8003.aop;
 
+import cn.dev33.satoken.exception.NotLoginException;
+import cn.dev33.satoken.exception.NotPermissionException;
+import cn.dev33.satoken.exception.NotRoleException;
 import lombok.extern.slf4j.Slf4j;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.Response;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
 import neko.convenient.nekoconvenientcommonbase.utils.exception.FileDeleteFailureException;
-import neko.convenient.nekoconvenientcommonbase.utils.exception.TokenCheckException;
 import neko.convenient.nekoconvenientcommonbase.utils.exception.UserNameRepeatException;
-import neko.convenient.nekoconvenientcommonbase.utils.exception.WeightNotEnoughException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -30,9 +31,7 @@ public class ExceptionResponse {
     @ExceptionHandler(value = Exception.class)
     public ResultObject<Object> exceptionHandler(Exception e){
         exceptionLogger(e);
-        return new ResultObject<Object>()
-                .unknownError()
-                .compact();
+        return ResultObject.unknownError();
     }
 
     //非法参数异常处理
@@ -90,8 +89,8 @@ public class ExceptionResponse {
     }
 
     //token检查异常
-    @ExceptionHandler(value = TokenCheckException.class)
-    public ResultObject<Object> tokenCheckExceptionHandler(TokenCheckException e){
+    @ExceptionHandler(value = NotLoginException.class)
+    public ResultObject<Object> tokenCheckExceptionHandler(NotLoginException e){
         exceptionLogger(e);
         return new ResultObject<Object>()
                 .setResponseStatus(Response.TOKEN_CHECK_ERROR)
@@ -99,8 +98,8 @@ public class ExceptionResponse {
     }
 
     //权限不足异常
-    @ExceptionHandler(value = WeightNotEnoughException.class)
-    public ResultObject<Object> weightNotEnoughExceptionHandler(WeightNotEnoughException e){
+    @ExceptionHandler(value = NotPermissionException.class)
+    public ResultObject<Object> weightNotEnoughExceptionHandler(NotPermissionException e){
         exceptionLogger(e);
         return new ResultObject<Object>()
                 .setResponseStatus(Response.WEIGHT_NOT_ENOUGH_ERROR)
@@ -113,6 +112,15 @@ public class ExceptionResponse {
         exceptionLogger(e);
         return new ResultObject<Object>()
                 .setResponseStatus(Response.HTTP_REQUEST_METHOD_NOT_SUPPORTED_ERROR)
+                .compact();
+    }
+
+    //角色不存在异常
+    @ExceptionHandler(value = NotRoleException.class)
+    public ResultObject<Object> notRoleExceptionHandler(NotRoleException e){
+        exceptionLogger(e);
+        return new ResultObject<Object>()
+                .setResponseStatus(Response.ROLE_NOT_EXIST_ERROR)
                 .compact();
     }
 }

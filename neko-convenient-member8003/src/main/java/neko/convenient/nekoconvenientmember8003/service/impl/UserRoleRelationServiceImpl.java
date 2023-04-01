@@ -1,10 +1,9 @@
 package neko.convenient.nekoconvenientmember8003.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import neko.convenient.nekoconvenientmember8003.entity.UserRoleRelation;
 import neko.convenient.nekoconvenientmember8003.mapper.UserRoleRelationMapper;
 import neko.convenient.nekoconvenientmember8003.service.UserRoleRelationService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -21,11 +20,17 @@ import java.util.List;
 @Service
 public class UserRoleRelationServiceImpl extends ServiceImpl<UserRoleRelationMapper, UserRoleRelation> implements UserRoleRelationService {
 
+    /**
+     * 获取用户角色id信息
+     */
     @Override
     public List<Integer> getUserRoleIds(String uid) {
         return this.baseMapper.getRoleIdsByUid(uid);
     }
 
+    /**
+     * 新增uid，角色关系
+     */
     @Override
     public int newRelation(String uid, Integer roleId) {
         UserRoleRelation userRoleRelation = new UserRoleRelation();

@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="neko.convenient.nekoconvenientmember8003.mapper.WeightRoleRelationMapper">
     <select id="getRelationsByRoleIds" resultType="neko.convenient.nekoconvenientmember8003.entity.WeightRoleRelation">
-        select weight_role_relation.*,weight_type. from weight_role_relation
+        select weight_role_relation.*,user_weight.weight_type from weight_role_relation
         join user_weight
         on weight_role_relation.weight_id = user_weight.weight_id
         where weight_role_relation.role_id in

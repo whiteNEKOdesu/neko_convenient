@@ -14,5 +14,5 @@ import java.util.List;
  * @since 2023-04-01
  */
 public interface WeightRoleRelationService extends IService<WeightRoleRelation> {
-    List<WeightRoleRelation> getRelations(List<Integer> roleIds);
+    List<WeightRoleRelation> getRelations(String uid);
 }
