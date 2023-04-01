@@ -21,7 +21,7 @@ public class ResultObject<T> {
         return this;
     }
 
-    public <T> ResultObject<T> ok(T result){
+    public static <T> ResultObject<T> ok(T result){
         return new ResultObject<T>()
                 .setResult(result)
                 .setResponseStatus(Response.SUCCESS)
@@ -33,7 +33,7 @@ public class ResultObject<T> {
         return this;
     }
 
-    public <T> ResultObject<T> unknownError(T result){
+    public static <T> ResultObject<T> unknownError(T result){
         return new ResultObject<T>()
                 .setResult(result)
                 .setResponseStatus(Response.ERROR)
