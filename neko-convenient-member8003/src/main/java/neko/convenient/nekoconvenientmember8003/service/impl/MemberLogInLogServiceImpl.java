@@ -30,6 +30,7 @@ public class MemberLogInLogServiceImpl extends ServiceImpl<MemberLogInLogMapper,
                 .setIsLogIn(isLogIn)
                 .setCreateTime(LocalDateTime.now())
                 .setUpdateTime(LocalDateTime.now());
+
         return this.baseMapper.insert(memberLogInLog);
     }
 }

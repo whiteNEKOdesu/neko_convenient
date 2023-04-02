@@ -14,5 +14,5 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface UserWeightMapper extends BaseMapper<UserWeight> {
-
+    UserWeight getUserWeightByWeightType(String weightType);
 }

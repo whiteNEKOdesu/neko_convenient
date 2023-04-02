@@ -4,12 +4,15 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import neko.convenient.nekoconvenientmember8003.entity.WeightRoleRelation;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Accessors(chain = true)
-public class MemberInfoVo {
+public class MemberInfoVo implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId(type = IdType.ASSIGN_ID)
@@ -23,6 +26,10 @@ public class MemberInfoVo {
     private String sourceName;
 
     private String userImagePath;
+
+    private List<String> weightTypes;
+
+    private List<String> roleTypes;
 
     private String token;
 

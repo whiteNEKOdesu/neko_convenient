@@ -13,6 +13,7 @@ import neko.convenient.nekoconvenientmember8003.service.MemberInfoService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import neko.convenient.nekoconvenientmember8003.service.MemberLogInLogService;
 import neko.convenient.nekoconvenientmember8003.service.UserRoleRelationService;
+import neko.convenient.nekoconvenientmember8003.service.WeightRoleRelationService;
 import neko.convenient.nekoconvenientmember8003.utils.ip.IPHandler;
 import neko.convenient.nekoconvenientmember8003.vo.MemberInfoVo;
 import org.springframework.stereotype.Service;
@@ -40,6 +41,9 @@ public class MemberInfoServiceImpl extends ServiceImpl<MemberInfoMapper, MemberI
     @Resource
     private MemberLogInLogService memberLogInLogService;
 
+    @Resource
+    private WeightRoleRelationService weightRoleRelationService;
+
     @Override
     public ResultObject<MemberInfoVo> logIn(String userName, String userPassword, HttpServletRequest request) {
         ResultObject<MemberInfoVo> resultObject = new ResultObject<>();
@@ -52,7 +56,9 @@ public class MemberInfoServiceImpl extends ServiceImpl<MemberInfoMapper, MemberI
                 StpUtil.login(memberInfo.getUid());
                 MemberInfoVo memberInfoVo = new MemberInfoVo();
                 BeanUtil.copyProperties(memberInfo, memberInfoVo);
-                memberInfoVo.setToken(StpUtil.getTokenValue());
+                memberInfoVo.setToken(StpUtil.getTokenValue())
+                    .setWeightTypes(weightRoleRelationService.getWeightTypesByUid(memberInfo.getUid()))
+                    .setRoleTypes(weightRoleRelationService.getRoleTypesByUid(memberInfo.getUid()));
                 resultObject.setResult(memberInfoVo)
                         .setResponseStatus(Response.SUCCESS);
                 memberLogInLogService.newLog(memberInfo.getUid(),

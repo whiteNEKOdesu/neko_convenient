@@ -8,7 +8,9 @@ import neko.convenient.nekoconvenientcommonbase.utils.entity.Response;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
 import neko.convenient.nekoconvenientcommonbase.utils.exception.FileDeleteFailureException;
 import neko.convenient.nekoconvenientcommonbase.utils.exception.UserNameRepeatException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -121,6 +123,24 @@ public class ExceptionResponse {
         exceptionLogger(e);
         return new ResultObject<Object>()
                 .setResponseStatus(Response.ROLE_NOT_EXIST_ERROR)
+                .compact();
+    }
+
+    //JSR303参数验证异常
+    @ExceptionHandler(value = MethodArgumentNotValidException.class)
+    public ResultObject<Object> methodArgumentNotValidExceptionHandler(MethodArgumentNotValidException e){
+        exceptionLogger(e);
+        return new ResultObject<Object>()
+                .setResponseStatus(Response.ILLEGAL_ARGUMENT_ERROR)
+                .compact();
+    }
+
+    //重复key异常
+    @ExceptionHandler(value = DuplicateKeyException.class)
+    public ResultObject<Object> duplicateKeyExceptionHandler(DuplicateKeyException e){
+        exceptionLogger(e);
+        return new ResultObject<Object>()
+                .setResponseStatus(Response.DUPLICATE_KEY_ERROR)
                 .compact();
     }
 }

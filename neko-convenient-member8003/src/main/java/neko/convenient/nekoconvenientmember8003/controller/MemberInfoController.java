@@ -17,7 +17,7 @@ import javax.servlet.http.HttpServletRequest;
  * @since 2023-04-01
  */
 @RestController
-@RequestMapping("/member_info")
+@RequestMapping("member_info")
 public class MemberInfoController {
     @Resource
     private MemberInfoService memberInfoService;

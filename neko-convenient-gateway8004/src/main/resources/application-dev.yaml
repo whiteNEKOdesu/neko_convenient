@@ -1,0 +1,27 @@
+spring:
+  banner:
+    image:
+      location: classpath:img/IMG_6588.jpg
+      bitdepth: 8
+      pixelmode: block
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true #开启从注册中心动态创建路由的功能，利用微服务名进行路由
+      routes:
+        - id: neko_convenient_product_route  #商品服务统一路由
+          uri: lb://neko-convenient-product #lb代表loadbalance负载均衡，后面配置上服务名
+          predicates:
+            - Path=/product/**  #代表任何前缀为/product请求都会被路由到lb://neko-convenient-product
+          filters:
+            - RewritePath=/product/?(?<segment>.*), /$\{segment}
+
+        - id: neko_convenient_member_route  #用户服务统一路由
+          uri: lb://neko-convenient-member #lb代表loadbalance负载均衡，后面配置上服务名
+          predicates:
+            - Path=/member/**  #代表任何前缀为/product请求都会被路由到lb://neko-convenient-member
+          filters:
+            - RewritePath=/member/?(?<segment>.*), /$\{segment}
+server:
+  port: 8004

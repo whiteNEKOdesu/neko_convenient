@@ -12,5 +12,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @since 2023-04-01
  */
 public interface AdminLogInLogService extends IService<AdminLogInLog> {
-
+    int newLog(String uid, String ip, Boolean isLogIn);
 }

@@ -20,6 +20,7 @@ public enum Response {
     ROLE_NOT_EXIST_ERROR(7, "角色不存在"),
     HTTP_REQUEST_METHOD_NOT_SUPPORTED_ERROR(8, "请求类型不支持"),
     USER_LOG_IN_ERROR(9, "登录错误"),
+    DUPLICATE_KEY_ERROR(10, "重复key错误"),
 
     ERROR(500,"未知错误");
 

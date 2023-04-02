@@ -26,8 +26,8 @@ public class AdminInfo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @TableId(value = "admin_id", type = IdType.AUTO)
-    private Long adminId;
+    @TableId(value = "admin_id", type = IdType.ASSIGN_ID)
+    private String adminId;
 
     private String userName;
 
@@ -38,9 +38,9 @@ public class AdminInfo implements Serializable {
     private String userImagePath;
 
     /**
-     * 角色id，对应admin_role表
+     * 指认管理员id
      */
-    private Integer roleId;
+    private String operateAdminId;
 
     private Boolean isDelete;
 

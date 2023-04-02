@@ -29,9 +29,11 @@ public class AdminLogInLog implements Serializable {
     @TableId(type = IdType.ASSIGN_ID)
     private String logInId;
 
-    private Integer adminId;
+    private String adminId;
 
     private String ip;
+
+    private Boolean isLogIn;
 
     private Boolean isDelete;
 

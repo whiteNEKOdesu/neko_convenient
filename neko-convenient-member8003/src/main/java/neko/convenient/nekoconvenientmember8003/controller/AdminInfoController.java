@@ -1,7 +1,15 @@
 package neko.convenient.nekoconvenientmember8003.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import cn.dev33.satoken.annotation.SaCheckRole;
+import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
+import neko.convenient.nekoconvenientmember8003.service.AdminInfoService;
+import neko.convenient.nekoconvenientmember8003.vo.AdminInfoVo;
+import neko.convenient.nekoconvenientmember8003.vo.NewAdminInfoVo;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * <p>
@@ -12,7 +20,24 @@ import org.springframework.web.bind.annotation.RestController;
  * @since 2023-04-01
  */
 @RestController
-@RequestMapping("/adminInfo")
+@RequestMapping("admin_info")
 public class AdminInfoController {
+    @Resource
+    private AdminInfoService adminInfoService;
 
+    @PostMapping("log_in")
+    public ResultObject<AdminInfoVo> logIn(@RequestParam String userName, @RequestParam String userPassword, HttpServletRequest request){
+        return adminInfoService.logIn(userName, userPassword, request);
+    }
+
+    /**
+     * 新增管理员
+     */
+    @SaCheckRole("root")
+    @PutMapping("new_admin")
+    public ResultObject<Object> newAdmin(@Validated @RequestBody NewAdminInfoVo vo){
+        adminInfoService.newAdmin(vo);
+
+        return ResultObject.ok();
+    }
 }

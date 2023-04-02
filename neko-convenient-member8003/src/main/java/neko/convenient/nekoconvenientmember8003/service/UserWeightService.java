@@ -12,5 +12,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @since 2023-04-01
  */
 public interface UserWeightService extends IService<UserWeight> {
-
+    void newUserWeight(String weightType);
 }

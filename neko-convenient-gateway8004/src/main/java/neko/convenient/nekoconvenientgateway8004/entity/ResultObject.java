@@ -16,24 +16,26 @@ public class ResultObject<T> {
     private Integer responseCode;
     private String responseMessage;
 
-    public ResultObject<T> ok(){
-        this.responseStatus = Response.SUCCESS;
-        return this;
+    public static ResultObject<Object> ok(){
+        return new ResultObject<Object>()
+                .setResponseStatus(Response.SUCCESS)
+                .compact();
     }
 
-    public <T> ResultObject<T> ok(T result){
+    public static <T> ResultObject<T> ok(T result){
         return new ResultObject<T>()
                 .setResult(result)
                 .setResponseStatus(Response.SUCCESS)
                 .compact();
     }
 
-    public ResultObject<T> unknownError(){
-        this.responseStatus = Response.ERROR;
-        return this;
+    public static ResultObject<Object> unknownError(){
+        return new ResultObject<Object>()
+                .setResponseStatus(Response.ERROR)
+                .compact();
     }
 
-    public <T> ResultObject<T> unknownError(T result){
+    public static <T> ResultObject<T> unknownError(T result){
         return new ResultObject<T>()
                 .setResult(result)
                 .setResponseStatus(Response.ERROR)

@@ -4,16 +4,23 @@ import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.Constant;
+import neko.convenient.nekoconvenientmember8003.entity.UserRole;
 import neko.convenient.nekoconvenientmember8003.entity.WeightRoleRelation;
 import neko.convenient.nekoconvenientmember8003.mapper.WeightRoleRelationMapper;
 import neko.convenient.nekoconvenientmember8003.service.UserRoleRelationService;
+import neko.convenient.nekoconvenientmember8003.service.UserRoleService;
 import neko.convenient.nekoconvenientmember8003.service.WeightRoleRelationService;
+import neko.convenient.nekoconvenientmember8003.vo.NewWeightRoleRelationVo;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -30,6 +37,9 @@ public class WeightRoleRelationServiceImpl extends ServiceImpl<WeightRoleRelatio
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
+
+    @Resource
+    private UserRoleService userRoleService;
 
     /**
      * 用户权限信息获取
@@ -53,5 +63,47 @@ public class WeightRoleRelationServiceImpl extends ServiceImpl<WeightRoleRelatio
                 TimeUnit.MILLISECONDS);
 
         return relations;
+    }
+
+    /**
+     * 获取指定uid权限
+     */
+    @Override
+    public List<String> getWeightTypesByUid(String uid) {
+        return getRelations(uid).stream().filter(Objects::nonNull)
+                .map(WeightRoleRelation::getWeightType)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 过去指定uid角色
+     */
+    @Override
+    public List<String> getRoleTypesByUid(String uid) {
+        return getRelations(uid).stream().filter(Objects::nonNull)
+                .map(WeightRoleRelation::getRoleType)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 新增权限，角色关系
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void newRelations(NewWeightRoleRelationVo vo) {
+        UserRole userRole = userRoleService.getById(vo.getRoleId());
+        LocalDateTime now = LocalDateTime.now();
+
+        List<WeightRoleRelation> relations = vo.getWeightIds().stream().filter(Objects::nonNull)
+                .distinct()
+                .map(w -> new WeightRoleRelation().setRoleId(vo.getRoleId())
+                        .setRoleType(userRole.getRoleType())
+                        .setWeightId(w)
+                        .setCreateTime(now)
+                        .setUpdateTime(now)).collect(Collectors.toList());
+
+        this.saveBatch(relations);
     }
 }

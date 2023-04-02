@@ -5,9 +5,12 @@ import neko.convenient.nekoconvenientmember8003.entity.UserRoleRelation;
 import neko.convenient.nekoconvenientmember8003.mapper.UserRoleRelationMapper;
 import neko.convenient.nekoconvenientmember8003.service.UserRoleRelationService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -40,5 +43,23 @@ public class UserRoleRelationServiceImpl extends ServiceImpl<UserRoleRelationMap
                 .setUpdateTime(LocalDateTime.now());
 
         return this.baseMapper.insert(userRoleRelation);
+    }
+
+    /**
+     * 批量新增uid，角色关系
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void newRelations(String uid, List<Integer> roleIds) {
+        LocalDateTime now = LocalDateTime.now();
+        List<UserRoleRelation> relations = roleIds.stream().filter(Objects::nonNull)
+                .distinct()
+                .map(r -> new UserRoleRelation().setUid(uid)
+                        .setRoleId(r)
+                        .setCreateTime(now)
+                        .setUpdateTime(now))
+                .collect(Collectors.toList());
+
+        this.saveBatch(relations);
     }
 }

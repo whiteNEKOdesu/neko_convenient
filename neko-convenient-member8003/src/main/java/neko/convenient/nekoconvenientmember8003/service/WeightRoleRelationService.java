@@ -2,6 +2,7 @@ package neko.convenient.nekoconvenientmember8003.service;
 
 import neko.convenient.nekoconvenientmember8003.entity.WeightRoleRelation;
 import com.baomidou.mybatisplus.extension.service.IService;
+import neko.convenient.nekoconvenientmember8003.vo.NewWeightRoleRelationVo;
 
 import java.util.List;
 
@@ -15,4 +16,10 @@ import java.util.List;
  */
 public interface WeightRoleRelationService extends IService<WeightRoleRelation> {
     List<WeightRoleRelation> getRelations(String uid);
+
+    List<String> getWeightTypesByUid(String uid);
+
+    List<String> getRoleTypesByUid(String uid);
+
+    void newRelations(NewWeightRoleRelationVo vo);
 }

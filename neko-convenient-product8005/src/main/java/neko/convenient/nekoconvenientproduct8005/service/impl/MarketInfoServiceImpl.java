@@ -17,4 +17,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class MarketInfoServiceImpl extends ServiceImpl<MarketInfoMapper, MarketInfo> implements MarketInfoService {
 
+    /**
+     * 根据商店id获取商店信息
+     */
+    @Override
+    public MarketInfo getMarketInfoByMarketId(String marketId) {
+        return this.baseMapper.selectById(marketId);
+    }
 }

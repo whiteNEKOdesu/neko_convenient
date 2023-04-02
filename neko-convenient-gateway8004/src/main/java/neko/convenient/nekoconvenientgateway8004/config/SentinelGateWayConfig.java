@@ -12,9 +12,7 @@ import reactor.core.publisher.Mono;
 public class SentinelGateWayConfig {
     public SentinelGateWayConfig(){
         GatewayCallbackManager.setBlockHandler(((serverWebExchange, throwable) -> {
-            ResultObject<Object> resultObject = new ResultObject<Object>()
-                    .unknownError()
-                    .compact();
+            ResultObject<Object> resultObject = ResultObject.unknownError();
 
             Mono<ServerResponse> body = ServerResponse.ok()
                     .contentType(MediaType.APPLICATION_JSON)
