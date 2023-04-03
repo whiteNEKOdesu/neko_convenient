@@ -1,11 +1,13 @@
 package neko.convenient.nekoconvenientmember8003.controller;
 
+import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckRole;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
+import neko.convenient.nekoconvenientmember8003.entity.UserRole;
 import neko.convenient.nekoconvenientmember8003.service.UserRoleService;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import neko.convenient.nekoconvenientmember8003.vo.QueryVo;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 
@@ -27,10 +29,21 @@ public class UserRoleController {
      * 新增角色
      */
     @SaCheckRole("admin")
+    @SaCheckLogin
     @PutMapping("new_user_role")
     public ResultObject<Object> newUserRole(String roleType){
         userRoleService.newUserRole(roleType);
 
         return ResultObject.ok();
+    }
+
+    /**
+     * 分页查询角色信息
+     */
+    @SaCheckRole("root")
+    @SaCheckLogin
+    @PostMapping("role_info")
+    public ResultObject<Page<UserRole>> roleInfo(@RequestBody QueryVo vo){
+        return ResultObject.ok(userRoleService.getUserRolesByQueryLimitedPage(vo));
     }
 }

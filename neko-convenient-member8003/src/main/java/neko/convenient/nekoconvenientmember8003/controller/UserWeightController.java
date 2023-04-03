@@ -1,5 +1,6 @@
 package neko.convenient.nekoconvenientmember8003.controller;
 
+import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckRole;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
 import neko.convenient.nekoconvenientmember8003.service.UserWeightService;
@@ -28,6 +29,7 @@ public class UserWeightController {
      * 新增权限
      */
     @SaCheckRole("admin")
+    @SaCheckLogin
     @PutMapping("new_user_weight")
     public ResultObject<Object> newUserWeight(@RequestParam String weightType){
         userWeightService.newUserWeight(weightType);

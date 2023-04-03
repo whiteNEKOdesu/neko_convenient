@@ -1,5 +1,6 @@
 package neko.convenient.nekoconvenientmember8003.controller;
 
+import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckRole;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
 import neko.convenient.nekoconvenientmember8003.service.WeightRoleRelationService;
@@ -27,6 +28,7 @@ public class WeightRoleRelationController {
     private WeightRoleRelationService weightRoleRelationService;
 
     @SaCheckRole("admin")
+    @SaCheckLogin
     @PutMapping("new_relations")
     public ResultObject<Object> newRelations(@Validated @RequestBody NewWeightRoleRelationVo vo){
         weightRoleRelationService.newRelations(vo);
