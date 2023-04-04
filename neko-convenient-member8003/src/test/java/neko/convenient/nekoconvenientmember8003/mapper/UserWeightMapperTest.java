@@ -14,4 +14,9 @@ public class UserWeightMapperTest {
     public void getUserWeightByWeightType(){
         System.out.println(userWeightMapper.getUserWeightByWeightType("*"));
     }
+
+    @Test
+    public void getUnbindUserWeightByRoleId(){
+        System.out.println(userWeightMapper.getUnbindUserWeightByRoleId(1));
+    }
 }

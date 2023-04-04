@@ -34,6 +34,8 @@ public class UserRole implements Serializable {
      */
     private String roleType;
 
+    private Boolean isAdmin;
+
     private LocalDateTime createTime;
 
     private LocalDateTime updateTime;

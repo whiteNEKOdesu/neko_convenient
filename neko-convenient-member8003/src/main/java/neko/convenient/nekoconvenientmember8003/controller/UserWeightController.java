@@ -2,14 +2,15 @@ package neko.convenient.nekoconvenientmember8003.controller;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckRole;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
+import neko.convenient.nekoconvenientmember8003.entity.UserWeight;
 import neko.convenient.nekoconvenientmember8003.service.UserWeightService;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import neko.convenient.nekoconvenientmember8003.vo.QueryVo;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * <p>
@@ -35,5 +36,23 @@ public class UserWeightController {
         userWeightService.newUserWeight(weightType);
 
         return ResultObject.ok();
+    }
+
+    /**
+     * 分页查询权限信息
+     */
+    @SaCheckRole("admin")
+    @SaCheckLogin
+    @PostMapping("weight_info")
+    public ResultObject<Page<UserWeight>> weightInfo(@RequestBody QueryVo vo){
+        return ResultObject.ok(userWeightService.getUserWeightByQueryLimitedPage(vo));
+    }
+
+    /**
+     * 获取指定roleId还未绑定权限信息
+     */
+    @PostMapping("unbind_weight_info")
+    public ResultObject<List<UserWeight>> unbindWeightInfo(@RequestParam Integer roleId){
+        return ResultObject.ok(userWeightService.getUnbindWeightByRoleId(roleId));
     }
 }

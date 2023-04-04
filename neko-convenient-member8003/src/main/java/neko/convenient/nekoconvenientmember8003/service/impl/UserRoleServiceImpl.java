@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import neko.convenient.nekoconvenientmember8003.vo.QueryVo;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -49,12 +50,20 @@ public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> i
     public Page<UserRole> getUserRolesByQueryLimitedPage(QueryVo vo) {
         Page<UserRole> page = new Page<>(vo.getCurrentPage(), vo.getLimited());
         QueryWrapper<UserRole> queryWrapper = new QueryWrapper<>();
-        if(vo.getQueryWords() != null){
+        if(StringUtils.hasText(vo.getQueryWords())){
             queryWrapper.lambda().eq(UserRole::getRoleType, vo.getQueryWords());
         }
 
         this.baseMapper.selectPage(page, queryWrapper);
 
         return page;
+    }
+
+    /**
+     * 查询管理员角色信息
+     */
+    @Override
+    public List<UserRole> getAdminRoles() {
+        return this.lambdaQuery().eq(UserRole::getIsAdmin, true).list();
     }
 }

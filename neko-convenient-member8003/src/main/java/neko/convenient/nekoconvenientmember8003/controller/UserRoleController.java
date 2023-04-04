@@ -10,6 +10,7 @@ import neko.convenient.nekoconvenientmember8003.vo.QueryVo;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * <p>
@@ -40,10 +41,20 @@ public class UserRoleController {
     /**
      * 分页查询角色信息
      */
-    @SaCheckRole("root")
+    @SaCheckRole("admin")
     @SaCheckLogin
     @PostMapping("role_info")
     public ResultObject<Page<UserRole>> roleInfo(@RequestBody QueryVo vo){
         return ResultObject.ok(userRoleService.getUserRolesByQueryLimitedPage(vo));
+    }
+
+    /**
+     * 查询管理员角色信息
+     */
+    @SaCheckRole("root")
+    @SaCheckLogin
+    @PostMapping("admin_role_info")
+    public ResultObject<List<UserRole>> adminRoleInfo(){
+        return ResultObject.ok(userRoleService.getAdminRoles());
     }
 }

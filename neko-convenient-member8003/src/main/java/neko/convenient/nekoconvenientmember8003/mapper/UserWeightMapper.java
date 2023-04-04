@@ -4,6 +4,8 @@ import neko.convenient.nekoconvenientmember8003.entity.UserWeight;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 /**
  * <p>
  * 权限表 Mapper 接口
@@ -15,4 +17,6 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface UserWeightMapper extends BaseMapper<UserWeight> {
     UserWeight getUserWeightByWeightType(String weightType);
+
+    List<UserWeight> getUnbindUserWeightByRoleId(Integer roleId);
 }

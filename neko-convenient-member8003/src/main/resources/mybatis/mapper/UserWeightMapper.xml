@@ -5,4 +5,10 @@
         select * from user_weight
         where weight_type = #{weightType}
     </select>
+
+    <select id="getUnbindUserWeightByRoleId" resultType="neko.convenient.nekoconvenientmember8003.entity.UserWeight">
+        select * from user_weight
+        where weight_id not in(select weight_id from weight_role_relation
+                                where role_id = #{roleId})
+    </select>
 </mapper>

@@ -19,4 +19,6 @@ public interface UserRoleService extends IService<UserRole> {
     void newUserRole(String roleType);
 
     Page<UserRole> getUserRolesByQueryLimitedPage(QueryVo vo);
+
+    List<UserRole> getAdminRoles();
 }
