@@ -22,6 +22,9 @@ public enum Response {
     USER_LOG_IN_ERROR(9, "登录错误"),
     DUPLICATE_KEY_ERROR(10, "重复key错误"),
 
+    MEMBER_SERVICE_ERROR(1000, "member微服务远程调用错误"),
+    PRODUCT_SERVICE_ERROR(1001, "product微服务远程调用错误"),
+
     ERROR(500,"未知错误");
 
     private Integer responseCode;

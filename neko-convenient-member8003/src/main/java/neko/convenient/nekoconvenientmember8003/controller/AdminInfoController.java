@@ -3,6 +3,7 @@ package neko.convenient.nekoconvenientmember8003.controller;
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckRole;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
+import neko.convenient.nekoconvenientcommonbase.utils.entity.RoleType;
 import neko.convenient.nekoconvenientmember8003.service.AdminInfoService;
 import neko.convenient.nekoconvenientmember8003.vo.AdminInfoVo;
 import neko.convenient.nekoconvenientmember8003.vo.NewAdminInfoVo;
@@ -34,7 +35,7 @@ public class AdminInfoController {
     /**
      * 新增管理员
      */
-    @SaCheckRole("root")
+    @SaCheckRole(RoleType.ROOT)
     @SaCheckLogin
     @PutMapping("new_admin")
     public ResultObject<Object> newAdmin(@Validated @RequestBody NewAdminInfoVo vo){
@@ -43,7 +44,7 @@ public class AdminInfoController {
         return ResultObject.ok();
     }
 
-    @SaCheckRole("root")
+    @SaCheckRole(RoleType.ROOT)
     @SaCheckLogin
     @GetMapping("user_name_is_repeat")
     public ResultObject<Boolean> userNameIsRepeat(@RequestParam String userName){

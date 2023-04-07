@@ -46,7 +46,7 @@ public class WeightRoleRelationServiceImpl extends ServiceImpl<WeightRoleRelatio
      */
     @Override
     public List<WeightRoleRelation> getRelations(String uid) {
-        String key = Constant.REDIS_PREFIX + StpUtil.getLoginId();
+        String key = Constant.MEMBER_REDIS_PREFIX + "weight_cache:" + uid;
         System.out.println(key);
         String relationCache = stringRedisTemplate.opsForValue().get(key);
 
@@ -77,7 +77,7 @@ public class WeightRoleRelationServiceImpl extends ServiceImpl<WeightRoleRelatio
     }
 
     /**
-     * 过去指定uid角色
+     * 获指定uid角色
      */
     @Override
     public List<String> getRoleTypesByUid(String uid) {
@@ -85,6 +85,14 @@ public class WeightRoleRelationServiceImpl extends ServiceImpl<WeightRoleRelatio
                 .map(WeightRoleRelation::getRoleType)
                 .distinct()
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 获指定roleId权限，角色关系
+     */
+    @Override
+    public List<WeightRoleRelation> getRelationsByRoleId(Integer roleId) {
+        return this.baseMapper.getRelationSbyRoleId(roleId);
     }
 
     /**

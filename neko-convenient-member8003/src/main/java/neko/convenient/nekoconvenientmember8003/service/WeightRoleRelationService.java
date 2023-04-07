@@ -21,5 +21,7 @@ public interface WeightRoleRelationService extends IService<WeightRoleRelation> 
 
     List<String> getRoleTypesByUid(String uid);
 
+    List<WeightRoleRelation> getRelationsByRoleId(Integer roleId);
+
     void newRelations(NewWeightRoleRelationVo vo);
 }

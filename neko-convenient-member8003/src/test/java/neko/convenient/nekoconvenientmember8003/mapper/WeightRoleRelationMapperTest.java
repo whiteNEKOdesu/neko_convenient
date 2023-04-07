@@ -15,4 +15,9 @@ public class WeightRoleRelationMapperTest {
     public void getRelationsByRoleIds(){
         System.out.println(weightRoleRelationMapper.getRelationsByRoleIds(Arrays.asList(1, 5)));
     }
+
+    @Test
+    public void getRelationSbyRoleId(){
+        System.out.println(weightRoleRelationMapper.getRelationSbyRoleId(1));
+    }
 }

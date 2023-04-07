@@ -4,6 +4,7 @@ import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckRole;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
+import neko.convenient.nekoconvenientcommonbase.utils.entity.RoleType;
 import neko.convenient.nekoconvenientmember8003.entity.UserRole;
 import neko.convenient.nekoconvenientmember8003.service.UserRoleService;
 import neko.convenient.nekoconvenientmember8003.vo.QueryVo;
@@ -29,7 +30,7 @@ public class UserRoleController {
     /**
      * 新增角色
      */
-    @SaCheckRole("admin")
+    @SaCheckRole(RoleType.ROOT)
     @SaCheckLogin
     @PutMapping("new_user_role")
     public ResultObject<Object> newUserRole(String roleType){
@@ -41,7 +42,7 @@ public class UserRoleController {
     /**
      * 分页查询角色信息
      */
-    @SaCheckRole("admin")
+    @SaCheckRole(RoleType.ADMIN)
     @SaCheckLogin
     @PostMapping("role_info")
     public ResultObject<Page<UserRole>> roleInfo(@RequestBody QueryVo vo){
@@ -51,7 +52,7 @@ public class UserRoleController {
     /**
      * 查询管理员角色信息
      */
-    @SaCheckRole("root")
+    @SaCheckRole(RoleType.ROOT)
     @SaCheckLogin
     @PostMapping("admin_role_info")
     public ResultObject<List<UserRole>> adminRoleInfo(){

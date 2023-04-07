@@ -4,6 +4,7 @@ import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckRole;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
+import neko.convenient.nekoconvenientcommonbase.utils.entity.RoleType;
 import neko.convenient.nekoconvenientmember8003.entity.UserWeight;
 import neko.convenient.nekoconvenientmember8003.service.UserWeightService;
 import neko.convenient.nekoconvenientmember8003.vo.QueryVo;
@@ -29,7 +30,7 @@ public class UserWeightController {
     /**
      * 新增权限
      */
-    @SaCheckRole("admin")
+    @SaCheckRole(RoleType.ROOT)
     @SaCheckLogin
     @PutMapping("new_user_weight")
     public ResultObject<Object> newUserWeight(@RequestParam String weightType){
@@ -41,7 +42,7 @@ public class UserWeightController {
     /**
      * 分页查询权限信息
      */
-    @SaCheckRole("admin")
+    @SaCheckRole(RoleType.ADMIN)
     @SaCheckLogin
     @PostMapping("weight_info")
     public ResultObject<Page<UserWeight>> weightInfo(@RequestBody QueryVo vo){
@@ -51,6 +52,8 @@ public class UserWeightController {
     /**
      * 获取指定roleId还未绑定权限信息
      */
+    @SaCheckRole(RoleType.ADMIN)
+    @SaCheckLogin
     @PostMapping("unbind_weight_info")
     public ResultObject<List<UserWeight>> unbindWeightInfo(@RequestParam Integer roleId){
         return ResultObject.ok(userWeightService.getUnbindWeightByRoleId(roleId));

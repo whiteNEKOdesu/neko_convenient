@@ -17,4 +17,6 @@ import java.util.List;
 @Mapper
 public interface WeightRoleRelationMapper extends BaseMapper<WeightRoleRelation> {
     List<WeightRoleRelation> getRelationsByRoleIds(List<Integer> roleIds);
+
+    List<WeightRoleRelation> getRelationSbyRoleId(Integer roleId);
 }

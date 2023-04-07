@@ -1,4 +1,4 @@
-package neko.convenient.nekoconvenientmember8003.aop;
+package neko.convenient.nekoconvenientproduct8005.aop;
 
 import cn.dev33.satoken.exception.NotLoginException;
 import cn.dev33.satoken.exception.NotPermissionException;
