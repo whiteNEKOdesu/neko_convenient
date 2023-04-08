@@ -11,5 +11,5 @@ import java.util.List;
 @FeignClient(value = "neko-convenient-member")
 public interface WeightRoleRelationFeignService {
     @PostMapping("weight_role_relation/relation_info_by_uid")
-    public ResultObject<List<WeightRoleRelationTo>> relationInfoByUid(@RequestParam String uid);
+    ResultObject<List<WeightRoleRelationTo>> relationInfoByUid(@RequestParam String uid);
 }

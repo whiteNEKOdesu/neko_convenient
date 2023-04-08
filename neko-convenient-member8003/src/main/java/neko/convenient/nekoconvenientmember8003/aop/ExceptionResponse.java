@@ -11,6 +11,7 @@ import neko.convenient.nekoconvenientcommonbase.utils.exception.MemberServiceExc
 import neko.convenient.nekoconvenientcommonbase.utils.exception.ProductServiceException;
 import neko.convenient.nekoconvenientcommonbase.utils.exception.UserNameRepeatException;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -161,6 +162,15 @@ public class ExceptionResponse {
         exceptionLogger(e);
         return new ResultObject<Object>()
                 .setResponseStatus(Response.PRODUCT_SERVICE_ERROR)
+                .compact();
+    }
+
+    //参数格式错误异常
+    @ExceptionHandler(value = HttpMessageNotReadableException.class)
+    public ResultObject<Object> httpMessageNotReadableExceptionHandler(HttpMessageNotReadableException e){
+        exceptionLogger(e);
+        return new ResultObject<Object>()
+                .setResponseStatus(Response.ARGUMENT_ILLEGAL_FORMAT_ERROR)
                 .compact();
     }
 }

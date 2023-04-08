@@ -1,15 +1,18 @@
 package neko.convenient.nekoconvenientproduct8005.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.json.JSONUtil;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.Constant;
 import neko.convenient.nekoconvenientproduct8005.entity.CategoryInfo;
 import neko.convenient.nekoconvenientproduct8005.mapper.CategoryInfoMapper;
 import neko.convenient.nekoconvenientproduct8005.service.CategoryInfoService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import neko.convenient.nekoconvenientproduct8005.vo.CategoryInfoVo;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -57,6 +60,36 @@ public class CategoryInfoServiceImpl extends ServiceImpl<CategoryInfoMapper, Cat
                 TimeUnit.MILLISECONDS);
 
         return result;
+    }
+
+    /**
+     * 新增商品分类信息
+     */
+    @Override
+    public void newCategoryInfo(CategoryInfoVo vo) {
+        CategoryInfo categoryInfo = new CategoryInfo();
+        BeanUtil.copyProperties(vo, categoryInfo);
+        LocalDateTime now = LocalDateTime.now();
+        categoryInfo.setCreateTime(now)
+                .setUpdateTime(now);
+
+        this.baseMapper.insert(categoryInfo);
+
+        String key = Constant.PRODUCT_REDIS_PREFIX + "level_category";
+        //删除缓存
+        stringRedisTemplate.delete(key);
+    }
+
+    /**
+     * 删除叶节点商品分类信息
+     */
+    @Override
+    public void deleteLeafCategoryInfo(Integer categoryId) {
+        this.baseMapper.deleteLeafCategoryInfo(categoryId);
+
+        String key = Constant.PRODUCT_REDIS_PREFIX + "level_category";
+        //删除缓存
+        stringRedisTemplate.delete(key);
     }
 
     /**

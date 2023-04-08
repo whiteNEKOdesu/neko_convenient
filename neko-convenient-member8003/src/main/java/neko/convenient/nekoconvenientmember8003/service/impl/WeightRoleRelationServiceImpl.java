@@ -47,7 +47,6 @@ public class WeightRoleRelationServiceImpl extends ServiceImpl<WeightRoleRelatio
     @Override
     public List<WeightRoleRelation> getRelations(String uid) {
         String key = Constant.MEMBER_REDIS_PREFIX + "weight_cache:" + uid;
-        System.out.println(key);
         String relationCache = stringRedisTemplate.opsForValue().get(key);
 
         //缓存有数据

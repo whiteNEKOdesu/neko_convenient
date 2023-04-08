@@ -1,4 +1,4 @@
-package neko.convenient.nekoconvenientmember8003.vo;
+package neko.convenient.nekoconvenientcommonbase.utils.entity;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -16,7 +16,11 @@ public class QueryVo implements Serializable {
 
     private String queryWords;
 
-    private Long currentPage;
+    private Integer currentPage;
 
-    private Long limited;
+    private Integer limited;
+
+    public Integer pageOrLimitWhenOverFlow(){
+        return currentPage <= 50 ? currentPage : 50;
+    }
 }

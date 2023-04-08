@@ -3,11 +3,11 @@ package neko.convenient.nekoconvenientmember8003.controller;
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckRole;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import neko.convenient.nekoconvenientcommonbase.utils.entity.QueryVo;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.RoleType;
 import neko.convenient.nekoconvenientmember8003.entity.UserWeight;
 import neko.convenient.nekoconvenientmember8003.service.UserWeightService;
-import neko.convenient.nekoconvenientmember8003.vo.QueryVo;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
