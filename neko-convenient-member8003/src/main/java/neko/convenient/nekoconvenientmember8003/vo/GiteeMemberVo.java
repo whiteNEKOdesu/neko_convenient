@@ -30,5 +30,5 @@ public class GiteeMemberVo implements Serializable {
 
     private String email;
 
-    private TokenInfo tokenInfo;
+    private GiteeTokenInfoVo tokenInfo;
 }
