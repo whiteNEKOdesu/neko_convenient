@@ -13,6 +13,8 @@
         <module>neko-convenient-common-base</module>
         <module>neko-convenient-member8003</module>
         <module>neko-convenient-gateway8004</module>
+        <module>neko-convenient-product8005</module>
+        <module>neko-convenient-third-party8006</module>
     </modules>
 
     <properties>

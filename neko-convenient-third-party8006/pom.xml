@@ -7,29 +7,18 @@
         <artifactId>neko-convenient</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
-    <groupId>neko.convenient.product</groupId>
-    <artifactId>neko-convenient-product8005</artifactId>
+    <groupId>neko.convenient.third.party</groupId>
+    <artifactId>neko-convenient-third-party8006</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>neko-convenient-product8005</name>
-    <description>商品服务</description>
+    <name>neko-convenient-third-party8006</name>
+    <description>第三方服务</description>
     <properties>
-        <java.version>1.8</java.version>
+        <java.version>8</java.version>
     </properties>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-validation</artifactId>
-            <version>2.7.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.velocity</groupId>
-            <artifactId>velocity-engine-core</artifactId>
-            <version>2.2</version>
-        </dependency>
-        <dependency>
-            <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-generator</artifactId>
-            <version>3.5.3</version>
+            <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
         <!-- Sa-Token 整合 Redis （使用 jackson 序列化方式） -->
         <dependency>
@@ -63,11 +52,6 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-boot-starter</artifactId>
-            <version>3.5.3</version>
-        </dependency>
-        <dependency>
             <groupId>neko.convenient.common.base</groupId>
             <artifactId>neko-convenient-common-base</artifactId>
             <version>${project.version}</version>
@@ -94,11 +78,6 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-loadbalancer</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.40</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

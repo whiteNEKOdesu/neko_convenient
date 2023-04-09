@@ -6,10 +6,7 @@ import cn.dev33.satoken.exception.NotRoleException;
 import lombok.extern.slf4j.Slf4j;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.Response;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
-import neko.convenient.nekoconvenientcommonbase.utils.exception.FileDeleteFailureException;
-import neko.convenient.nekoconvenientcommonbase.utils.exception.MemberServiceException;
-import neko.convenient.nekoconvenientcommonbase.utils.exception.ProductServiceException;
-import neko.convenient.nekoconvenientcommonbase.utils.exception.UserNameRepeatException;
+import neko.convenient.nekoconvenientcommonbase.utils.exception.*;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -171,6 +168,15 @@ public class ExceptionResponse {
         exceptionLogger(e);
         return new ResultObject<Object>()
                 .setResponseStatus(Response.ARGUMENT_ILLEGAL_FORMAT_ERROR)
+                .compact();
+    }
+
+    //third_party微服务远程调用异常
+    @ExceptionHandler(value = ThirdPartyServiceException.class)
+    public ResultObject<Object> thirdPartyServiceExceptionHandler(ThirdPartyServiceException e){
+        exceptionLogger(e);
+        return new ResultObject<Object>()
+                .setResponseStatus(Response.THIRD_PARTY_SERVICE_ERROR)
                 .compact();
     }
 }

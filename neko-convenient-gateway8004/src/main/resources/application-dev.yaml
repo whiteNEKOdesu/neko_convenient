@@ -20,8 +20,15 @@ spring:
         - id: neko_convenient_member_route  #用户服务统一路由
           uri: lb://neko-convenient-member #lb代表loadbalance负载均衡，后面配置上服务名
           predicates:
-            - Path=/member/**  #代表任何前缀为/product请求都会被路由到lb://neko-convenient-member
+            - Path=/member/**  #代表任何前缀为/member请求都会被路由到lb://neko-convenient-member
           filters:
             - RewritePath=/member/?(?<segment>.*), /$\{segment}
+
+        - id: neko_convenient_third_party_route  #第三方服务统一路由
+          uri: lb://neko-convenient-third-party #lb代表loadbalance负载均衡，后面配置上服务名
+          predicates:
+            - Path=/third_party/**  #代表任何前缀为/third_party请求都会被路由到lb://neko-convenient-third-party
+          filters:
+            - RewritePath=/third_party/?(?<segment>.*), /$\{segment}
 server:
   port: 8004

@@ -28,12 +28,21 @@ public class MemberInfoController {
     }
 
     @PostMapping("register")
-    public ResultObject<Integer> register(@RequestParam String userName, @RequestParam String userPassword){
-        return ResultObject.ok(memberInfoService.register(userName, userPassword));
+    public ResultObject<Integer> register(@RequestParam String userName,
+                                          @RequestParam String userPassword,
+                                          @RequestParam String email,
+                                          @RequestParam String code){
+        return ResultObject.ok(memberInfoService.register(userName, userPassword, email, code));
     }
 
     @GetMapping("user_name_is_repeat")
     public ResultObject<Boolean> userNameIsRepeat(@RequestParam String userName){
         return ResultObject.ok(memberInfoService.userNameIsRepeat(userName));
+    }
+
+    @PostMapping("send_register_mail")
+    public ResultObject<Object> sendRegisterMail(@RequestParam String mail){
+        memberInfoService.sendRegisterCode(mail);
+        return ResultObject.ok();
     }
 }

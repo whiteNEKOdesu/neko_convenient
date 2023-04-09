@@ -1,4 +1,4 @@
-package neko.convenient.nekoconvenientmember8003.aop;
+package neko.convenient.nekoconvenientthirdparty8006.aop;
 
 import cn.dev33.satoken.exception.NotLoginException;
 import cn.dev33.satoken.exception.NotPermissionException;
@@ -6,7 +6,10 @@ import cn.dev33.satoken.exception.NotRoleException;
 import lombok.extern.slf4j.Slf4j;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.Response;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
-import neko.convenient.nekoconvenientcommonbase.utils.exception.*;
+import neko.convenient.nekoconvenientcommonbase.utils.exception.FileDeleteFailureException;
+import neko.convenient.nekoconvenientcommonbase.utils.exception.MemberServiceException;
+import neko.convenient.nekoconvenientcommonbase.utils.exception.ProductServiceException;
+import neko.convenient.nekoconvenientcommonbase.utils.exception.UserNameRepeatException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
+import javax.mail.MessagingException;
 import java.io.FileNotFoundException;
 
 @RestControllerAdvice
@@ -172,38 +176,11 @@ public class ExceptionResponse {
     }
 
     //邮件发送错误异常
-    @ExceptionHandler(value = MailSendException.class)
-    public ResultObject<Object> mailSendExceptionHandler(MailSendException e){
+    @ExceptionHandler(value = MessagingException.class)
+    public ResultObject<Object> messagingExceptionHandler(MessagingException e){
         exceptionLogger(e);
         return new ResultObject<Object>()
                 .setResponseStatus(Response.EMAIL_SEND_ERROR)
-                .compact();
-    }
-
-    //third_party微服务远程调用异常
-    @ExceptionHandler(value = ThirdPartyServiceException.class)
-    public ResultObject<Object> thirdPartyServiceExceptionHandler(ThirdPartyServiceException e){
-        exceptionLogger(e);
-        return new ResultObject<Object>()
-                .setResponseStatus(Response.THIRD_PARTY_SERVICE_ERROR)
-                .compact();
-    }
-
-    //邮件已经存在错误
-    @ExceptionHandler(value = EMailAlreadyExistException.class)
-    public ResultObject<Object> eMailAlreadyExistExceptionHandler(EMailAlreadyExistException e){
-        exceptionLogger(e);
-        return new ResultObject<Object>()
-                .setResponseStatus(Response.EMAIL_ALREADY_EXIST_ERROR)
-                .compact();
-    }
-
-    //验证码错误异常
-    @ExceptionHandler(value = CodeIllegalException.class)
-    public ResultObject<Object> codeIllegalExceptionHandler(CodeIllegalException e){
-        exceptionLogger(e);
-        return new ResultObject<Object>()
-                .setResponseStatus(Response.CODE_ILLEGAL_ERROR)
                 .compact();
     }
 }

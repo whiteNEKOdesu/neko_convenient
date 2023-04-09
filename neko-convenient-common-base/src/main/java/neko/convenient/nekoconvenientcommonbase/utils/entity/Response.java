@@ -22,9 +22,13 @@ public enum Response {
     USER_LOG_IN_ERROR(9, "登录错误"),
     DUPLICATE_KEY_ERROR(10, "重复key错误"),
     ARGUMENT_ILLEGAL_FORMAT_ERROR(11, "参数格式错误"),
+    EMAIL_SEND_ERROR(12, "邮件发送错误"),
+    EMAIL_ALREADY_EXIST_ERROR(13, "邮件已经存在错误"),
+    CODE_ILLEGAL_ERROR(14, "验证码错误"),
 
     MEMBER_SERVICE_ERROR(1000, "member微服务远程调用错误"),
     PRODUCT_SERVICE_ERROR(1001, "product微服务远程调用错误"),
+    THIRD_PARTY_SERVICE_ERROR(1002, "third_party微服务远程调用错误"),
 
     ERROR(500,"未知错误");
 

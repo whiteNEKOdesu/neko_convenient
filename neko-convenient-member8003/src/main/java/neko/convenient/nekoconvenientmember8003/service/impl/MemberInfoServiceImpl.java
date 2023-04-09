@@ -4,10 +4,15 @@ import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import neko.convenient.nekoconvenientcommonbase.utils.entity.Constant;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.Response;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
+import neko.convenient.nekoconvenientcommonbase.utils.exception.CodeIllegalException;
+import neko.convenient.nekoconvenientcommonbase.utils.exception.EMailAlreadyExistException;
+import neko.convenient.nekoconvenientcommonbase.utils.exception.MailSendException;
 import neko.convenient.nekoconvenientcommonbase.utils.exception.UserNameRepeatException;
 import neko.convenient.nekoconvenientmember8003.entity.MemberInfo;
+import neko.convenient.nekoconvenientmember8003.feign.thirdparty.MailFeignService;
 import neko.convenient.nekoconvenientmember8003.mapper.MemberInfoMapper;
 import neko.convenient.nekoconvenientmember8003.service.MemberInfoService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -16,6 +21,7 @@ import neko.convenient.nekoconvenientmember8003.service.UserRoleRelationService;
 import neko.convenient.nekoconvenientmember8003.service.WeightRoleRelationService;
 import neko.convenient.nekoconvenientmember8003.utils.ip.IPHandler;
 import neko.convenient.nekoconvenientmember8003.vo.MemberInfoVo;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
@@ -24,6 +30,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -43,6 +50,12 @@ public class MemberInfoServiceImpl extends ServiceImpl<MemberInfoMapper, MemberI
 
     @Resource
     private WeightRoleRelationService weightRoleRelationService;
+
+    @Resource
+    private MailFeignService mailFeignService;
+
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
 
     @Override
     public ResultObject<MemberInfoVo> logIn(String userName, String userPassword, HttpServletRequest request) {
@@ -76,9 +89,16 @@ public class MemberInfoServiceImpl extends ServiceImpl<MemberInfoMapper, MemberI
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int register(String userName, String userPassword) {
+    public int register(String userName, String userPassword, String email, String code) {
         if(userNameIsRepeat(userName)){
             throw new UserNameRepeatException("用户名重复");
+        }
+
+        String key = Constant.MEMBER_REDIS_PREFIX + "register_mail_code:" + email;
+        String todoCode = stringRedisTemplate.opsForValue().get(key);
+
+        if(!code.equals(todoCode)){
+            throw new CodeIllegalException("验证码错误");
         }
 
         MemberInfo memberInfo = new MemberInfo();
@@ -88,6 +108,7 @@ public class MemberInfoServiceImpl extends ServiceImpl<MemberInfoMapper, MemberI
                 //加盐
                 .setUserPassword(DigestUtils.md5DigestAsHex((userPassword + salt).getBytes()))
                 .setSalt(salt)
+                .setMail(email)
                 .setCreateTime(LocalDateTime.now())
                 .setUpdateTime(LocalDateTime.now());
 
@@ -101,6 +122,25 @@ public class MemberInfoServiceImpl extends ServiceImpl<MemberInfoMapper, MemberI
     @Override
     public boolean userNameIsRepeat(String userName) {
         return this.baseMapper.selectOne(new QueryWrapper<MemberInfo>().eq("user_name", userName)) != null;
+    }
+
+    @Override
+    public void sendRegisterCode(String email) {
+        if(this.lambdaQuery().eq(MemberInfo::getMail, email).exists()){
+            throw new EMailAlreadyExistException("邮件已经存在");
+        }
+
+        String key = Constant.MEMBER_REDIS_PREFIX + "register_mail_code:" + email;
+        String code = RandomUtil.randomNumbers(6);
+        stringRedisTemplate.opsForValue().set(key,
+                code,
+                1000 * 60 * 5,
+                TimeUnit.MILLISECONDS);
+        ResultObject<Object> r = mailFeignService.sendRegisterMail(email, code);
+
+        if(r.getResponseCode() != 200){
+            throw new MailSendException("邮件发送错误");
+        }
     }
 
     @Override
