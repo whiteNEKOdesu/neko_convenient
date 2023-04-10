@@ -29,4 +29,9 @@ public interface MemberInfoService extends IService<MemberInfo> {
     int updateUserName(String userName);
 
     int updateUserImagePath(String userImagePath);
+
+    MemberInfoVo oAuthMemberLogIn(String sourceName,
+                                  String source,
+                                  String sourceUid,
+                                  HttpServletRequest request);
 }

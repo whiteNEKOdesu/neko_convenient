@@ -40,6 +40,8 @@ public class MemberInfoVo implements Serializable {
      */
     private String source;
 
+    private String sourceUid;
+
     private String realName;
 
     private String idCardNumber;

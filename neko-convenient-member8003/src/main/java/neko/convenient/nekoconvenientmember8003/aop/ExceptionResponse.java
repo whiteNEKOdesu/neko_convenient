@@ -206,4 +206,13 @@ public class ExceptionResponse {
                 .setResponseStatus(Response.CODE_ILLEGAL_ERROR)
                 .compact();
     }
+
+    //社交登录验证错误异常
+    @ExceptionHandler(value = OAuthException.class)
+    public ResultObject<Object> oAuthExceptionHandler(OAuthException e){
+        exceptionLogger(e);
+        return new ResultObject<Object>()
+                .setResponseStatus(Response.OAUTH_CHECK_ERROR)
+                .compact();
+    }
 }

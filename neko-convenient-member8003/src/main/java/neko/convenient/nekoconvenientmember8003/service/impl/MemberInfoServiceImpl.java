@@ -157,4 +157,54 @@ public class MemberInfoServiceImpl extends ServiceImpl<MemberInfoMapper, MemberI
     public int updateUserImagePath(String userImagePath) {
         return 0;
     }
+
+    /**
+     * 社交用户登录
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public MemberInfoVo oAuthMemberLogIn(String sourceName,
+                                         String source,
+                                         String sourceUid,
+                                         HttpServletRequest request) {
+        MemberInfo memberInfoBySourceUid = this.baseMapper.selectOne(new QueryWrapper<MemberInfo>().lambda()
+            .eq(MemberInfo::getSource, source)
+            .eq(MemberInfo::getSourceUid, sourceUid));
+        //社交用户已注册
+        if(memberInfoBySourceUid != null){
+            MemberInfoVo memberInfoVo = new MemberInfoVo();
+            BeanUtil.copyProperties(memberInfoBySourceUid, memberInfoVo);
+            StpUtil.login(memberInfoBySourceUid.getUid());
+            memberInfoVo.setToken(StpUtil.getTokenValue());
+            return memberInfoVo;
+        }
+
+        //社交用户未注册开始注册
+        MemberInfo memberInfo = new MemberInfo();
+        LocalDateTime now = LocalDateTime.now();
+        memberInfo.setSourceName(sourceName)
+                .setSource(source)
+                .setSourceUid(sourceUid)
+                .setCreateTime(now)
+                .setUpdateTime(now);
+
+        this.baseMapper.insert(memberInfo);
+        memberInfoBySourceUid = this.lambdaQuery().eq(MemberInfo::getSource, source)
+                .eq(MemberInfo::getSourceUid, sourceUid)
+                .one();
+
+        //为用户设置普通用户角色
+        userRoleRelationService.newRelation(memberInfoBySourceUid.getUid(), 1);
+
+        MemberInfoVo memberInfoVo = new MemberInfoVo();
+        BeanUtil.copyProperties(memberInfoBySourceUid, memberInfoVo);
+
+        StpUtil.login(memberInfoBySourceUid.getUid());
+        memberInfoVo.setToken(StpUtil.getTokenValue());
+        memberLogInLogService.newLog(memberInfoBySourceUid.getUid(),
+                IPHandler.getIP(request),
+                true);
+
+        return memberInfoVo;
+    }
 }
