@@ -3,6 +3,8 @@ package neko.convenient.nekoconvenientproduct8005.service;
 import neko.convenient.nekoconvenientproduct8005.entity.BrandInfo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
+
 /**
  * <p>
  * 商店信息 服务类
@@ -12,5 +14,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @since 2023-04-01
  */
 public interface BrandInfoService extends IService<BrandInfo> {
-
+    List<BrandInfo> getBrandInfos(String brandName);
 }
