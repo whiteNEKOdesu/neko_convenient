@@ -40,9 +40,9 @@ public class MarketApplyInfo implements Serializable {
     private String brandId;
 
     /**
-     * 商店描述
+     * 商店详细地址
      */
-    private String marketDescription;
+    private String marketAddressDescription;
 
     /**
      * 地址根id，对应address_dict表address_id
@@ -68,6 +68,8 @@ public class MarketApplyInfo implements Serializable {
      * -1->正在审核，0->未通过，1->通过
      */
     private Byte status;
+
+    private String statusInfo;
 
     private LocalDateTime createTime;
 

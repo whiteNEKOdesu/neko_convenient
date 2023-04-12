@@ -1,9 +1,11 @@
 package neko.convenient.nekoconvenientproduct8005.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
+import java.util.List;
 
 import lombok.Data;
 import lombok.Getter;
@@ -31,4 +33,7 @@ public class AddressDict implements Serializable {
     private Integer parentId;
 
     private String addressName;
+
+    @TableField(exist = false)
+    private List<AddressDict> child;
 }

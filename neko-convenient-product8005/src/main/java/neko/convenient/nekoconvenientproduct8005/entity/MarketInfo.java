@@ -44,7 +44,10 @@ public class MarketInfo implements Serializable {
      */
     private String brandLogo;
 
-    private String marketDescription;
+    /**
+     * 商店详细地址
+     */
+    private String marketAddressDescription;
 
     /**
      * 开店许可证url

@@ -1,5 +1,6 @@
 package neko.convenient.nekoconvenientthirdparty8006.controller;
 
+import cn.dev33.satoken.annotation.SaCheckLogin;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.common.utils.BinaryUtil;
 import com.aliyun.oss.model.MatchMode;
@@ -32,6 +33,7 @@ public class OOSController {
     /**
      * 获取oss上传信息
      */
+    @SaCheckLogin
     @GetMapping("policy")
     public ResultObject<OSSVo> policy() {
         // 填写Bucket名称，例如examplebucket。

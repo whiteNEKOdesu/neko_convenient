@@ -64,6 +64,8 @@ public class ApplyInfo implements Serializable {
      */
     private Byte status;
 
+    private String statusInfo;
+
     private LocalDateTime createTime;
 
     private LocalDateTime updateTime;
