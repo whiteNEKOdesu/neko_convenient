@@ -179,4 +179,13 @@ public class ExceptionResponse {
                 .setResponseStatus(Response.THIRD_PARTY_SERVICE_ERROR)
                 .compact();
     }
+
+    //申请状态非法异常
+    @ExceptionHandler(value = ApplyStatusIllegalException.class)
+    public ResultObject<Object> applyStatusIllegalExceptionHandler(ApplyStatusIllegalException e){
+        exceptionLogger(e);
+        return new ResultObject<Object>()
+                .setResponseStatus(Response.APPLY_STATUS_ILLEGAL_ERROR)
+                .compact();
+    }
 }

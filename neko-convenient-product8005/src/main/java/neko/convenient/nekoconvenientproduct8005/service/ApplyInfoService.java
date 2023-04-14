@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.QueryVo;
 import neko.convenient.nekoconvenientproduct8005.entity.ApplyInfo;
 import com.baomidou.mybatisplus.extension.service.IService;
+import neko.convenient.nekoconvenientproduct8005.vo.AdminApplyInfoVo;
 import neko.convenient.nekoconvenientproduct8005.vo.ApplyInfoVo;
 
 /**
@@ -17,5 +18,9 @@ import neko.convenient.nekoconvenientproduct8005.vo.ApplyInfoVo;
 public interface ApplyInfoService extends IService<ApplyInfo> {
     void applyBrand(ApplyInfoVo vo);
 
+    Page<ApplyInfo> getUserSelfApplyInfoByQueryLimitedPage(QueryVo vo);
+
     Page<ApplyInfo> getApplyInfoByQueryLimitedPage(QueryVo vo);
+
+    void handleApply(AdminApplyInfoVo vo);
 }

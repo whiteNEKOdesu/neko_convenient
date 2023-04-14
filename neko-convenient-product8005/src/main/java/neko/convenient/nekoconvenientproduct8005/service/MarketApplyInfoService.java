@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.QueryVo;
 import neko.convenient.nekoconvenientproduct8005.entity.MarketApplyInfo;
 import com.baomidou.mybatisplus.extension.service.IService;
+import neko.convenient.nekoconvenientproduct8005.vo.AdminMarketApplyInfoVo;
 import neko.convenient.nekoconvenientproduct8005.vo.MarketApplyInfoVo;
 
 /**
@@ -17,5 +18,9 @@ import neko.convenient.nekoconvenientproduct8005.vo.MarketApplyInfoVo;
 public interface MarketApplyInfoService extends IService<MarketApplyInfo> {
     void applyMarket(MarketApplyInfoVo vo);
 
+    Page<MarketApplyInfo> getUserSelfMarketApplyInfoByQueryLimitedPage(QueryVo vo);
+
     Page<MarketApplyInfo> getMarketApplyInfoByQueryLimitedPage(QueryVo vo);
+
+    void handleApply(AdminMarketApplyInfoVo vo);
 }

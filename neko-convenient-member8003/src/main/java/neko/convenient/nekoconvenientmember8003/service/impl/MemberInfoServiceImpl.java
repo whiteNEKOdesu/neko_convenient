@@ -175,7 +175,9 @@ public class MemberInfoServiceImpl extends ServiceImpl<MemberInfoMapper, MemberI
             MemberInfoVo memberInfoVo = new MemberInfoVo();
             BeanUtil.copyProperties(memberInfoBySourceUid, memberInfoVo);
             StpUtil.login(memberInfoBySourceUid.getUid());
-            memberInfoVo.setToken(StpUtil.getTokenValue());
+            memberInfoVo.setToken(StpUtil.getTokenValue())
+                .setWeightTypes(weightRoleRelationService.getWeightTypesByUid(memberInfoBySourceUid.getUid()))
+                .setRoleTypes(weightRoleRelationService.getRoleTypesByUid(memberInfoBySourceUid.getUid()));
             return memberInfoVo;
         }
 
@@ -200,7 +202,9 @@ public class MemberInfoServiceImpl extends ServiceImpl<MemberInfoMapper, MemberI
         BeanUtil.copyProperties(memberInfoBySourceUid, memberInfoVo);
 
         StpUtil.login(memberInfoBySourceUid.getUid());
-        memberInfoVo.setToken(StpUtil.getTokenValue());
+        memberInfoVo.setToken(StpUtil.getTokenValue())
+            .setWeightTypes(weightRoleRelationService.getWeightTypesByUid(memberInfoBySourceUid.getUid()))
+            .setRoleTypes(weightRoleRelationService.getRoleTypesByUid(memberInfoBySourceUid.getUid()));
         memberLogInLogService.newLog(memberInfoBySourceUid.getUid(),
                 IPHandler.getIP(request),
                 true);

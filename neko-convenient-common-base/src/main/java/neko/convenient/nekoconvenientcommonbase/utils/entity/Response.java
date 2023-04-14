@@ -26,6 +26,7 @@ public enum Response {
     EMAIL_ALREADY_EXIST_ERROR(13, "邮件已经存在错误"),
     CODE_ILLEGAL_ERROR(14, "验证码错误"),
     OAUTH_CHECK_ERROR(15, "社交登录验证错误"),
+    APPLY_STATUS_ILLEGAL_ERROR(16, "申请状态非法错误"),
 
     MEMBER_SERVICE_ERROR(1000, "member微服务远程调用错误"),
     PRODUCT_SERVICE_ERROR(1001, "product微服务远程调用错误"),

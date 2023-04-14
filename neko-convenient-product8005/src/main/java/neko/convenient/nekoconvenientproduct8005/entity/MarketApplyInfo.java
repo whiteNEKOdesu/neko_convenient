@@ -62,7 +62,7 @@ public class MarketApplyInfo implements Serializable {
     /**
      * 审核管理员id
      */
-    private Integer applyAdminId;
+    private String applyAdminId;
 
     /**
      * -1->正在审核，0->未通过，1->通过

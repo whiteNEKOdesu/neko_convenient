@@ -1,11 +1,14 @@
 package neko.convenient.nekoconvenientproduct8005.controller;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
+import cn.dev33.satoken.annotation.SaCheckRole;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.QueryVo;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
+import neko.convenient.nekoconvenientcommonbase.utils.entity.RoleType;
 import neko.convenient.nekoconvenientproduct8005.entity.MarketApplyInfo;
 import neko.convenient.nekoconvenientproduct8005.service.MarketApplyInfoService;
+import neko.convenient.nekoconvenientproduct8005.vo.AdminMarketApplyInfoVo;
 import neko.convenient.nekoconvenientproduct8005.vo.MarketApplyInfoVo;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -43,6 +46,28 @@ public class MarketApplyInfoController {
     @SaCheckLogin
     @PostMapping("apply_status_info")
     public ResultObject<Page<MarketApplyInfo>> applyStatusInfo(@RequestBody QueryVo vo){
+        return ResultObject.ok(marketApplyInfoService.getUserSelfMarketApplyInfoByQueryLimitedPage(vo));
+    }
+
+    /**
+     * 分页查询所有用户申请信息
+     */
+    @SaCheckRole(RoleType.ADMIN)
+    @SaCheckLogin
+    @PostMapping("market_apply_infos")
+    public ResultObject<Page<MarketApplyInfo>> applyInfos(@RequestBody QueryVo vo){
         return ResultObject.ok(marketApplyInfoService.getMarketApplyInfoByQueryLimitedPage(vo));
+    }
+
+    /**
+     * 管理员处理申请信息
+     */
+    @SaCheckRole(RoleType.ADMIN)
+    @SaCheckLogin
+    @PostMapping("handle_apply")
+    public ResultObject<Object> handleApply(@Validated @RequestBody AdminMarketApplyInfoVo vo){
+        marketApplyInfoService.handleApply(vo);
+
+        return ResultObject.ok();
     }
 }

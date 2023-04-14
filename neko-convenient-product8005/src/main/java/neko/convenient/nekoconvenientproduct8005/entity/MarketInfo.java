@@ -35,6 +35,11 @@ public class MarketInfo implements Serializable {
     private String uid;
 
     /**
+     * 商店所属品牌id
+     */
+    private String brandId;
+
+    /**
      * 冗余字段
      */
     private String brandName;

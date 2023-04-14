@@ -45,6 +45,11 @@ public class BrandInfo implements Serializable {
     private String description;
 
     /**
+     * 公司证书url
+     */
+    private String certificateUrl;
+
+    /**
      * 开店uid
      */
     private String uid;
