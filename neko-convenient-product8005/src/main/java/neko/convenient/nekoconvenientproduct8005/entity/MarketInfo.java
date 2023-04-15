@@ -64,6 +64,11 @@ public class MarketInfo implements Serializable {
      */
     private Integer addressId;
 
+    /**
+     * 地址
+     */
+    private String address;
+
     private Boolean isBan;
 
     private Boolean isDelete;

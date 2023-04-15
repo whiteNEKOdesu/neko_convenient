@@ -10,6 +10,7 @@ import neko.convenient.nekoconvenientcommonbase.utils.exception.ApplyStatusIlleg
 import neko.convenient.nekoconvenientproduct8005.entity.BrandInfo;
 import neko.convenient.nekoconvenientproduct8005.entity.MarketApplyInfo;
 import neko.convenient.nekoconvenientproduct8005.entity.MarketInfo;
+import neko.convenient.nekoconvenientproduct8005.mapper.AddressDictMapper;
 import neko.convenient.nekoconvenientproduct8005.mapper.MarketApplyInfoMapper;
 import neko.convenient.nekoconvenientproduct8005.service.BrandInfoService;
 import neko.convenient.nekoconvenientproduct8005.service.MarketApplyInfoService;
@@ -38,6 +39,9 @@ public class MarketApplyInfoServiceImpl extends ServiceImpl<MarketApplyInfoMappe
     @Resource
     private BrandInfoService brandInfoService;
 
+    @Resource
+    private AddressDictMapper addressDictMapper;
+
     /**
      * 申请开店
      */
@@ -46,8 +50,11 @@ public class MarketApplyInfoServiceImpl extends ServiceImpl<MarketApplyInfoMappe
         MarketApplyInfo marketApplyInfo = new MarketApplyInfo();
         BeanUtil.copyProperties(vo, marketApplyInfo);
         LocalDateTime now = LocalDateTime.now();
+        BrandInfo brandInfo = brandInfoService.getById(vo.getBrandId());
         marketApplyInfo.setUid(StpUtil.getLoginId().toString())
                 .setBrandId(vo.getBrandId())
+                .setBrandName(brandInfo.getBrandName())
+                .setAddress(addressDictMapper.getAddressInfoByAddressId(vo.getAddressId()))
                 .setCreateTime(now)
                 .setUpdateTime(now);
 

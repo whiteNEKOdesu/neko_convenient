@@ -40,6 +40,11 @@ public class MarketApplyInfo implements Serializable {
     private String brandId;
 
     /**
+     * 冗余字段
+     */
+    private String brandName;
+
+    /**
      * 商店详细地址
      */
     private String marketAddressDescription;
@@ -48,6 +53,11 @@ public class MarketApplyInfo implements Serializable {
      * 地址根id，对应address_dict表address_id
      */
     private Integer addressId;
+
+    /**
+     * 地址
+     */
+    private String address;
 
     /**
      * 商店许可证url

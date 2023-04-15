@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="neko.convenient.nekoconvenientproduct8005.mapper.AddressDictMapper">
-
+    <select id="getAddressInfoByAddressId" resultType="String">
+        select concat(first_lawyer.address_name, second_lawyer.address_name, third_lawyer.address_name) from address_dict first_lawyer
+        join address_dict second_lawyer
+        on first_lawyer.address_id = second_lawyer.parent_id
+        join address_dict third_lawyer
+        on second_lawyer.address_id = third_lawyer.parent_id
+        where third_lawyer.address_id = #{addressId}
+    </select>
 </mapper>
