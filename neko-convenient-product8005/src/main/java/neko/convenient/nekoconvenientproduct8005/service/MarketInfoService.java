@@ -13,4 +13,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface MarketInfoService extends IService<MarketInfo> {
     MarketInfo getMarketInfoByMarketId(String marketId);
+
+    MarketInfo getMarketInfoByUid(String uid);
 }

@@ -33,7 +33,7 @@ public class UserRoleController {
     @SaCheckRole(RoleType.ROOT)
     @SaCheckLogin
     @PutMapping("new_user_role")
-    public ResultObject<Object> newUserRole(String roleType){
+    public ResultObject<Object> newUserRole(@RequestParam String roleType){
         userRoleService.newUserRole(roleType);
 
         return ResultObject.ok();
@@ -57,5 +57,15 @@ public class UserRoleController {
     @PostMapping("admin_role_info")
     public ResultObject<List<UserRole>> adminRoleInfo(){
         return ResultObject.ok(userRoleService.getAdminRoles());
+    }
+
+    /**
+     * 内部微服务新增角色
+     */
+    @PutMapping("inner_service_new_user_role")
+    public ResultObject<Object> innerServiceNewUserRole(@RequestParam String roleType, @RequestParam String key){
+        userRoleService.newUserRole(roleType);
+
+        return ResultObject.ok();
     }
 }

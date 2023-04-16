@@ -110,6 +110,7 @@ public class MarketApplyInfoServiceImpl extends ServiceImpl<MarketApplyInfoMappe
                     .setMarketAddressDescription(marketApplyInfo.getMarketAddressDescription())
                     .setCertificateUrl(marketApplyInfo.getCertificateUrl())
                     .setAddressId(marketApplyInfo.getAddressId())
+                    .setAddress(marketApplyInfo.getAddress())
                     .setCreateTime(now)
                     .setUpdateTime(now);
             marketInfoService.save(marketInfo);

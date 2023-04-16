@@ -25,6 +25,5 @@ public class AdminMarketApplyInfoVo implements Serializable {
     @Max(value = 1)
     private Byte status;
 
-    @NotBlank
     private String statusInfo;
 }

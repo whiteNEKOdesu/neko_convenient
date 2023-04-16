@@ -10,6 +10,8 @@ public class RoleType {
 
     public static final String ADMIN = "admin";
 
+    public static final String MARKET = "market";
+
     /**
      * 微服务调用角色
      */
