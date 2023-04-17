@@ -58,14 +58,4 @@ public class UserRoleController {
     public ResultObject<List<UserRole>> adminRoleInfo(){
         return ResultObject.ok(userRoleService.getAdminRoles());
     }
-
-    /**
-     * 内部微服务新增角色
-     */
-    @PutMapping("inner_service_new_user_role")
-    public ResultObject<Object> innerServiceNewUserRole(@RequestParam String roleType, @RequestParam String key){
-        userRoleService.newUserRole(roleType);
-
-        return ResultObject.ok();
-    }
 }

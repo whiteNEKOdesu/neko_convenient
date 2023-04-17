@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
-@FeignClient(value = "neko-convenient-member")
+@FeignClient(value = "neko-convenient-member", contextId = "WeightRoleRelation")
 public interface WeightRoleRelationFeignService {
     @PostMapping("weight_role_relation/relation_info_by_uid")
     ResultObject<List<WeightRoleRelationTo>> relationInfoByUid(@RequestParam String uid);

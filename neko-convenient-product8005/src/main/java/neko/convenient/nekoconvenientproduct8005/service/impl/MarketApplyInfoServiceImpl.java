@@ -5,23 +5,31 @@ import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import neko.convenient.nekoconvenientcommonbase.utils.entity.Constant;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.QueryVo;
+import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
+import neko.convenient.nekoconvenientcommonbase.utils.entity.RoleIds;
 import neko.convenient.nekoconvenientcommonbase.utils.exception.ApplyStatusIllegalException;
+import neko.convenient.nekoconvenientcommonbase.utils.exception.MemberServiceException;
 import neko.convenient.nekoconvenientproduct8005.entity.BrandInfo;
 import neko.convenient.nekoconvenientproduct8005.entity.MarketApplyInfo;
 import neko.convenient.nekoconvenientproduct8005.entity.MarketInfo;
+import neko.convenient.nekoconvenientproduct8005.feign.member.UserRoleRelationFeignService;
 import neko.convenient.nekoconvenientproduct8005.mapper.AddressDictMapper;
 import neko.convenient.nekoconvenientproduct8005.mapper.MarketApplyInfoMapper;
 import neko.convenient.nekoconvenientproduct8005.service.BrandInfoService;
 import neko.convenient.nekoconvenientproduct8005.service.MarketApplyInfoService;
 import neko.convenient.nekoconvenientproduct8005.service.MarketInfoService;
+import neko.convenient.nekoconvenientproduct8005.to.NewUserRoleRelationTo;
 import neko.convenient.nekoconvenientproduct8005.vo.AdminMarketApplyInfoVo;
 import neko.convenient.nekoconvenientproduct8005.vo.MarketApplyInfoVo;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
+import java.util.Collections;
 
 /**
  * <p>
@@ -40,7 +48,13 @@ public class MarketApplyInfoServiceImpl extends ServiceImpl<MarketApplyInfoMappe
     private BrandInfoService brandInfoService;
 
     @Resource
+    private UserRoleRelationFeignService userRoleRelationFeignService;
+
+    @Resource
     private AddressDictMapper addressDictMapper;
+
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
 
     /**
      * 申请开店
@@ -114,6 +128,18 @@ public class MarketApplyInfoServiceImpl extends ServiceImpl<MarketApplyInfoMappe
                     .setCreateTime(now)
                     .setUpdateTime(now);
             marketInfoService.save(marketInfo);
+
+            NewUserRoleRelationTo to = new NewUserRoleRelationTo();
+            to.setUid(marketApplyInfo.getUid())
+                    .setRoleIds(Collections.singletonList(RoleIds.MARKET));
+            //为用户添加market角色
+            ResultObject<Object> r = userRoleRelationFeignService.newUserRoleRelation(to);
+            if(!r.getResponseCode().equals(200)){
+                throw new MemberServiceException("member微服务添加角色错误");
+            }
+            String key = Constant.MEMBER_REDIS_PREFIX + "weight_cache:" + marketApplyInfo.getUid();
+            //删除缓存
+            stringRedisTemplate.delete(key);
         }
 
         //修改申请状态

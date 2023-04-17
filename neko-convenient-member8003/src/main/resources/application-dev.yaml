@@ -53,6 +53,9 @@ spring:
         max-idle: 10
         #最小空闲连接数
         min-idle: 5
+  main:
+    #允许出现beanName一样的BeanDefinition
+    allow-bean-definition-overriding: true
 mybatis-plus:
   config-location: classpath:mybatis/mybatis-config.xml
   mapper-locations: classpath:mybatis/mapper/*.xml
