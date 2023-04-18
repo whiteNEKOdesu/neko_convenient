@@ -15,4 +15,6 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface CategoryInfoMapper extends BaseMapper<CategoryInfo> {
     void deleteLeafCategoryInfo(Integer categoryId);
+
+    String getFullCategoryName(Integer categoryId);
 }

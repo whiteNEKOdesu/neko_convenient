@@ -48,7 +48,7 @@ public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> i
      */
     @Override
     public Page<UserRole> getUserRolesByQueryLimitedPage(QueryVo vo) {
-        Page<UserRole> page = new Page<>(vo.pageOrLimitWhenOverFlow(), vo.getLimited());
+        Page<UserRole> page = new Page<>(vo.getCurrentPage(), vo.getLimited());
         QueryWrapper<UserRole> queryWrapper = new QueryWrapper<>();
         if(StringUtils.hasText(vo.getQueryWords())){
             queryWrapper.lambda().eq(UserRole::getRoleType, vo.getQueryWords());

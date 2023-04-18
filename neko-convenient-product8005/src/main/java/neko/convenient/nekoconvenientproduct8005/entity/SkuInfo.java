@@ -34,6 +34,8 @@ public class SkuInfo implements Serializable {
 
     private String skuName;
 
+    private String skuImage;
+
     private BigDecimal price;
 
     private LocalDateTime createTime;

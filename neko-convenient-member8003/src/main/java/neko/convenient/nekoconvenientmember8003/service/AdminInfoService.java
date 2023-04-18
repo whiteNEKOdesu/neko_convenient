@@ -4,6 +4,7 @@ import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
 import neko.convenient.nekoconvenientmember8003.entity.AdminInfo;
 import com.baomidou.mybatisplus.extension.service.IService;
 import neko.convenient.nekoconvenientmember8003.vo.AdminInfoVo;
+import neko.convenient.nekoconvenientmember8003.vo.LogInVo;
 import neko.convenient.nekoconvenientmember8003.vo.NewAdminInfoVo;
 
 import javax.servlet.http.HttpServletRequest;
@@ -18,7 +19,7 @@ import java.util.List;
  * @since 2023-04-01
  */
 public interface AdminInfoService extends IService<AdminInfo> {
-    ResultObject<AdminInfoVo> logIn(String userName, String userPassword, HttpServletRequest request);
+    ResultObject<AdminInfoVo> logIn(LogInVo vo, HttpServletRequest request);
 
     void newAdmin(NewAdminInfoVo vo);
 

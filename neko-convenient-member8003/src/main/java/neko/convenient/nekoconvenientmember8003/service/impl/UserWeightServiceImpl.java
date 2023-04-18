@@ -48,7 +48,7 @@ public class UserWeightServiceImpl extends ServiceImpl<UserWeightMapper, UserWei
      */
     @Override
     public Page<UserWeight> getUserWeightByQueryLimitedPage(QueryVo vo) {
-        Page<UserWeight> page = new Page<>(vo.pageOrLimitWhenOverFlow(), vo.getLimited());
+        Page<UserWeight> page = new Page<>(vo.getCurrentPage(), vo.getLimited());
         QueryWrapper<UserWeight> queryWrapper = new QueryWrapper<>();
         if(StringUtils.hasText(vo.getQueryWords())){
             queryWrapper.lambda().eq(UserWeight::getWeightType, vo.getQueryWords());

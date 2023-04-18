@@ -1,5 +1,7 @@
 package neko.convenient.nekoconvenientproduct8005.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import neko.convenient.nekoconvenientcommonbase.utils.entity.QueryVo;
 import neko.convenient.nekoconvenientproduct8005.entity.MarketInfo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -14,5 +16,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
 public interface MarketInfoService extends IService<MarketInfo> {
     MarketInfo getMarketInfoByMarketId(String marketId);
 
-    MarketInfo getMarketInfoByUid(String uid);
+    Page<MarketInfo> getUserSelfMarketInfoByQueryLimitedPage(QueryVo vo);
 }

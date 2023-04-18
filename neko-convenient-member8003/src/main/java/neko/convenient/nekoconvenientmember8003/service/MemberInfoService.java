@@ -3,6 +3,7 @@ package neko.convenient.nekoconvenientmember8003.service;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
 import neko.convenient.nekoconvenientmember8003.entity.MemberInfo;
 import com.baomidou.mybatisplus.extension.service.IService;
+import neko.convenient.nekoconvenientmember8003.vo.LogInVo;
 import neko.convenient.nekoconvenientmember8003.vo.MemberInfoVo;
 
 import javax.servlet.http.HttpServletRequest;
@@ -16,7 +17,7 @@ import javax.servlet.http.HttpServletRequest;
  * @since 2023-04-01
  */
 public interface MemberInfoService extends IService<MemberInfo> {
-    ResultObject<MemberInfoVo> logIn(String userName, String userPassword, HttpServletRequest request);
+    ResultObject<MemberInfoVo> logIn(LogInVo vo, HttpServletRequest request);
 
     int register(String userName, String userPassword, String email, String code);
 

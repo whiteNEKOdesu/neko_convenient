@@ -45,7 +45,7 @@ public class ApplyInfoController {
      */
     @SaCheckLogin
     @PostMapping("apply_status_info")
-    public ResultObject<Page<ApplyInfo>> applyStatusInfo(@RequestBody QueryVo vo){
+    public ResultObject<Page<ApplyInfo>> applyStatusInfo(@Validated @RequestBody QueryVo vo){
         return ResultObject.ok(applyInfoService.getUserSelfApplyInfoByQueryLimitedPage(vo));
     }
 
@@ -55,7 +55,7 @@ public class ApplyInfoController {
     @SaCheckRole(RoleType.ADMIN)
     @SaCheckLogin
     @PostMapping("apply_infos")
-    public ResultObject<Page<ApplyInfo>> applyInfos(@RequestBody QueryVo vo){
+    public ResultObject<Page<ApplyInfo>> applyInfos(@Validated @RequestBody QueryVo vo){
         return ResultObject.ok(applyInfoService.getApplyInfoByQueryLimitedPage(vo));
     }
 

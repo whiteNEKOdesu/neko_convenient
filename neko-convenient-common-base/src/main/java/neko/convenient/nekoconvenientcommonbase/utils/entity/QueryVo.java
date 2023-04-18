@@ -3,6 +3,9 @@ package neko.convenient.nekoconvenientcommonbase.utils.entity;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 @Data
@@ -16,8 +19,14 @@ public class QueryVo implements Serializable {
 
     private String queryWords;
 
+    @NotNull
+    @Min(0)
+    @Max(50)
     private Integer currentPage;
 
+    @NotNull
+    @Min(5)
+    @Max(50)
     private Integer limited;
 
     public Integer pageOrLimitWhenOverFlow(){

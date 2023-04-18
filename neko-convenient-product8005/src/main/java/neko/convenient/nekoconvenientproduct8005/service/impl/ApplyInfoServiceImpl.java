@@ -54,7 +54,7 @@ public class ApplyInfoServiceImpl extends ServiceImpl<ApplyInfoMapper, ApplyInfo
      */
     @Override
     public Page<ApplyInfo> getUserSelfApplyInfoByQueryLimitedPage(QueryVo vo) {
-        Page<ApplyInfo> page = new Page<>(vo.pageOrLimitWhenOverFlow(), vo.getLimited());
+        Page<ApplyInfo> page = new Page<>(vo.getCurrentPage(), vo.getLimited());
         QueryWrapper<ApplyInfo> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(ApplyInfo::getUid, StpUtil.getLoginId().toString());
         if(StringUtils.hasText(vo.getQueryWords())){
@@ -71,7 +71,7 @@ public class ApplyInfoServiceImpl extends ServiceImpl<ApplyInfoMapper, ApplyInfo
      */
     @Override
     public Page<ApplyInfo> getApplyInfoByQueryLimitedPage(QueryVo vo) {
-        Page<ApplyInfo> page = new Page<>(vo.pageOrLimitWhenOverFlow(), vo.getLimited());
+        Page<ApplyInfo> page = new Page<>(vo.getCurrentPage(), vo.getLimited());
         QueryWrapper<ApplyInfo> queryWrapper = new QueryWrapper<>();
         if(StringUtils.hasText(vo.getQueryWords())){
             queryWrapper.lambda().eq(ApplyInfo::getBrandName, vo.getQueryWords());

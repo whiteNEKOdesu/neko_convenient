@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="neko.convenient.nekoconvenientproduct8005.mapper.CategoryInfoMapper">
+    <select id="getFullCategoryName" resultType="String">
+        select concat_ws('-', third_lawyer.category_name, second_lawyer.category_name, first_lawyer.category_name) from category_info first_lawyer
+        join category_info second_lawyer
+        on first_lawyer.parent_id = second_lawyer.category_id
+        join category_info third_lawyer
+        on second_lawyer.parent_id = third_lawyer.category_id
+        where first_lawyer.category_id = #{categoryId} and first_lawyer.level = 2
+    </select>
+
     <delete id="deleteLeafCategoryInfo">
         delete from category_info
         where category_id= #{categoryId} and 0 = (

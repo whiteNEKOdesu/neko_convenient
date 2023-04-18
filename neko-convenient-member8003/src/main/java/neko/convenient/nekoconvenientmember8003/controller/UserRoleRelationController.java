@@ -3,6 +3,7 @@ package neko.convenient.nekoconvenientmember8003.controller;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
 import neko.convenient.nekoconvenientmember8003.service.UserRoleRelationService;
 import neko.convenient.nekoconvenientmember8003.vo.NewUserRoleRelationVo;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,7 +29,7 @@ public class UserRoleRelationController {
      * 批量新增uid，角色关系，内部微服务调用
      */
     @PutMapping("new_user_role_relation")
-    public ResultObject<Object> newUserRoleRelation(@RequestBody NewUserRoleRelationVo vo){
+    public ResultObject<Object> newUserRoleRelation(@Validated @RequestBody NewUserRoleRelationVo vo){
         userRoleRelationService.newRelations(vo.getUid(), vo.getRoleIds());
 
         return ResultObject.ok();

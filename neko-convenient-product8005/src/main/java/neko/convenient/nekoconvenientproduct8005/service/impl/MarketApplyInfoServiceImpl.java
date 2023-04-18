@@ -80,7 +80,7 @@ public class MarketApplyInfoServiceImpl extends ServiceImpl<MarketApplyInfoMappe
      */
     @Override
     public Page<MarketApplyInfo> getUserSelfMarketApplyInfoByQueryLimitedPage(QueryVo vo) {
-        Page<MarketApplyInfo> page = new Page<>(vo.pageOrLimitWhenOverFlow(), vo.getLimited());
+        Page<MarketApplyInfo> page = new Page<>(vo.getCurrentPage(), vo.getLimited());
         QueryWrapper<MarketApplyInfo> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(MarketApplyInfo::getUid, StpUtil.getLoginId().toString());
         this.baseMapper.selectPage(page, queryWrapper);
@@ -93,7 +93,7 @@ public class MarketApplyInfoServiceImpl extends ServiceImpl<MarketApplyInfoMappe
      */
     @Override
     public Page<MarketApplyInfo> getMarketApplyInfoByQueryLimitedPage(QueryVo vo) {
-        Page<MarketApplyInfo> page = new Page<>(vo.pageOrLimitWhenOverFlow(), vo.getLimited());
+        Page<MarketApplyInfo> page = new Page<>(vo.getCurrentPage(), vo.getLimited());
         QueryWrapper<MarketApplyInfo> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(MarketApplyInfo::getStatus, Byte.valueOf("-1"));
         this.baseMapper.selectPage(page, queryWrapper);

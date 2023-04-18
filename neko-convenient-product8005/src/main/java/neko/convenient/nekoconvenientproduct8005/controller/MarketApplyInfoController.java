@@ -45,7 +45,7 @@ public class MarketApplyInfoController {
      */
     @SaCheckLogin
     @PostMapping("apply_status_info")
-    public ResultObject<Page<MarketApplyInfo>> applyStatusInfo(@RequestBody QueryVo vo){
+    public ResultObject<Page<MarketApplyInfo>> applyStatusInfo(@Validated @RequestBody QueryVo vo){
         return ResultObject.ok(marketApplyInfoService.getUserSelfMarketApplyInfoByQueryLimitedPage(vo));
     }
 
@@ -55,7 +55,7 @@ public class MarketApplyInfoController {
     @SaCheckRole(RoleType.ADMIN)
     @SaCheckLogin
     @PostMapping("market_apply_infos")
-    public ResultObject<Page<MarketApplyInfo>> applyInfos(@RequestBody QueryVo vo){
+    public ResultObject<Page<MarketApplyInfo>> applyInfos(@Validated @RequestBody QueryVo vo){
         return ResultObject.ok(marketApplyInfoService.getMarketApplyInfoByQueryLimitedPage(vo));
     }
 

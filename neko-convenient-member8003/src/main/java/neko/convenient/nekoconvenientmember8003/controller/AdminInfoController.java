@@ -6,6 +6,7 @@ import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.RoleType;
 import neko.convenient.nekoconvenientmember8003.service.AdminInfoService;
 import neko.convenient.nekoconvenientmember8003.vo.AdminInfoVo;
+import neko.convenient.nekoconvenientmember8003.vo.LogInVo;
 import neko.convenient.nekoconvenientmember8003.vo.NewAdminInfoVo;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -28,8 +29,8 @@ public class AdminInfoController {
     private AdminInfoService adminInfoService;
 
     @PostMapping("log_in")
-    public ResultObject<AdminInfoVo> logIn(@RequestParam String userName, @RequestParam String userPassword, HttpServletRequest request){
-        return adminInfoService.logIn(userName, userPassword, request);
+    public ResultObject<AdminInfoVo> logIn(@Validated @RequestBody LogInVo vo, HttpServletRequest request){
+        return adminInfoService.logIn(vo, request);
     }
 
     /**

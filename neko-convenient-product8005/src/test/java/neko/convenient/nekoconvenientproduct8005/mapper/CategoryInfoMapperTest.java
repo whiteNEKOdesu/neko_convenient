@@ -14,4 +14,9 @@ public class CategoryInfoMapperTest {
     public void deleteLeafCategoryInfo(){
         categoryInfoMapper.deleteLeafCategoryInfo(1);
     }
+
+    @Test
+    public void getFullCategoryName(){
+        System.out.println(categoryInfoMapper.getFullCategoryName(9));
+    }
 }

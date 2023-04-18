@@ -1,7 +1,10 @@
 package neko.convenient.nekoconvenientproduct8005.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import neko.convenient.nekoconvenientcommonbase.utils.entity.QueryVo;
 import neko.convenient.nekoconvenientproduct8005.entity.SpuInfo;
 import com.baomidou.mybatisplus.extension.service.IService;
+import neko.convenient.nekoconvenientproduct8005.vo.SpuInfoVo;
 
 /**
  * <p>
@@ -12,5 +15,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @since 2023-04-01
  */
 public interface SpuInfoService extends IService<SpuInfo> {
+    void newSpuInfo(SpuInfoVo vo);
 
+    Page<SpuInfo> getMarketSpuInfoByQueryLimitedPage(QueryVo vo);
 }

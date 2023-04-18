@@ -8,6 +8,7 @@ import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.RoleType;
 import neko.convenient.nekoconvenientmember8003.entity.UserRole;
 import neko.convenient.nekoconvenientmember8003.service.UserRoleService;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -45,7 +46,7 @@ public class UserRoleController {
     @SaCheckRole(RoleType.ADMIN)
     @SaCheckLogin
     @PostMapping("role_info")
-    public ResultObject<Page<UserRole>> roleInfo(@RequestBody QueryVo vo){
+    public ResultObject<Page<UserRole>> roleInfo(@Validated @RequestBody QueryVo vo){
         return ResultObject.ok(userRoleService.getUserRolesByQueryLimitedPage(vo));
     }
 

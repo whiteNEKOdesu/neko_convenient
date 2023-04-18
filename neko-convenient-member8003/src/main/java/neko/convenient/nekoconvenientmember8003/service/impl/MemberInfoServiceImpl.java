@@ -2,7 +2,12 @@ package neko.convenient.nekoconvenientmember8003.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.codec.Base64;
+import cn.hutool.core.util.CharsetUtil;
 import cn.hutool.core.util.RandomUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.crypto.asymmetric.KeyType;
+import cn.hutool.crypto.asymmetric.RSA;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.Constant;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.Response;
@@ -20,6 +25,7 @@ import neko.convenient.nekoconvenientmember8003.service.MemberLogInLogService;
 import neko.convenient.nekoconvenientmember8003.service.UserRoleRelationService;
 import neko.convenient.nekoconvenientmember8003.service.WeightRoleRelationService;
 import neko.convenient.nekoconvenientmember8003.utils.ip.IPHandler;
+import neko.convenient.nekoconvenientmember8003.vo.LogInVo;
 import neko.convenient.nekoconvenientmember8003.vo.MemberInfoVo;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -57,14 +63,18 @@ public class MemberInfoServiceImpl extends ServiceImpl<MemberInfoMapper, MemberI
     @Resource
     private StringRedisTemplate stringRedisTemplate;
 
+    @Resource
+    private RSA rsa;
+
     @Override
-    public ResultObject<MemberInfoVo> logIn(String userName, String userPassword, HttpServletRequest request) {
+    public ResultObject<MemberInfoVo> logIn(LogInVo vo, HttpServletRequest request) {
         ResultObject<MemberInfoVo> resultObject = new ResultObject<>();
-        MemberInfo memberInfo = this.baseMapper.getMemberInfoByUserName(userName);
+        MemberInfo memberInfo = this.baseMapper.getMemberInfoByUserName(vo.getUserName());
 
         if(memberInfo == null){
             return resultObject.setResponseStatus(Response.USER_LOG_IN_ERROR);
         }else{
+            String userPassword = StrUtil.str(rsa.decrypt(Base64.decode(vo.getUserPassword()), KeyType.PrivateKey), CharsetUtil.CHARSET_UTF_8);
             if(DigestUtils.md5DigestAsHex((userPassword + memberInfo.getSalt()).getBytes()).equals(memberInfo.getUserPassword())){
                 StpUtil.login(memberInfo.getUid());
                 MemberInfoVo memberInfoVo = new MemberInfoVo();

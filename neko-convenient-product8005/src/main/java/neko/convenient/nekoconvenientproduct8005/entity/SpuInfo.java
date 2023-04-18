@@ -40,9 +40,14 @@ public class SpuInfo implements Serializable {
     private Integer categoryId;
 
     /**
+     * 分类名，冗余字段
+     */
+    private String categoryName;
+
+    /**
      * 商店id
      */
-    private Integer marketId;
+    private String marketId;
 
     private Boolean isPublish;
 

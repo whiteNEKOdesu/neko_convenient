@@ -2,7 +2,9 @@ package neko.convenient.nekoconvenientmember8003.controller;
 
 import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
 import neko.convenient.nekoconvenientmember8003.service.MemberInfoService;
+import neko.convenient.nekoconvenientmember8003.vo.LogInVo;
 import neko.convenient.nekoconvenientmember8003.vo.MemberInfoVo;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -23,8 +25,8 @@ public class MemberInfoController {
     private MemberInfoService memberInfoService;
 
     @PostMapping("log_in")
-    public ResultObject<MemberInfoVo> logIn(@RequestParam String userName, @RequestParam String userPassword, HttpServletRequest request){
-        return memberInfoService.logIn(userName, userPassword, request);
+    public ResultObject<MemberInfoVo> logIn(@Validated @RequestBody LogInVo vo, HttpServletRequest request){
+        return memberInfoService.logIn(vo, request);
     }
 
     @PostMapping("register")

@@ -8,6 +8,7 @@ import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.RoleType;
 import neko.convenient.nekoconvenientmember8003.entity.UserWeight;
 import neko.convenient.nekoconvenientmember8003.service.UserWeightService;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -45,7 +46,7 @@ public class UserWeightController {
     @SaCheckRole(RoleType.ADMIN)
     @SaCheckLogin
     @PostMapping("weight_info")
-    public ResultObject<Page<UserWeight>> weightInfo(@RequestBody QueryVo vo){
+    public ResultObject<Page<UserWeight>> weightInfo(@Validated @RequestBody QueryVo vo){
         return ResultObject.ok(userWeightService.getUserWeightByQueryLimitedPage(vo));
     }
 
