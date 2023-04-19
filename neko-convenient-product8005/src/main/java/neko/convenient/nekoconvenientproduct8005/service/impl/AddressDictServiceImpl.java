@@ -65,7 +65,9 @@ public class AddressDictServiceImpl extends ServiceImpl<AddressDictMapper, Addre
      */
     private List<AddressDict> getLevelAddress(AddressDict root, List<AddressDict> all){
         return all.stream().filter(addressDict -> root.getAddressId().equals(addressDict.getParentId()))
-                .peek(addressDict -> addressDict.setChild(!getLevelAddress(addressDict, all).isEmpty() ? getLevelAddress(addressDict, all) : null))
-                .collect(Collectors.toList());
+                .peek(addressDict -> {
+                    List<AddressDict> todoChild = getLevelAddress(addressDict, all);
+                    addressDict.setChild(!todoChild.isEmpty() ? todoChild : null);
+                }).collect(Collectors.toList());
     }
 }

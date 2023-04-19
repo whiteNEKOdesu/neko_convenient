@@ -97,7 +97,9 @@ public class CategoryInfoServiceImpl extends ServiceImpl<CategoryInfoMapper, Cat
      */
     private List<CategoryInfo> getLevelCategory(CategoryInfo root, List<CategoryInfo> all){
         return all.stream().filter(categoryInfo -> root.getCategoryId().equals(categoryInfo.getParentId()))
-                .peek(categoryInfo -> categoryInfo.setChild(getLevelCategory(categoryInfo, all)))
-                .collect(Collectors.toList());
+                .peek(categoryInfo -> {
+                    List<CategoryInfo> todoChild = getLevelCategory(categoryInfo, all);
+                    categoryInfo.setChild(!todoChild.isEmpty() || !categoryInfo.getLevel().equals(2) ? todoChild : null);
+                }).collect(Collectors.toList());
     }
 }
