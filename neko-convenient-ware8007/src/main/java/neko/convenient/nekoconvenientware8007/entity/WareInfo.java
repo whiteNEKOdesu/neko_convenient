@@ -1,5 +1,7 @@
 package neko.convenient.nekoconvenientware8007.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -23,6 +25,7 @@ public class WareInfo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    @TableId(type = IdType.ASSIGN_ID)
     private String wareId;
 
     private String marketId;
@@ -34,7 +37,7 @@ public class WareInfo implements Serializable {
     /**
      * 锁定库存数量
      */
-    private Integer lock;
+    private Integer lockNumber;
 
     private LocalDateTime createTime;
 

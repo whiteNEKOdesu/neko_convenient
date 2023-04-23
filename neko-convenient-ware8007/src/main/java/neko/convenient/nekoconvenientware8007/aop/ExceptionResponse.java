@@ -1,4 +1,4 @@
-package neko.convenient.nekoconvenientmember8003.aop;
+package neko.convenient.nekoconvenientware8007.aop;
 
 import cn.dev33.satoken.exception.NotLoginException;
 import cn.dev33.satoken.exception.NotPermissionException;
@@ -213,16 +213,6 @@ public class ExceptionResponse {
         exceptionLogger(e);
         return new ResultObject<Object>()
                 .setResponseStatus(Response.OAUTH_CHECK_ERROR)
-                .compact();
-    }
-
-
-    //ware微服务远程调用异常
-    @ExceptionHandler(value = WareServiceException.class)
-    public ResultObject<Object> wareServiceExceptionHandler(WareServiceException e){
-        exceptionLogger(e);
-        return new ResultObject<Object>()
-                .setResponseStatus(Response.WARE_SERVICE_ERROR)
                 .compact();
     }
 

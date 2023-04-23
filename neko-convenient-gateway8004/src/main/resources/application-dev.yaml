@@ -30,5 +30,12 @@ spring:
             - Path=/third_party/**  #代表任何前缀为/third_party请求都会被路由到lb://neko-convenient-third-party
           filters:
             - RewritePath=/third_party/?(?<segment>.*), /$\{segment}
+
+        - id: neko_convenient_ware_route  #库存服务统一路由
+          uri: lb://neko-convenient-ware #lb代表loadbalance负载均衡，后面配置上服务名
+          predicates:
+            - Path=/ware/**  #代表任何前缀为/ware请求都会被路由到lb://neko-convenient-ware
+          filters:
+            - RewritePath=/ware/?(?<segment>.*), /$\{segment}
 server:
   port: 8004

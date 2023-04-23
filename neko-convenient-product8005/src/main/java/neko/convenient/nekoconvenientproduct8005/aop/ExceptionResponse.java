@@ -188,4 +188,22 @@ public class ExceptionResponse {
                 .setResponseStatus(Response.APPLY_STATUS_ILLEGAL_ERROR)
                 .compact();
     }
+
+    //ware微服务远程调用异常
+    @ExceptionHandler(value = WareServiceException.class)
+    public ResultObject<Object> wareServiceExceptionHandler(WareServiceException e){
+        exceptionLogger(e);
+        return new ResultObject<Object>()
+                .setResponseStatus(Response.WARE_SERVICE_ERROR)
+                .compact();
+    }
+
+    //无查询结果异常
+    @ExceptionHandler(value = NoSuchResultException.class)
+    public ResultObject<Object> noSuchResultExceptionHandler(NoSuchResultException e){
+        exceptionLogger(e);
+        return new ResultObject<Object>()
+                .setResponseStatus(Response.NO_SUCH_RESULT_ERROR)
+                .compact();
+    }
 }

@@ -12,5 +12,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @since 2023-04-22
  */
 public interface StockUpdateLogService extends IService<StockUpdateLog> {
-
+    void newLog(StockUpdateLog stockUpdateLog);
 }

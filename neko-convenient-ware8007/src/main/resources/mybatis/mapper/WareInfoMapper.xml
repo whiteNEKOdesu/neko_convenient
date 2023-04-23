@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="neko.convenient.nekoconvenientware8007.mapper.WareInfoMapper">
-
+    <update id="updateStockByWareId">
+        update ware_info
+        set stock = stock + #{updateStockNumber}, update_time = #{updateTime}
+        where ware_id= #{wareId}
+    </update>
 </mapper>

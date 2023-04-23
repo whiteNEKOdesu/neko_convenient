@@ -1,5 +1,7 @@
 package neko.convenient.nekoconvenientware8007.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -23,6 +25,7 @@ public class StockLockLog implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    @TableId(type = IdType.ASSIGN_ID)
     private String stockLockLogId;
 
     /**
@@ -38,7 +41,7 @@ public class StockLockLog implements Serializable {
     /**
      * 库存锁定数量
      */
-    private Integer stock;
+    private Integer lockNumber;
 
     /**
      * -1->已取消锁定，0->锁定中，1->用户已支付

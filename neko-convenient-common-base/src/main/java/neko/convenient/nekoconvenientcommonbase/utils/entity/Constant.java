@@ -6,4 +6,6 @@ public class Constant {
     public static final String MEMBER_REDIS_PREFIX = REDIS_PREFIX + "member:";
 
     public static final String PRODUCT_REDIS_PREFIX = REDIS_PREFIX + "product:";
+
+    public static final String WARE_REDIS_PREFIX = REDIS_PREFIX + "ware:";
 }

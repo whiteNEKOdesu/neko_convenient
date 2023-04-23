@@ -27,10 +27,12 @@ public enum Response {
     CODE_ILLEGAL_ERROR(14, "验证码错误"),
     OAUTH_CHECK_ERROR(15, "社交登录验证错误"),
     APPLY_STATUS_ILLEGAL_ERROR(16, "申请状态非法错误"),
+    NO_SUCH_RESULT_ERROR(17, "无查询结果错误"),
 
     MEMBER_SERVICE_ERROR(1000, "member微服务远程调用错误"),
     PRODUCT_SERVICE_ERROR(1001, "product微服务远程调用错误"),
     THIRD_PARTY_SERVICE_ERROR(1002, "third_party微服务远程调用错误"),
+    WARE_SERVICE_ERROR(1003, "ware微服务远程调用错误"),
 
     ERROR(500,"未知错误");
 

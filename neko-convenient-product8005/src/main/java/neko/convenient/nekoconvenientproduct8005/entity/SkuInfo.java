@@ -38,6 +38,11 @@ public class SkuInfo implements Serializable {
 
     private BigDecimal price;
 
+    /**
+     * 商店id
+     */
+    private String marketId;
+
     private LocalDateTime createTime;
 
     private LocalDateTime updateTime;

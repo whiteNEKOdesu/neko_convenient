@@ -6,6 +6,8 @@ import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.QueryVo;
+import neko.convenient.nekoconvenientcommonbase.utils.exception.NoSuchResultException;
+import neko.convenient.nekoconvenientproduct8005.entity.MarketInfo;
 import neko.convenient.nekoconvenientproduct8005.entity.SkuInfo;
 import neko.convenient.nekoconvenientproduct8005.entity.SpuInfo;
 import neko.convenient.nekoconvenientproduct8005.mapper.SkuInfoMapper;
@@ -14,6 +16,7 @@ import neko.convenient.nekoconvenientproduct8005.service.SkuInfoService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import neko.convenient.nekoconvenientproduct8005.service.SpuInfoService;
 import neko.convenient.nekoconvenientproduct8005.vo.SkuInfoVo;
+import neko.convenient.nekoconvenientproduct8005.vo.UpdateSkuInfoVo;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -49,7 +52,8 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoMapper, SkuInfo> impl
         SkuInfo skuInfo = new SkuInfo();
         BeanUtil.copyProperties(vo, skuInfo);
         LocalDateTime now = LocalDateTime.now();
-        skuInfo.setCreateTime(now)
+        skuInfo.setMarketId(spuInfo.getMarketId())
+                .setCreateTime(now)
                 .setUpdateTime(now);
 
         this.baseMapper.insert(skuInfo);
@@ -73,5 +77,33 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoMapper, SkuInfo> impl
         this.baseMapper.selectPage(page, queryWrapper);
 
         return page;
+    }
+
+    /**
+     * 获取指定skuId商店信息
+     */
+    @Override
+    public MarketInfo getMarketInfoBySkuId(String skuId) {
+        SkuInfo skuInfo = this.baseMapper.selectById(skuId);
+        if(skuInfo == null){
+            throw new NoSuchResultException("skuId查询无结果");
+        }
+
+        return marketInfoService.getBaseMapper().selectById(skuInfo.getMarketId());
+    }
+
+    /**
+     * 更新sku信息
+     */
+    @Override
+    public void updateSkuInfoBySkuId(UpdateSkuInfoVo vo) {
+        if(vo.getSkuName() == null && vo.getSkuImage() == null && vo.getPrice() == null){
+            throw new IllegalArgumentException("SkuInfo更新参数不能全为null");
+        }
+
+        SkuInfo skuInfo = new SkuInfo();
+        BeanUtil.copyProperties(vo, skuInfo);
+
+        this.baseMapper.updateById(skuInfo);
     }
 }

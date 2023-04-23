@@ -1,8 +1,8 @@
-package neko.convenient.nekoconvenientproduct8005.feign.member;
+package neko.convenient.nekoconvenientware8007.feign.member;
 
 import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.ServiceName;
-import neko.convenient.nekoconvenientproduct8005.to.WeightRoleRelationTo;
+import neko.convenient.nekoconvenientware8007.to.WeightRoleRelationTo;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;

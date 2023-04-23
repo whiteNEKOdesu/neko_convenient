@@ -4,6 +4,8 @@ import neko.convenient.nekoconvenientware8007.entity.WareInfo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.time.LocalDateTime;
+
 /**
  * <p>
  * sku库存信息表 Mapper 接口
@@ -14,5 +16,7 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface WareInfoMapper extends BaseMapper<WareInfo> {
-
+    void updateStockByWareId(String wareId,
+                             Integer updateStockNumber,
+                             LocalDateTime updateTime);
 }

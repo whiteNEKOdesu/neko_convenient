@@ -18,6 +18,7 @@ public class SATokenConfig {
                 .addInclude("/member/user_role_relation/new_user_role_relation")
                 .addInclude("/third_party/mail/send_register_mail")
                 .addInclude("/member/weight_role_relation/relation_info_by_uid")
+                .addInclude("/product/sku_info/sku_id_market_info")
                 .setAuth(obj -> {
                     StpUtil.checkRole("*");
                 })

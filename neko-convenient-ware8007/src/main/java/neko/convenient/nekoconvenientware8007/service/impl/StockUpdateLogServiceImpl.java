@@ -17,4 +17,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class StockUpdateLogServiceImpl extends ServiceImpl<StockUpdateLogMapper, StockUpdateLog> implements StockUpdateLogService {
 
+    /**
+     * 新增库存更新记录
+     */
+    @Override
+    public void newLog(StockUpdateLog stockUpdateLog) {
+        if(stockUpdateLog != null){
+            this.baseMapper.insert(stockUpdateLog);
+        }
+    }
 }
