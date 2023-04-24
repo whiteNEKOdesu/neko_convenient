@@ -48,7 +48,7 @@ public class WareInfoServiceImpl extends ServiceImpl<WareInfoMapper, WareInfo> i
         WareInfoVo vo = new WareInfoVo();
         BeanUtil.copyProperties(wareInfo, vo);
         //库存数量为 stock - lockNumber
-        vo.setStock(vo.getStock() - wareInfo.getLockNumber());
+        vo.setStock(vo.getStock() != null ? vo.getStock() - wareInfo.getLockNumber() : 0);
 
         return vo;
     }

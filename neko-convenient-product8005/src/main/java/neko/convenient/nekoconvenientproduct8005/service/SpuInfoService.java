@@ -6,6 +6,8 @@ import neko.convenient.nekoconvenientproduct8005.entity.SpuInfo;
 import com.baomidou.mybatisplus.extension.service.IService;
 import neko.convenient.nekoconvenientproduct8005.vo.SpuInfoVo;
 
+import java.io.IOException;
+
 /**
  * <p>
  * spu信息表 服务类
@@ -18,4 +20,8 @@ public interface SpuInfoService extends IService<SpuInfo> {
     void newSpuInfo(SpuInfoVo vo);
 
     Page<SpuInfo> getMarketSpuInfoByQueryLimitedPage(QueryVo vo);
+
+    void upSpu(String spuId) throws IOException;
+
+    void downSpu(String spuId) throws IOException;
 }

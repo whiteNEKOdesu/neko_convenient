@@ -13,6 +13,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 
 /**
  * <p>
@@ -46,5 +47,17 @@ public class SpuInfoController {
     @PostMapping("market_spu_infos")
     public ResultObject<Page<SpuInfo>> marketSpuInfos(@Validated @RequestBody QueryVo vo){
         return ResultObject.ok(spuInfoService.getMarketSpuInfoByQueryLimitedPage(vo));
+    }
+
+    /**
+     * 上架商品
+     */
+    @SaCheckRole(RoleType.MARKET)
+    @SaCheckLogin
+    @PutMapping("up_spu")
+    public ResultObject<Object> upSpu(@RequestParam String spuId) throws IOException {
+        spuInfoService.upSpu(spuId);
+
+        return ResultObject.ok();
     }
 }
