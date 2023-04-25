@@ -15,6 +15,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 
 /**
  * <p>
@@ -66,7 +67,7 @@ public class SkuInfoController {
     @SaCheckRole(RoleType.MARKET)
     @SaCheckLogin
     @PostMapping("update_sku_info")
-    public ResultObject<Object> updateSkuInfo(@Validated @RequestBody UpdateSkuInfoVo vo){
+    public ResultObject<Object> updateSkuInfo(@Validated @RequestBody UpdateSkuInfoVo vo) throws IOException {
         skuInfoService.updateSkuInfoBySkuId(vo);
 
         return ResultObject.ok();

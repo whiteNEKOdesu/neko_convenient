@@ -8,6 +8,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import neko.convenient.nekoconvenientproduct8005.vo.SkuInfoVo;
 import neko.convenient.nekoconvenientproduct8005.vo.UpdateSkuInfoVo;
 
+import java.io.IOException;
+
 /**
  * <p>
  * sku信息表 服务类
@@ -23,5 +25,5 @@ public interface SkuInfoService extends IService<SkuInfo> {
 
     MarketInfo getMarketInfoBySkuId(String skuId);
 
-    void updateSkuInfoBySkuId(UpdateSkuInfoVo vo);
+    void updateSkuInfoBySkuId(UpdateSkuInfoVo vo) throws IOException;
 }

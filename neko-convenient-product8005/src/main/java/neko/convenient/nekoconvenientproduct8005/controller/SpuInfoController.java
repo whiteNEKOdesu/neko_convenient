@@ -60,4 +60,16 @@ public class SpuInfoController {
 
         return ResultObject.ok();
     }
+
+    /**
+     * 下架商品
+     */
+    @SaCheckRole(RoleType.MARKET)
+    @SaCheckLogin
+    @PostMapping("down_spu")
+    public ResultObject<Object> downSpu(@RequestParam String spuId) throws IOException {
+        spuInfoService.downSpu(spuId);
+
+        return ResultObject.ok();
+    }
 }

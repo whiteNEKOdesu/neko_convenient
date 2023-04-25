@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import neko.convenient.nekoconvenientcommonbase.utils.entity.Constant;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.QueryVo;
 import neko.convenient.nekoconvenientcommonbase.utils.exception.NoSuchResultException;
 import neko.convenient.nekoconvenientproduct8005.elasticsearch.entity.ProductInfoES;
@@ -130,6 +131,9 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoMapper, SpuInfo> impl
 
         //查询sku信息
         List<SkuInfo> skuInfos = skuInfoService.lambdaQuery().eq(SkuInfo::getSpuId, spuId).list();
+        if(skuInfos.isEmpty()){
+            throw new NoSuchResultException("spu中无sku，无法上架");
+        }
         String marketAddressDescription = marketInfo.getAddress() + marketInfo.getMarketAddressDescription();
         //将sku信息收集为elasticsearch形式
         List<ProductInfoES> productInfoEss = skuInfos.stream().map(skuInfo -> {
@@ -160,7 +164,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoMapper, SpuInfo> impl
             bulkResponse = elasticsearchClient.bulk(builder.build());
         }catch (Exception e){
             //上架失败，删除elasticsearch商品信息
-            downSpu(spuId);
+            innerDownSpu(spuId);
             throw e;
         }
 
@@ -172,10 +176,31 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoMapper, SpuInfo> impl
      */
     @Override
     public void downSpu(String spuId) throws IOException {
+        SpuInfo spuInfo = this.baseMapper.selectById(spuId);
+        if(spuInfo == null){
+            throw new NoSuchResultException("spuId查询无结果");
+        }
+
+        //查询商店信息
+        MarketInfo marketInfo = marketInfoService.getBaseMapper().selectOne(new QueryWrapper<MarketInfo>()
+                .lambda()
+                .eq(MarketInfo::getMarketId, spuInfo.getMarketId()));
+
+        if(marketInfo == null || !StpUtil.getLoginId().toString().equals(marketInfo.getUid())){
+            throw new NotPermissionException("权限不足");
+        }
+
+        innerDownSpu(spuId);
+    }
+
+    /**
+     * 下架商品，本类内部调用
+     */
+    private void innerDownSpu(String spuId) throws IOException {
         //更新spu_info表上架状态
         this.baseMapper.updateSpuIsPublishBySpuId(spuId, false, LocalDateTime.now());
         DeleteByQueryResponse response = elasticsearchClient.deleteByQuery(builder ->
-                builder.index("neko_convenient")
+                builder.index(Constant.ELASTIC_SEARCH_INDEX)
                         .query(q ->
                                 q.term(t ->
                                         t.field("spuId")
