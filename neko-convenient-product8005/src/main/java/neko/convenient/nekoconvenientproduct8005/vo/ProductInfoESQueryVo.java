@@ -39,4 +39,8 @@ public class ProductInfoESQueryVo implements Serializable {
     @Min(value = 5)
     @Max(value = 50)
     private Integer limited;
+
+    public Integer getFrom(){
+        return (currentPage - 1) * limited;
+    }
 }

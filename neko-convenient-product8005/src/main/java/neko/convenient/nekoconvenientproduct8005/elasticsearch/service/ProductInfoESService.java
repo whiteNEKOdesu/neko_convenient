@@ -1,10 +1,10 @@
 package neko.convenient.nekoconvenientproduct8005.elasticsearch.service;
 
-import neko.convenient.nekoconvenientproduct8005.elasticsearch.entity.ProductInfoES;
 import neko.convenient.nekoconvenientproduct8005.vo.ProductInfoESQueryVo;
+import neko.convenient.nekoconvenientproduct8005.vo.ProductInfoESVo;
 
-import java.util.List;
+import java.io.IOException;
 
 public interface ProductInfoESService {
-    List<ProductInfoES> getProductInfoByQueryLimitedPage(ProductInfoESQueryVo vo);
+    ProductInfoESVo getProductInfoByQueryLimitedPage(ProductInfoESQueryVo vo) throws IOException;
 }
