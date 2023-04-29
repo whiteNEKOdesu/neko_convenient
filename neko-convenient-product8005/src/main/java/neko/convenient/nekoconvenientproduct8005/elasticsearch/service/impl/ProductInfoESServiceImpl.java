@@ -50,6 +50,7 @@ public class ProductInfoESServiceImpl implements ProductInfoESService {
         BoolQuery.Builder boolBuilder = new BoolQuery.Builder();
 
         if(StringUtils.hasText(vo.getBrandId())){
+            //按照brandId筛选
             boolBuilder.filter(f ->
                     f.term(t ->
                             t.field("brandId")
@@ -57,6 +58,7 @@ public class ProductInfoESServiceImpl implements ProductInfoESService {
         }
 
         if(StringUtils.hasText(vo.getMarketId())){
+            //按照marketId筛选
             boolBuilder.filter(f ->
                     f.term(t ->
                             t.field("marketId")
@@ -64,6 +66,7 @@ public class ProductInfoESServiceImpl implements ProductInfoESService {
         }
 
         if(vo.getCategoryId() != null){
+            //按照分类id筛选
             boolBuilder.filter(f ->
                     f.term(t ->
                             t.field("categoryId")
@@ -71,6 +74,7 @@ public class ProductInfoESServiceImpl implements ProductInfoESService {
         }
 
         if(vo.getAddressId() != null){
+            //按照地址id筛选
             boolBuilder.filter(f ->
                     f.term(t ->
                             t.field("addressId")
@@ -78,6 +82,7 @@ public class ProductInfoESServiceImpl implements ProductInfoESService {
         }
 
         if(vo.getMinPrice() != null && vo.getMaxPrice() != null && vo.getMinPrice().compareTo(vo.getMaxPrice()) < 0){
+            //按照价格范围筛选
             boolBuilder.filter(f ->
                     f.range(r ->
                             r.field("price")
@@ -85,15 +90,17 @@ public class ProductInfoESServiceImpl implements ProductInfoESService {
                                     .lte(JsonData.of(vo.getMaxPrice()))));
         }
 
-        boolBuilder.must(m ->
+        if(StringUtils.hasText(vo.getQueryWords())){
+            boolBuilder.must(m ->
                     m.match(mt ->
                             mt.field("spuDescription")
                                     .query(vo.getQueryWords())))
-                .should(s -> s.match(m -> m.field("spuName").query(vo.getQueryWords())))
-                .should(s -> s.match(m -> m.field("skuName").query(vo.getQueryWords())))
-                .should(s -> s.match(m -> m.field("categoryName").query(vo.getQueryWords())))
-                .should(s -> s.match(m -> m.field("brandName").query(vo.getQueryWords())))
-                .should(s -> s.match(m -> m.field("marketAddressDescription").query(vo.getQueryWords())));
+                    .should(s -> s.match(m -> m.field("spuName").query(vo.getQueryWords())))
+                    .should(s -> s.match(m -> m.field("skuName").query(vo.getQueryWords())))
+                    .should(s -> s.match(m -> m.field("categoryName").query(vo.getQueryWords())))
+                    .should(s -> s.match(m -> m.field("brandName").query(vo.getQueryWords())))
+                    .should(s -> s.match(m -> m.field("marketAddressDescription").query(vo.getQueryWords())));
+        }
 
         return builder.index(Constant.ELASTIC_SEARCH_INDEX)
                 .query(q ->

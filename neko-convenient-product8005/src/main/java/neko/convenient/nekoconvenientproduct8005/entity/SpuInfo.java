@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -17,8 +19,7 @@ import lombok.experimental.Accessors;
  * @author NEKO
  * @since 2023-04-01
  */
-@Getter
-@Setter
+@Data
 @Accessors(chain = true)
 @TableName("spu_info")
 public class SpuInfo implements Serializable {

@@ -2,7 +2,10 @@ package neko.convenient.nekoconvenientproduct8005.mapper;
 
 import neko.convenient.nekoconvenientproduct8005.entity.SkuInfo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import neko.convenient.nekoconvenientproduct8005.vo.SkuInfoVo;
 import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
 
 /**
  * <p>
@@ -14,5 +17,5 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface SkuInfoMapper extends BaseMapper<SkuInfo> {
-
+    List<SkuInfoVo> getSkuInfoVosBySpuId(String spuId);
 }

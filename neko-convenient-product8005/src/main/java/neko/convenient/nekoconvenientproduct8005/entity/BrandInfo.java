@@ -40,7 +40,7 @@ public class BrandInfo implements Serializable {
     private String logoUrl;
 
     /**
-     * 商店描述
+     * 品牌描述
      */
     private String description;
 

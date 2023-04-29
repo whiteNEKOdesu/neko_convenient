@@ -6,9 +6,11 @@ import neko.convenient.nekoconvenientproduct8005.entity.MarketInfo;
 import neko.convenient.nekoconvenientproduct8005.entity.SkuInfo;
 import com.baomidou.mybatisplus.extension.service.IService;
 import neko.convenient.nekoconvenientproduct8005.vo.SkuInfoVo;
+import neko.convenient.nekoconvenientproduct8005.vo.SpuAndSkuVo;
 import neko.convenient.nekoconvenientproduct8005.vo.UpdateSkuInfoVo;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 /**
  * <p>
@@ -24,6 +26,8 @@ public interface SkuInfoService extends IService<SkuInfo> {
     Page<SkuInfo> getSpuSkuInfoByQueryLimitedPage(QueryVo vo);
 
     MarketInfo getMarketInfoBySkuId(String skuId);
+
+    SpuAndSkuVo getSkuInfosBySpuId(String spuId) throws ExecutionException, InterruptedException;
 
     void updateSkuInfoBySkuId(UpdateSkuInfoVo vo) throws IOException;
 }
