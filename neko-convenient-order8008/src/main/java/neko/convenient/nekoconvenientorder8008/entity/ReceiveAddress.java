@@ -1,4 +1,4 @@
-package neko.convenient.nekoconvenientware8007.entity;
+package neko.convenient.nekoconvenientorder8008.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -11,42 +11,31 @@ import lombok.experimental.Accessors;
 
 /**
  * <p>
- * 库存锁定日志表
+ * 收货地址表
  * </p>
  *
  * @author NEKO
- * @since 2023-04-22
+ * @since 2023-05-02
  */
 @Getter
 @Setter
 @Accessors(chain = true)
-@TableName("stock_lock_log")
-public class StockLockLog implements Serializable {
+@TableName("receive_address")
+public class ReceiveAddress implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @TableId(type = IdType.ASSIGN_ID)
-    private String stockLockLogId;
+    private String receiveAddressId;
+
+    private String uid;
+
+    private Integer addressId;
 
     /**
-     * 订单生成记录id，对应order_log表order_record
+     * 收货地址
      */
-    private String orderRecord;
-
-    /**
-     * 库存id
-     */
-    private String wareId;
-
-    /**
-     * 库存锁定数量
-     */
-    private Integer lockNumber;
-
-    /**
-     * -1->已取消锁定，0->锁定中，1->用户已支付
-     */
-    private Byte status;
+    private String addressName;
 
     private LocalDateTime createTime;
 

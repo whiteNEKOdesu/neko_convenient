@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="neko.convenient.nekoconvenientmember8003.mapper.MemberLevelDictMapper">
+    <select id="getHighestLevel" resultType="neko.convenient.nekoconvenientmember8003.entity.MemberLevelDict">
+        select * from member_level_dict
+        order by member_level desc
+        limit 1
+    </select>
 
+    <select id="getSecondLevel" resultType="neko.convenient.nekoconvenientmember8003.entity.MemberLevelDict">
+        select * from member_level_dict
+        order by member_level desc
+        limit 1, 1
+    </select>
 </mapper>

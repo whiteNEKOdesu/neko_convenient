@@ -1,4 +1,4 @@
-package neko.convenient.nekoconvenientware8007.entity;
+package neko.convenient.nekoconvenientorder8008.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -11,40 +11,36 @@ import lombok.experimental.Accessors;
 
 /**
  * <p>
- * 库存锁定日志表
+ * 订单生成记录表，用于解锁已取消订单库存
  * </p>
  *
  * @author NEKO
- * @since 2023-04-22
+ * @since 2023-05-02
  */
 @Getter
 @Setter
 @Accessors(chain = true)
-@TableName("stock_lock_log")
-public class StockLockLog implements Serializable {
+@TableName("order_log")
+public class OrderLog implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @TableId(type = IdType.ASSIGN_ID)
-    private String stockLockLogId;
+    private String orderLogId;
 
-    /**
-     * 订单生成记录id，对应order_log表order_record
-     */
     private String orderRecord;
 
-    /**
-     * 库存id
-     */
-    private String wareId;
+    private String uid;
+
+    private String skuId;
 
     /**
-     * 库存锁定数量
+     * 订单购买数量
      */
-    private Integer lockNumber;
+    private Integer number;
 
     /**
-     * -1->已取消锁定，0->锁定中，1->用户已支付
+     * -1->取消，0->未支付，1->已支付
      */
     private Byte status;
 

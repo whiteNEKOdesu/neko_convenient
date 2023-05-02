@@ -64,7 +64,7 @@ public class SkuInfoController {
     }
 
     /**
-     * 更新sku信息
+     * 修改sku信息
      */
     @SaCheckRole(RoleType.MARKET)
     @SaCheckLogin

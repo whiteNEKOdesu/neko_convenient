@@ -49,6 +49,11 @@ public class MemberLevelDict implements Serializable {
      */
     private Integer growPoint;
 
+    /**
+     * 折扣百分比
+     */
+    private Double discount;
+
     private Boolean isDelete;
 
     private LocalDateTime createTime;

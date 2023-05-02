@@ -146,7 +146,7 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoMapper, SkuInfo> impl
     }
 
     /**
-     * 更新sku信息
+     * 修改sku信息
      */
     @Override
     @Transactional(rollbackFor = Exception.class)

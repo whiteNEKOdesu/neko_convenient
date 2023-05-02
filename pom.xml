@@ -16,6 +16,7 @@
         <module>neko-convenient-product8005</module>
         <module>neko-convenient-third-party8006</module>
         <module>neko-convenient-ware8007</module>
+        <module>neko-convenient-order8008</module>
     </modules>
 
     <properties>
