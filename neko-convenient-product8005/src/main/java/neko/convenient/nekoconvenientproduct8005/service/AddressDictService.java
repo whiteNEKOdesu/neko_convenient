@@ -15,4 +15,6 @@ import java.util.List;
  */
 public interface AddressDictService extends IService<AddressDict> {
     List<AddressDict> getLevelAddress();
+
+    String getAddressByAddressId(Integer addressId);
 }

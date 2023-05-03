@@ -2,6 +2,7 @@ package neko.convenient.nekoconvenientproduct8005.service.impl;
 
 import cn.hutool.json.JSONUtil;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.Constant;
+import neko.convenient.nekoconvenientcommonbase.utils.exception.NoSuchResultException;
 import neko.convenient.nekoconvenientproduct8005.entity.AddressDict;
 import neko.convenient.nekoconvenientproduct8005.mapper.AddressDictMapper;
 import neko.convenient.nekoconvenientproduct8005.service.AddressDictService;
@@ -56,6 +57,19 @@ public class AddressDictServiceImpl extends ServiceImpl<AddressDictMapper, Addre
                 JSONUtil.toJsonStr(result),
                 1000 * 60 * 60 * 5,
                 TimeUnit.MILLISECONDS);
+
+        return result;
+    }
+
+    /**
+     * 根据addressId获取完整地址信息
+     */
+    @Override
+    public String getAddressByAddressId(Integer addressId) {
+        String result = this.baseMapper.getAddressInfoByAddressId(addressId);
+        if(result == null){
+            throw new NoSuchResultException("地址信息不存在");
+        }
 
         return result;
     }

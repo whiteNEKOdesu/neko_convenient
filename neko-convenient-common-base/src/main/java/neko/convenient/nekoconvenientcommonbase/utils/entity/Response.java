@@ -33,6 +33,7 @@ public enum Response {
     PRODUCT_SERVICE_ERROR(1001, "product微服务远程调用错误"),
     THIRD_PARTY_SERVICE_ERROR(1002, "third_party微服务远程调用错误"),
     WARE_SERVICE_ERROR(1003, "ware微服务远程调用错误"),
+    ORDER_SERVICE_ERROR(1004, "order微服务远程调用错误"),
 
     ERROR(500,"未知错误");
 

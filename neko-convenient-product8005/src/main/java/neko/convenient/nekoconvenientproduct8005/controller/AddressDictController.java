@@ -5,6 +5,7 @@ import neko.convenient.nekoconvenientproduct8005.entity.AddressDict;
 import neko.convenient.nekoconvenientproduct8005.service.AddressDictService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
@@ -30,5 +31,13 @@ public class AddressDictController {
     @GetMapping("level_address_info")
     public ResultObject<List<AddressDict>> levelAddressInfo(){
         return ResultObject.ok(addressDictService.getLevelAddress());
+    }
+
+    /**
+     * 根据addressId获取完整地址信息
+     */
+    @GetMapping("address_info")
+    public ResultObject<String> addressInfo(@RequestParam Integer addressId){
+        return ResultObject.ok(addressDictService.getAddressByAddressId(addressId));
     }
 }

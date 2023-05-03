@@ -1,4 +1,4 @@
-package neko.convenient.nekoconvenientorder8008.member;
+package neko.convenient.nekoconvenientorder8008.feign.member;
 
 import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.ServiceName;

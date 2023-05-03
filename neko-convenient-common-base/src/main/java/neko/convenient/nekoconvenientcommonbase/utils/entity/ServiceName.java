@@ -10,4 +10,6 @@ public class ServiceName {
     public static final String THIRD_PARTY_SERVICE = "neko-convenient-third-party";
 
     public static final String WARE_SERVICE = "neko-convenient-ware";
+
+    public static final String ORDER_SERVICE = "neko-convenient-order";
 }

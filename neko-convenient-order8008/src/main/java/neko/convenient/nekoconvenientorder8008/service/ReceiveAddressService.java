@@ -1,7 +1,10 @@
 package neko.convenient.nekoconvenientorder8008.service;
 
-import neko.convenient.nekoconvenientorder8008.entity.ReceiveAddress;
 import com.baomidou.mybatisplus.extension.service.IService;
+import neko.convenient.nekoconvenientorder8008.entity.ReceiveAddress;
+import neko.convenient.nekoconvenientorder8008.vo.NewReceiveAddressVo;
+
+import java.util.List;
 
 /**
  * <p>
@@ -12,5 +15,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @since 2023-05-02
  */
 public interface ReceiveAddressService extends IService<ReceiveAddress> {
+    void newReceiveAddress(NewReceiveAddressVo vo);
 
+    List<ReceiveAddress> getUserSelfAddressInfos();
+
+    ReceiveAddress getUserSelfAddressInfoByReceiveAddressId(String receiveAddressId);
 }

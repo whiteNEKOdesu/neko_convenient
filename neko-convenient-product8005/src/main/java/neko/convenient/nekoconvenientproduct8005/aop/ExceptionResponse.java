@@ -206,4 +206,13 @@ public class ExceptionResponse {
                 .setResponseStatus(Response.NO_SUCH_RESULT_ERROR)
                 .compact();
     }
+
+    //order微服务远程调用异常
+    @ExceptionHandler(value = OrderServiceException.class)
+    public ResultObject<Object> orderServiceExceptionHandler(OrderServiceException e){
+        exceptionLogger(e);
+        return new ResultObject<Object>()
+                .setResponseStatus(Response.ORDER_SERVICE_ERROR)
+                .compact();
+    }
 }

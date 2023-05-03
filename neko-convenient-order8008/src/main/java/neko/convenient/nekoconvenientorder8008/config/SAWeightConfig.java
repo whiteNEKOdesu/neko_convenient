@@ -3,7 +3,7 @@ package neko.convenient.nekoconvenientorder8008.config;
 import cn.dev33.satoken.stp.StpInterface;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
 import neko.convenient.nekoconvenientcommonbase.utils.exception.MemberServiceException;
-import neko.convenient.nekoconvenientorder8008.member.WeightRoleRelationFeignService;
+import neko.convenient.nekoconvenientorder8008.feign.member.WeightRoleRelationFeignService;
 import neko.convenient.nekoconvenientorder8008.to.WeightRoleRelationTo;
 import org.springframework.stereotype.Component;
 
