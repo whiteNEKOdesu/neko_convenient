@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.annotation.Resource;
+import java.util.Arrays;
 
 @SpringBootTest
 public class SkuInfoMapperTest {
@@ -13,5 +14,10 @@ public class SkuInfoMapperTest {
     @Test
     public void getSkuInfoVosBySpuId(){
         System.out.println(skuInfoMapper.getSkuInfoVosBySpuId("1650745629774811137"));
+    }
+
+    @Test
+    public void getProductInfosBySkuIds(){
+        System.out.println(skuInfoMapper.getProductInfosBySkuIds(Arrays.asList("1648589292781449218", "1648603469965189121")));
     }
 }

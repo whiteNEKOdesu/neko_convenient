@@ -2,6 +2,10 @@ package neko.convenient.nekoconvenientorder8008.service;
 
 import neko.convenient.nekoconvenientorder8008.entity.OrderLog;
 import com.baomidou.mybatisplus.extension.service.IService;
+import neko.convenient.nekoconvenientorder8008.vo.PreOrderVo;
+import neko.convenient.nekoconvenientorder8008.vo.ProductInfoVo;
+
+import java.util.List;
 
 /**
  * <p>
@@ -12,5 +16,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @since 2023-05-02
  */
 public interface OrderLogService extends IService<OrderLog> {
+    String preOrder(PreOrderVo vo);
 
+    List<ProductInfoVo> getPreOrderProductInfos(String orderRecord);
 }

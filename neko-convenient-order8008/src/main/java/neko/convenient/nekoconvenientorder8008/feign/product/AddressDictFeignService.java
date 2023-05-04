@@ -6,7 +6,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(value = ServiceName.PRODUCT_SERVICE)
+@FeignClient(value = ServiceName.PRODUCT_SERVICE, contextId = "AddressDict")
 public interface AddressDictFeignService {
     @GetMapping("address_dict/address_info")
     ResultObject<String> addressInfo(@RequestParam Integer addressId);

@@ -1,5 +1,6 @@
 package neko.convenient.nekoconvenientorder8008.controller;
 
+import cn.dev33.satoken.annotation.SaCheckLogin;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.QueryVo;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
@@ -29,6 +30,7 @@ public class ReceiveAddressController {
     /**
      * 新增收货地址信息
      */
+    @SaCheckLogin
     @PutMapping("new_receive_address")
     public ResultObject<Object> newReceiveAddress(@Validated @RequestBody NewReceiveAddressVo vo){
         receiveAddressService.newReceiveAddress(vo);
@@ -39,6 +41,7 @@ public class ReceiveAddressController {
     /**
      * 查询用户自身收货地址信息
      */
+    @SaCheckLogin
     @PostMapping("address_infos")
     public ResultObject<List<ReceiveAddress>> addressInfos(){
         return ResultObject.ok(receiveAddressService.getUserSelfAddressInfos());
@@ -47,6 +50,7 @@ public class ReceiveAddressController {
     /**
      * 根据receiveAddressId获取用户自身收货地址信息
      */
+    @SaCheckLogin
     @PostMapping("address_info")
     public ResultObject<ReceiveAddress> addressInfo(@RequestParam String receiveAddressId){
         return ResultObject.ok(receiveAddressService.getUserSelfAddressInfoByReceiveAddressId(receiveAddressId));

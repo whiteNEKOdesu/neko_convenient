@@ -5,4 +5,15 @@
         select sku_id, spu_id, sku_name, sku_image, price from sku_info
         where spu_id = #{spuId}
     </select>
+
+    <select id="getProductInfosBySkuIds" resultType="neko.convenient.nekoconvenientproduct8005.vo.ProductInfoVo">
+        select sku_info.sku_id, sku_info.spu_id, sku_info.market_id,
+               sku_info.sku_name, market_info.brand_id, market_info.brand_name, sku_info.sku_image, sku_info.price from sku_info
+        join market_info
+        on sku_info.market_id = market_info.market_id
+        where sku_info.sku_id in
+        <foreach collection="skuIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

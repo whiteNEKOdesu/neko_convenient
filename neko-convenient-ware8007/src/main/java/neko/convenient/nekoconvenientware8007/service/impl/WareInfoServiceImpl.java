@@ -6,17 +6,22 @@ import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
+import neko.convenient.nekoconvenientcommonbase.utils.exception.NoSuchResultException;
 import neko.convenient.nekoconvenientcommonbase.utils.exception.ProductServiceException;
+import neko.convenient.nekoconvenientware8007.entity.StockLockLog;
 import neko.convenient.nekoconvenientware8007.entity.StockUpdateLog;
 import neko.convenient.nekoconvenientware8007.entity.WareInfo;
 import neko.convenient.nekoconvenientware8007.feign.product.SkuInfoFeignService;
 import neko.convenient.nekoconvenientware8007.mapper.WareInfoMapper;
+import neko.convenient.nekoconvenientware8007.service.StockLockLogService;
 import neko.convenient.nekoconvenientware8007.service.StockUpdateLogService;
 import neko.convenient.nekoconvenientware8007.service.WareInfoService;
 import neko.convenient.nekoconvenientware8007.to.MarketInfoTo;
 import neko.convenient.nekoconvenientware8007.vo.AddStockNumberVo;
+import neko.convenient.nekoconvenientware8007.vo.LockStockVo;
 import neko.convenient.nekoconvenientware8007.vo.WareInfoVo;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
@@ -36,6 +41,9 @@ public class WareInfoServiceImpl extends ServiceImpl<WareInfoMapper, WareInfo> i
 
     @Resource
     private StockUpdateLogService stockUpdateLogService;
+
+    @Resource
+    private StockLockLogService stockLockLogService;
 
     /**
      * 获取指定skuId库存信息
@@ -95,5 +103,25 @@ public class WareInfoServiceImpl extends ServiceImpl<WareInfoMapper, WareInfo> i
                 .setUpdateTime(now);
         //库存更新记录
         stockUpdateLogService.newLog(stockUpdateLog);
+    }
+
+    /**
+     * 锁定指定库存数量
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void lockStock(LockStockVo vo) {
+        WareInfo wareInfo = this.baseMapper.selectOne(new QueryWrapper<WareInfo>().lambda()
+                .eq(WareInfo::getSkuId, vo.getSkuId()));
+
+        if(wareInfo == null){
+            throw new NoSuchResultException("无此库存");
+        }
+
+        //新增库存锁定记录
+        StockLockLog stockLockLog = new StockLockLog();
+        stockLockLog.setWareId(wareInfo.getWareId())
+                .setLockNumber(vo.getLockNumber());
+        stockLockLogService.newStockLockLog(stockLockLog);
     }
 }

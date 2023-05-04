@@ -9,6 +9,7 @@ import neko.convenient.nekoconvenientcommonbase.utils.entity.RoleType;
 import neko.convenient.nekoconvenientproduct8005.entity.MarketInfo;
 import neko.convenient.nekoconvenientproduct8005.entity.SkuInfo;
 import neko.convenient.nekoconvenientproduct8005.service.SkuInfoService;
+import neko.convenient.nekoconvenientproduct8005.vo.ProductInfoVo;
 import neko.convenient.nekoconvenientproduct8005.vo.SkuInfoVo;
 import neko.convenient.nekoconvenientproduct8005.vo.SpuAndSkuVo;
 import neko.convenient.nekoconvenientproduct8005.vo.UpdateSkuInfoVo;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -81,5 +83,13 @@ public class SkuInfoController {
     @PostMapping("market_product_info")
     public ResultObject<SpuAndSkuVo> marketProductInfo(@RequestParam String spuId) throws ExecutionException, InterruptedException {
         return ResultObject.ok(skuInfoService.getSkuInfosBySpuId(spuId));
+    }
+
+    /**
+     * 根据skuId List获取sku信息，商店marketId，连锁店品牌基本信息，建议只提供给微服务远程调用
+     */
+    @PostMapping("product_infos")
+    public ResultObject<List<ProductInfoVo>> productInfos(@RequestBody List<String> skuIds){
+        return ResultObject.ok(skuInfoService.getProductInfosBySkuIds(skuIds));
     }
 }

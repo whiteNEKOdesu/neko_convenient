@@ -20,6 +20,7 @@ import neko.convenient.nekoconvenientproduct8005.service.MarketInfoService;
 import neko.convenient.nekoconvenientproduct8005.service.SkuInfoService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import neko.convenient.nekoconvenientproduct8005.service.SpuInfoService;
+import neko.convenient.nekoconvenientproduct8005.vo.ProductInfoVo;
 import neko.convenient.nekoconvenientproduct8005.vo.SkuInfoVo;
 import neko.convenient.nekoconvenientproduct8005.vo.SpuAndSkuVo;
 import neko.convenient.nekoconvenientproduct8005.vo.UpdateSkuInfoVo;
@@ -187,5 +188,17 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoMapper, SkuInfo> impl
                         //表示修改而不是覆盖
                         .docAsUpsert(true), ProductInfoES.class);
         log.info("修改elasticsearch中sku数据，skuId: " + vo.getSkuId() + "，修改数量: " + response.shards().successful().intValue());
+    }
+
+    /**
+     * 根据skuId List获取sku信息，商店marketId，连锁店品牌基本信息
+     */
+    @Override
+    public List<ProductInfoVo> getProductInfosBySkuIds(List<String> skuIds) {
+        if(skuIds.isEmpty()){
+            throw new IllegalArgumentException("skuIds List非法");
+        }
+
+        return this.baseMapper.getProductInfosBySkuIds(skuIds);
     }
 }

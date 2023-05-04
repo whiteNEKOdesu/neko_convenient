@@ -6,6 +6,8 @@ import neko.convenient.nekoconvenientware8007.service.StockLockLogService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 /**
  * <p>
  * 库存锁定日志表 服务实现类
@@ -17,4 +19,15 @@ import org.springframework.stereotype.Service;
 @Service
 public class StockLockLogServiceImpl extends ServiceImpl<StockLockLogMapper, StockLockLog> implements StockLockLogService {
 
+    /**
+     * 新增库存锁定记录
+     */
+    @Override
+    public void newStockLockLog(StockLockLog stockLockLog) {
+        LocalDateTime now = LocalDateTime.now();
+        stockLockLog.setCreateTime(now)
+                .setUpdateTime(now);
+
+        this.baseMapper.insert(stockLockLog);
+    }
 }

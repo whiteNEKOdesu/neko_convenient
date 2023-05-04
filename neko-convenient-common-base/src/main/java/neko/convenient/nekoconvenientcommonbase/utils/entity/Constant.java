@@ -9,5 +9,7 @@ public class Constant {
 
     public static final String WARE_REDIS_PREFIX = REDIS_PREFIX + "ware:";
 
+    public static final String ORDER_REDIS_PREFIX = REDIS_PREFIX + "order:";
+
     public static final String ELASTIC_SEARCH_INDEX = "neko_convenient";
 }
