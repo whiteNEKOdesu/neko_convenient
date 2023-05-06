@@ -20,6 +20,7 @@ public class SATokenConfig {
                 .addInclude("/member/weight_role_relation/relation_info_by_uid")
                 .addInclude("/product/sku_info/sku_id_market_info")
                 .addInclude("/product/sku_info/product_infos")
+                .addInclude("/ware/ware_info/lock_stock")
                 .setAuth(obj -> {
                     StpUtil.checkRole("*");
                 })

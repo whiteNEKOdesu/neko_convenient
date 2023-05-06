@@ -43,8 +43,8 @@ public class RabbitMqConfig {
     public Queue stockReleaseDelayQueue(){
         return QueueBuilder.durable(RabbitMqConstant.STOCK_RELEASE_DELAY_QUEUE_NAME)
                 .deadLetterExchange(RabbitMqConstant.STOCK_EXCHANGE_NAME)
-                .deadLetterRoutingKey(RabbitMqConstant.STOCK_DEAD_LETTER_ROUTING_KEY_NAME)
-                .ttl(1000 * 60 * 2)
+                .deadLetterRoutingKey(RabbitMqConstant.STOCK_RELEASE_QUEUE_ROUTING_KEY_NAME)
+                .ttl(1000 * 60 * 5)
                 .build();
     }
 
@@ -65,7 +65,7 @@ public class RabbitMqConfig {
     public Binding stockLockedBinding(Queue stockReleaseDelayQueue, TopicExchange stockExchange){
         return BindingBuilder.bind(stockReleaseDelayQueue)
                 .to(stockExchange)
-                //此routingKey不会发送给任何队列，只为实现延迟队列
-                .with("neko.convenient.stock.lock");
+                //此routingKey不会发送给任何消费者，只为实现延迟队列
+                .with(RabbitMqConstant.STOCK_DEAD_LETTER_ROUTING_KEY_NAME);
     }
 }

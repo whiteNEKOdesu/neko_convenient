@@ -14,5 +14,5 @@ public class RabbitMqConstant {
     public static final String STOCK_RELEASE_QUEUE_ROUTING_KEY_NAME = "neko.convenient.stock.release.#";
 
     //库存死信队列routingKey名
-    public static final String STOCK_DEAD_LETTER_ROUTING_KEY_NAME = "neko.convenient.stock.release";
+    public static final String STOCK_DEAD_LETTER_ROUTING_KEY_NAME = "neko.convenient.stock.delay";
 }

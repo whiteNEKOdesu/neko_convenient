@@ -6,10 +6,7 @@ import cn.dev33.satoken.exception.NotRoleException;
 import lombok.extern.slf4j.Slf4j;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.Response;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
-import neko.convenient.nekoconvenientcommonbase.utils.exception.FileDeleteFailureException;
-import neko.convenient.nekoconvenientcommonbase.utils.exception.MemberServiceException;
-import neko.convenient.nekoconvenientcommonbase.utils.exception.ProductServiceException;
-import neko.convenient.nekoconvenientcommonbase.utils.exception.UserNameRepeatException;
+import neko.convenient.nekoconvenientcommonbase.utils.exception.*;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -181,6 +178,24 @@ public class ExceptionResponse {
         exceptionLogger(e);
         return new ResultObject<Object>()
                 .setResponseStatus(Response.EMAIL_SEND_ERROR)
+                .compact();
+    }
+
+    //库存不足异常
+    @ExceptionHandler(value = StockNotEnoughException.class)
+    public ResultObject<Object> stockNotEnoughExceptionHandler(StockNotEnoughException e){
+        exceptionLogger(e);
+        return new ResultObject<Object>()
+                .setResponseStatus(Response.STOCK_NOT_ENOUGH_ERROR)
+                .compact();
+    }
+
+    //rabbitmq消息发送异常
+    @ExceptionHandler(value = RabbitMQSendException.class)
+    public ResultObject<Object> rabbitMQSendExceptionHandler(RabbitMQSendException e){
+        exceptionLogger(e);
+        return new ResultObject<Object>()
+                .setResponseStatus(Response.RABBIT_MQ_SEND_ERROR)
                 .compact();
     }
 }

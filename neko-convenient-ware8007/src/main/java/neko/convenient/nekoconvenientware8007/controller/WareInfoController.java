@@ -6,6 +6,7 @@ import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.RoleType;
 import neko.convenient.nekoconvenientware8007.service.WareInfoService;
 import neko.convenient.nekoconvenientware8007.vo.AddStockNumberVo;
+import neko.convenient.nekoconvenientware8007.vo.LockStockVo;
 import neko.convenient.nekoconvenientware8007.vo.WareInfoVo;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -44,6 +45,16 @@ public class WareInfoController {
     @PostMapping("add_stock_number")
     public ResultObject<Object> addStock(@Validated @RequestBody AddStockNumberVo vo){
         wareInfoService.addStockNumber(vo);
+
+        return ResultObject.ok();
+    }
+
+    /**
+     * 锁定指定库存数量，建议只提供给微服务远程调用
+     */
+    @PostMapping("lock_stock")
+    public ResultObject<Object> lockStock(@Validated @RequestBody LockStockVo vo){
+        wareInfoService.lockStock(vo);
 
         return ResultObject.ok();
     }

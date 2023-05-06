@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
@@ -32,12 +33,10 @@ public class OrderLog implements Serializable {
 
     private String uid;
 
-    private String skuId;
-
     /**
-     * 订单购买数量
+     * 订单价格
      */
-    private Integer number;
+    private BigDecimal cost;
 
     /**
      * -1->取消，0->未支付，1->已支付

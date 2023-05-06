@@ -6,4 +6,10 @@
         set stock = stock + #{updateStockNumber}, update_time = #{updateTime}
         where ware_id= #{wareId}
     </update>
+
+    <update id="lockStock">
+        update ware_info
+        set lock_number = lock_number + #{todoLockNumber}, update_time = #{updateTime}
+        where ware_id= #{wareId} and stock >= lock_number + #{todoLockNumber}
+    </update>
 </mapper>

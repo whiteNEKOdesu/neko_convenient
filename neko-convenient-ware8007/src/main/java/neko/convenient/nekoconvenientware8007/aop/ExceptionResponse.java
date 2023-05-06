@@ -233,4 +233,22 @@ public class ExceptionResponse {
                 .setResponseStatus(Response.ORDER_SERVICE_ERROR)
                 .compact();
     }
+
+    //库存不足异常
+    @ExceptionHandler(value = StockNotEnoughException.class)
+    public ResultObject<Object> stockNotEnoughExceptionHandler(StockNotEnoughException e){
+        exceptionLogger(e);
+        return new ResultObject<Object>()
+                .setResponseStatus(Response.STOCK_NOT_ENOUGH_ERROR)
+                .compact();
+    }
+
+    //rabbitmq消息发送异常
+    @ExceptionHandler(value = RabbitMQSendException.class)
+    public ResultObject<Object> rabbitMQSendExceptionHandler(RabbitMQSendException e){
+        exceptionLogger(e);
+        return new ResultObject<Object>()
+                .setResponseStatus(Response.RABBIT_MQ_SEND_ERROR)
+                .compact();
+    }
 }

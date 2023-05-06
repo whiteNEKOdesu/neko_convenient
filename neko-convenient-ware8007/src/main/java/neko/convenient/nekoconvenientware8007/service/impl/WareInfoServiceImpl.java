@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
 import neko.convenient.nekoconvenientcommonbase.utils.exception.NoSuchResultException;
 import neko.convenient.nekoconvenientcommonbase.utils.exception.ProductServiceException;
+import neko.convenient.nekoconvenientcommonbase.utils.exception.StockNotEnoughException;
 import neko.convenient.nekoconvenientware8007.entity.StockLockLog;
 import neko.convenient.nekoconvenientware8007.entity.StockUpdateLog;
 import neko.convenient.nekoconvenientware8007.entity.WareInfo;
@@ -118,9 +119,15 @@ public class WareInfoServiceImpl extends ServiceImpl<WareInfoMapper, WareInfo> i
             throw new NoSuchResultException("无此库存");
         }
 
+        //锁定库存
+        if(this.baseMapper.lockStock(wareInfo.getWareId(), vo.getLockNumber(), LocalDateTime.now()) != 1){
+            throw new StockNotEnoughException("库存不足");
+        }
+
         //新增库存锁定记录
         StockLockLog stockLockLog = new StockLockLog();
-        stockLockLog.setWareId(wareInfo.getWareId())
+        stockLockLog.setOrderRecord(vo.getOrderRecord())
+                .setWareId(wareInfo.getWareId())
                 .setLockNumber(vo.getLockNumber());
         stockLockLogService.newStockLockLog(stockLockLog);
     }
