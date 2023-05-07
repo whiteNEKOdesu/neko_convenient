@@ -2,6 +2,7 @@ package neko.convenient.nekoconvenientorder8008.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.Constant;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
@@ -106,5 +107,14 @@ public class OrderLogServiceImpl extends ServiceImpl<OrderLogMapper, OrderLog> i
                 .setUpdateTime(now);
 
         this.baseMapper.insert(orderLog);
+    }
+
+    /**
+     * 根据订单号获取获取预生成订单状态
+     */
+    @Override
+    public OrderLog getOrderLogByOrderRecord(String orderRecord) {
+        return this.baseMapper.selectOne(new QueryWrapper<OrderLog>().lambda()
+                .eq(OrderLog::getOrderRecord, orderRecord));
     }
 }

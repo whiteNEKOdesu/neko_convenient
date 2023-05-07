@@ -21,4 +21,6 @@ public interface OrderLogService extends IService<OrderLog> {
     List<ProductInfoVo> getPreOrderProductInfos(String orderRecord);
 
     void newOrderLogService(OrderLog orderLog);
+
+    OrderLog getOrderLogByOrderRecord(String orderRecord);
 }

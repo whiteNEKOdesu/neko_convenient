@@ -20,4 +20,6 @@ public interface WareInfoService extends IService<WareInfo> {
     void addStockNumber(AddStockNumberVo vo);
 
     void lockStock(LockStockVo vo);
+
+    void unlockStock(String orderRecord);
 }

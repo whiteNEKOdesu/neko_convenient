@@ -4,13 +4,17 @@ import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.json.JSONUtil;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.Constant;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.RabbitMqConstant;
+import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
 import neko.convenient.nekoconvenientcommonbase.utils.exception.NoSuchResultException;
+import neko.convenient.nekoconvenientcommonbase.utils.exception.StockNotEnoughException;
 import neko.convenient.nekoconvenientorder8008.entity.OrderInfo;
 import neko.convenient.nekoconvenientorder8008.entity.OrderLog;
+import neko.convenient.nekoconvenientorder8008.feign.ware.WareInfoFeignService;
 import neko.convenient.nekoconvenientorder8008.mapper.OrderInfoMapper;
 import neko.convenient.nekoconvenientorder8008.service.OrderInfoService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import neko.convenient.nekoconvenientorder8008.service.OrderLogService;
+import neko.convenient.nekoconvenientorder8008.to.LockStockTo;
 import neko.convenient.nekoconvenientorder8008.to.OrderRedisTo;
 import neko.convenient.nekoconvenientorder8008.vo.NewOrderVo;
 import neko.convenient.nekoconvenientorder8008.vo.ProductInfoVo;
@@ -22,6 +26,7 @@ import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -44,6 +49,9 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     @Resource
     private OrderLogService orderLogService;
 
+    @Resource
+    private WareInfoFeignService wareInfoFeignService;
+
     /**
      * 新增订单
      */
@@ -64,10 +72,23 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             throw new NoSuchResultException("无此预生成订单信息");
         }
 
+        //总价
         BigDecimal totalPrice = new BigDecimal("0");
-        //计算总价
+        //锁定库存 to
+        LockStockTo lockStockTo = new LockStockTo();
+        List<LockStockTo.LockInfo> lockInfos = new ArrayList<>();
+        lockStockTo.setOrderRecord(orderRecord)
+                .setLockInfos(lockInfos);
         for(ProductInfoVo productInfo : productInfos){
+            //计算总价
             totalPrice = totalPrice.add(productInfo.getPrice());
+
+            //为锁定库存 to 设置信息
+            LockStockTo.LockInfo lockInfo = new LockStockTo.LockInfo();
+            lockInfo.setMarketId(productInfo.getMarketId())
+                    .setSkuId(productInfo.getSkuId())
+                    .setLockNumber(productInfo.getSkuNumber());
+            lockInfos.add(lockInfo);
         }
 
         OrderLog orderLog = new OrderLog();
@@ -77,7 +98,8 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         //向延迟队列发送订单号，用于超时解锁库存
         rabbitTemplate.convertAndSend(RabbitMqConstant.STOCK_EXCHANGE_NAME,
                 RabbitMqConstant.STOCK_DEAD_LETTER_ROUTING_KEY_NAME,
-                orderRecord);
+                orderRecord,
+                new CorrelationData(orderRecord));
 
         //新增订单生成记录，用于超时解锁库存
         orderLogService.newOrderLogService(orderLog);
@@ -92,5 +114,11 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
                 JSONUtil.toJsonStr(orderRedisTo),
                 1000 * 60 * 5,
                 TimeUnit.MILLISECONDS);
+
+        //远程调用库存微服务锁定库存
+        ResultObject<Object> r = wareInfoFeignService.lockStock(lockStockTo);
+        if(!r.getResponseCode().equals(200)){
+            throw new StockNotEnoughException("库存不足");
+        }
     }
 }
