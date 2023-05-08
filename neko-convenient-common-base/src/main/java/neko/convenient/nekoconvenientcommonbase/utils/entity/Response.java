@@ -30,6 +30,7 @@ public enum Response {
     NO_SUCH_RESULT_ERROR(17, "无查询结果错误"),
     STOCK_NOT_ENOUGH_ERROR(18, "库存不足错误"),
     RABBIT_MQ_SEND_ERROR(19, "rabbitmq消息发送错误"),
+    STOCK_UNLOCK_ERROR(20, "库存解锁错误"),
 
     MEMBER_SERVICE_ERROR(1000, "member微服务远程调用错误"),
     PRODUCT_SERVICE_ERROR(1001, "product微服务远程调用错误"),

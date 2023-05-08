@@ -5,14 +5,12 @@ import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.PreorderStatus;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.RabbitMqConstant;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.StockStatus;
-import neko.convenient.nekoconvenientcommonbase.utils.exception.NoSuchResultException;
-import neko.convenient.nekoconvenientcommonbase.utils.exception.OrderServiceException;
-import neko.convenient.nekoconvenientcommonbase.utils.exception.ProductServiceException;
-import neko.convenient.nekoconvenientcommonbase.utils.exception.StockNotEnoughException;
+import neko.convenient.nekoconvenientcommonbase.utils.exception.*;
 import neko.convenient.nekoconvenientware8007.entity.StockLockLog;
 import neko.convenient.nekoconvenientware8007.entity.StockUpdateLog;
 import neko.convenient.nekoconvenientware8007.entity.WareInfo;
@@ -46,6 +44,7 @@ import java.util.List;
  * @since 2023-04-22
  */
 @Service
+@Slf4j
 public class WareInfoServiceImpl extends ServiceImpl<WareInfoMapper, WareInfo> implements WareInfoService {
     @Resource
     private SkuInfoFeignService skuInfoFeignService;
@@ -166,8 +165,14 @@ public class WareInfoServiceImpl extends ServiceImpl<WareInfoMapper, WareInfo> i
         stockLockLogService.saveBatch(stockLockLogs);
     }
 
+    /**
+     * 解锁指定订单号库存数量
+     */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void unlockStock(String orderRecord) {
+        log.info("订单超时准备解锁库存，订单号: " + orderRecord);
+        //远程调用订单微服务获取订单状态信息
         ResultObject<OrderLogTo> r = orderLogFeignService.preorderStatus(orderRecord);
         if(!r.getResponseCode().equals(200)){
             throw new OrderServiceException("order微服务远程调用异常");
@@ -176,11 +181,25 @@ public class WareInfoServiceImpl extends ServiceImpl<WareInfoMapper, WareInfo> i
         OrderLogTo result = r.getResult();
         //订单未取消，不解锁库存
         if(!result.getStatus().equals(PreorderStatus.CANCEL)){
-            return;
+            throw new StockUnlockException("订单未取消，不解锁库存");
         }
 
+        //获取订单锁定库存记录信息
         List<StockLockLog> stockLockLogs = stockLockLogService.lambdaQuery().eq(StockLockLog::getOrderRecord, orderRecord)
                 .eq(StockLockLog::getStatus, StockStatus.LOCKING)
                 .list();
+        LocalDateTime now = LocalDateTime.now();
+        for(StockLockLog stockLockLog : stockLockLogs){
+            //解锁库存
+            this.baseMapper.unlockStock(stockLockLog.getWareId(),
+                    stockLockLog.getStockLockLogId(),
+                    now);
+
+            //修改库存锁定记录状态为已解锁
+            stockLockLogService.updateStockLockLogStatus(stockLockLog.getStockLockLogId(),
+                    StockStatus.CANCEL_LOCK,
+                    now);
+        }
+        log.info("订单超时解锁库存完成，订单号: " + orderRecord);
     }
 }

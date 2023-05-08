@@ -198,4 +198,13 @@ public class ExceptionResponse {
                 .setResponseStatus(Response.RABBIT_MQ_SEND_ERROR)
                 .compact();
     }
+
+    //库存解锁异常
+    @ExceptionHandler(value = StockUnlockException.class)
+    public ResultObject<Object> stockUnlockExceptionHandler(StockUnlockException e){
+        exceptionLogger(e);
+        return new ResultObject<Object>()
+                .setResponseStatus(Response.STOCK_UNLOCK_ERROR)
+                .compact();
+    }
 }

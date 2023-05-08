@@ -23,4 +23,6 @@ public interface OrderLogService extends IService<OrderLog> {
     void newOrderLogService(OrderLog orderLog);
 
     OrderLog getOrderLogByOrderRecord(String orderRecord);
+
+    void updateOrderLogStatusToCancel(String orderRecord);
 }

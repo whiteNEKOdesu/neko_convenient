@@ -24,4 +24,11 @@ public class WareInfoMapperTest {
                 5,
                 LocalDateTime.now());
     }
+
+    @Test
+    public void unlockStock(){
+        wareInfoMapper.unlockStock("1650021793701879809",
+                "1655435506026135554",
+                LocalDateTime.now());
+    }
 }

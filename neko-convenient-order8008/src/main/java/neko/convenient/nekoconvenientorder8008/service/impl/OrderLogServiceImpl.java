@@ -117,4 +117,12 @@ public class OrderLogServiceImpl extends ServiceImpl<OrderLogMapper, OrderLog> i
         return this.baseMapper.selectOne(new QueryWrapper<OrderLog>().lambda()
                 .eq(OrderLog::getOrderRecord, orderRecord));
     }
+
+    /**
+     * 根据订单号修改订单状态为取消状态
+     */
+    @Override
+    public void updateOrderLogStatusToCancel(String orderRecord) {
+        this.baseMapper.updateOrderLogStatusToCancel(orderRecord, LocalDateTime.now());
+    }
 }

@@ -3,6 +3,8 @@ package neko.convenient.nekoconvenientware8007.service;
 import neko.convenient.nekoconvenientware8007.entity.StockLockLog;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.time.LocalDateTime;
+
 /**
  * <p>
  * 库存锁定日志表 服务类
@@ -13,4 +15,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface StockLockLogService extends IService<StockLockLog> {
     void newStockLockLog(StockLockLog stockLockLog);
+
+    void updateStockLockLogStatus(String stockLockLogId,
+                                  Byte status,
+                                  LocalDateTime updateTime);
 }

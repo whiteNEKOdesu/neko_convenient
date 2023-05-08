@@ -58,4 +58,14 @@ public class WareInfoController {
 
         return ResultObject.ok();
     }
+
+    /**
+     * 解锁指定订单号库存数量，建议只提供给微服务远程调用
+     */
+    @PostMapping("unlock_stock")
+    public ResultObject<Object> unlockStock(@RequestParam String orderRecord){
+        wareInfoService.unlockStock(orderRecord);
+
+        return ResultObject.ok();
+    }
 }

@@ -30,4 +30,12 @@ public class StockLockLogServiceImpl extends ServiceImpl<StockLockLogMapper, Sto
 
         this.baseMapper.insert(stockLockLog);
     }
+
+    /**
+     * 修改库存锁定记录状态
+     */
+    @Override
+    public void updateStockLockLogStatus(String stockLockLogId, Byte status, LocalDateTime updateTime) {
+        this.baseMapper.updateStockLockLogStatus(stockLockLogId, status, updateTime);
+    }
 }

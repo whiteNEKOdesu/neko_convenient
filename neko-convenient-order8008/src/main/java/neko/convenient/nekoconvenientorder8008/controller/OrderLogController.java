@@ -47,7 +47,6 @@ public class OrderLogController {
     /**
      * 根据订单号获取获取预生成订单状态，建议只提供给微服务远程调用
      */
-    @SaCheckLogin
     @PostMapping("preorder_status")
     public ResultObject<OrderLog> preorderStatus(@RequestParam String orderRecord){
         return ResultObject.ok(orderLogService.getOrderLogByOrderRecord(orderRecord));
