@@ -17,4 +17,6 @@ public class OrderRedisTo implements Serializable {
     private String orderRecord;
 
     private List<ProductInfoVo> productInfos;
+
+    private String alipayPage;
 }

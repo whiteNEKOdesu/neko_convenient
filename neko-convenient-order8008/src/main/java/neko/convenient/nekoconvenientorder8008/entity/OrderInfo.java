@@ -31,6 +31,11 @@ public class OrderInfo implements Serializable {
 
     private String orderRecord;
 
+    /**
+     * 支付宝流水id
+     */
+    private String alipayTradeId;
+
     private String uid;
 
     /**

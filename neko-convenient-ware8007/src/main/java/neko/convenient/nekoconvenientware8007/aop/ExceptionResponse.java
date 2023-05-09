@@ -260,4 +260,13 @@ public class ExceptionResponse {
                 .setResponseStatus(Response.STOCK_UNLOCK_ERROR)
                 .compact();
     }
+
+    //订单超时异常
+    @ExceptionHandler(value = OrderOverTimeException.class)
+    public ResultObject<Object> orderOverTimeExceptionHandler(OrderOverTimeException e){
+        exceptionLogger(e);
+        return new ResultObject<Object>()
+                .setResponseStatus(Response.ORDER_OVER_TIME_ERROR)
+                .compact();
+    }
 }

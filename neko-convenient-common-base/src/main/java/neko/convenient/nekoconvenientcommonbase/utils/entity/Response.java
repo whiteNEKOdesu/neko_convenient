@@ -31,6 +31,7 @@ public enum Response {
     STOCK_NOT_ENOUGH_ERROR(18, "库存不足错误"),
     RABBIT_MQ_SEND_ERROR(19, "rabbitmq消息发送错误"),
     STOCK_UNLOCK_ERROR(20, "库存解锁错误"),
+    ORDER_OVER_TIME_ERROR(21, "订单超时错误"),
 
     MEMBER_SERVICE_ERROR(1000, "member微服务远程调用错误"),
     PRODUCT_SERVICE_ERROR(1001, "product微服务远程调用错误"),
