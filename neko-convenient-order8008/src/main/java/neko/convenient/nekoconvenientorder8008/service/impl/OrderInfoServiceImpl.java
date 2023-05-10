@@ -107,6 +107,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         OrderLog orderLog = new OrderLog();
         orderLog.setOrderRecord(orderRecord)
                 .setUid(uid)
+                .setReceiveAddressId(vo.getReceiveAddressId())
                 .setCost(totalPrice);
         //向延迟队列发送订单号，用于超时解锁库存
         rabbitTemplate.convertAndSend(RabbitMqConstant.STOCK_EXCHANGE_NAME,
@@ -214,9 +215,13 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
 
         if(signVerified){
             if(vo.getTrade_status().equals("TRADE_SUCCESS") || vo.getTrade_status().equals("TRADE_FINISHED")){
+                OrderLog orderLog = orderLogService.getOrderLogByOrderRecord(vo.getOut_trade_no());
+
                 OrderInfo orderInfo = new OrderInfo();
                 orderInfo.setOrderRecord(vo.getOut_trade_no())
-                        .setAlipayTradeId(vo.getTrade_no());
+                        .setAlipayTradeId(vo.getTrade_no())
+                        .setUid(orderLog.getUid())
+                        .setReceiveAddressId(orderLog.getReceiveAddressId());
 
                 this.baseMapper.insert(orderInfo);
             }

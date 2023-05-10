@@ -34,6 +34,11 @@ public class OrderLog implements Serializable {
     private String uid;
 
     /**
+     * 收货地址id
+     */
+    private String receiveAddressId;
+
+    /**
      * 订单价格
      */
     private BigDecimal cost;

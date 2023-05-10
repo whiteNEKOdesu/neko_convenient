@@ -38,6 +38,8 @@ public class StockLockLog implements Serializable {
      */
     private String wareId;
 
+    private String skuId;
+
     /**
      * 库存锁定数量
      */

@@ -154,6 +154,7 @@ public class WareInfoServiceImpl extends ServiceImpl<WareInfoMapper, WareInfo> i
             StockLockLog stockLockLog = new StockLockLog();
             stockLockLog.setOrderRecord(orderRecord)
                     .setWareId(wareInfo.getWareId())
+                    .setSkuId(wareInfo.getSkuId())
                     .setLockNumber(lockInfo.getLockNumber())
                     .setCreateTime(now)
                     .setUpdateTime(now);
