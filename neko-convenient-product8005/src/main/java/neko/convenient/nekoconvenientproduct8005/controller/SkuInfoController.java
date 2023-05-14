@@ -9,10 +9,7 @@ import neko.convenient.nekoconvenientcommonbase.utils.entity.RoleType;
 import neko.convenient.nekoconvenientproduct8005.entity.MarketInfo;
 import neko.convenient.nekoconvenientproduct8005.entity.SkuInfo;
 import neko.convenient.nekoconvenientproduct8005.service.SkuInfoService;
-import neko.convenient.nekoconvenientproduct8005.vo.ProductInfoVo;
-import neko.convenient.nekoconvenientproduct8005.vo.SkuInfoVo;
-import neko.convenient.nekoconvenientproduct8005.vo.SpuAndSkuVo;
-import neko.convenient.nekoconvenientproduct8005.vo.UpdateSkuInfoVo;
+import neko.convenient.nekoconvenientproduct8005.vo.*;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -91,5 +88,13 @@ public class SkuInfoController {
     @PostMapping("product_infos")
     public ResultObject<List<ProductInfoVo>> productInfos(@RequestBody List<String> skuIds){
         return ResultObject.ok(skuInfoService.getProductInfosBySkuIds(skuIds));
+    }
+
+    /**
+     * 根据orderRecord获取订单详情信息信息，建议只提供给微服务远程调用
+     */
+    @PostMapping("order_detail_infos")
+    public ResultObject<List<OrderDetailInfoVo>> orderDetailInfos(@RequestParam String orderRecord){
+        return ResultObject.ok(skuInfoService.getOrderDetailInfosByOrderRecord(orderRecord));
     }
 }

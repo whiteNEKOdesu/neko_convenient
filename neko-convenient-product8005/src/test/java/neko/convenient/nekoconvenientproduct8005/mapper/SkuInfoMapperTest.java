@@ -20,4 +20,9 @@ public class SkuInfoMapperTest {
     public void getProductInfosBySkuIds(){
         System.out.println(skuInfoMapper.getProductInfosBySkuIds(Arrays.asList("1648589292781449218", "1648603469965189121")));
     }
+
+    @Test
+    public void getOrderDetailInfoBySkuId(){
+        System.out.println(skuInfoMapper.getOrderDetailInfoBySkuId("1648589292781449218"));
+    }
 }

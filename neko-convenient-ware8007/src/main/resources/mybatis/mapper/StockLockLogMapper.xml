@@ -6,4 +6,9 @@
         set status = #{status}, update_time = #{updateTime}
         where stock_lock_log_id= #{stockLockLogId}
     </update>
+
+    <select id="getLockProductInfoByOrderRecord" resultType="neko.convenient.nekoconvenientware8007.vo.LockProductInfoVo">
+        select sku_id, lock_number, price from stock_lock_log
+        where order_record = #{orderRecord}
+    </select>
 </mapper>

@@ -10,20 +10,21 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.Constant;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.QueryVo;
+import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
 import neko.convenient.nekoconvenientcommonbase.utils.exception.NoSuchResultException;
+import neko.convenient.nekoconvenientcommonbase.utils.exception.WareServiceException;
 import neko.convenient.nekoconvenientproduct8005.elasticsearch.entity.ProductInfoES;
 import neko.convenient.nekoconvenientproduct8005.entity.MarketInfo;
 import neko.convenient.nekoconvenientproduct8005.entity.SkuInfo;
 import neko.convenient.nekoconvenientproduct8005.entity.SpuInfo;
+import neko.convenient.nekoconvenientproduct8005.feign.ware.StockLockLogFeignService;
 import neko.convenient.nekoconvenientproduct8005.mapper.SkuInfoMapper;
 import neko.convenient.nekoconvenientproduct8005.service.MarketInfoService;
 import neko.convenient.nekoconvenientproduct8005.service.SkuInfoService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import neko.convenient.nekoconvenientproduct8005.service.SpuInfoService;
-import neko.convenient.nekoconvenientproduct8005.vo.ProductInfoVo;
-import neko.convenient.nekoconvenientproduct8005.vo.SkuInfoVo;
-import neko.convenient.nekoconvenientproduct8005.vo.SpuAndSkuVo;
-import neko.convenient.nekoconvenientproduct8005.vo.UpdateSkuInfoVo;
+import neko.convenient.nekoconvenientproduct8005.to.LockProductInfoTo;
+import neko.convenient.nekoconvenientproduct8005.vo.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -31,6 +32,7 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -55,6 +57,9 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoMapper, SkuInfo> impl
 
     @Resource
     private ElasticsearchClient elasticsearchClient;
+
+    @Resource
+    private StockLockLogFeignService stockLockLogFeignService;
 
     @Resource
     private Executor threadPool;
@@ -200,5 +205,29 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoMapper, SkuInfo> impl
         }
 
         return this.baseMapper.getProductInfosBySkuIds(skuIds);
+    }
+
+    /**
+     * 根据orderRecord获取订单详情信息信息
+     */
+    @Override
+    public List<OrderDetailInfoVo> getOrderDetailInfosByOrderRecord(String orderRecord) {
+        ResultObject<List<LockProductInfoTo>> r = stockLockLogFeignService.orderRecordSkuIdInfos(orderRecord);
+        if(!r.getResponseCode().equals(200)){
+            throw new WareServiceException("库存微服务远程调用异常");
+        }
+
+        List<LockProductInfoTo> result = r.getResult();
+        List<OrderDetailInfoVo> orderDetailInfoVos = new ArrayList<>();
+        for(LockProductInfoTo lockProductInfoTo : result){
+            String skuId = lockProductInfoTo.getSkuId();
+            OrderDetailInfoVo orderDetailInfo = this.baseMapper.getOrderDetailInfoBySkuId(skuId);
+            orderDetailInfo.setOrderRecord(orderRecord)
+                    .setNumber(lockProductInfoTo.getLockNumber())
+                    .setCost(lockProductInfoTo.getPrice());
+            orderDetailInfoVos.add(orderDetailInfo);
+        }
+
+        return orderDetailInfoVos;
     }
 }

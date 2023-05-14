@@ -43,25 +43,6 @@ public class OrderInfo implements Serializable {
      */
     private String receiveAddressId;
 
-    private String skuId;
-
-    private String skuName;
-
-    private String skuImage;
-
-    private String spuId;
-
-    private String brandId;
-
-    private String brandName;
-
-    private String marketId;
-
-    /**
-     * 订单购买数量
-     */
-    private Integer number;
-
     /**
      * 订单总价
      */
@@ -76,16 +57,6 @@ public class OrderInfo implements Serializable {
      * 获取积分
      */
     private Integer point;
-
-    /**
-     * 快递员id
-     */
-    private String deliverWorkerId;
-
-    /**
-     * 快递员名
-     */
-    private String deliverWorkerName;
 
     /**
      * 订单类型，0->正常购买，1->团购

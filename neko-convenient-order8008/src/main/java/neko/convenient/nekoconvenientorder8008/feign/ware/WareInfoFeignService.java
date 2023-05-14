@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(value = ServiceName.WARE_SERVICE)
+@FeignClient(value = ServiceName.WARE_SERVICE, contextId = "WareInfo")
 public interface WareInfoFeignService {
     @PostMapping("ware_info/lock_stock")
     ResultObject<Object> lockStock(@RequestBody LockStockTo to);

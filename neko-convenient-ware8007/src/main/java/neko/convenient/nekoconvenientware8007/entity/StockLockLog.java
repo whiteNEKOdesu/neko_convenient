@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
@@ -44,6 +45,11 @@ public class StockLockLog implements Serializable {
      * 库存锁定数量
      */
     private Integer lockNumber;
+
+    /**
+     * 价格
+     */
+    private BigDecimal price;
 
     /**
      * -1->已取消锁定，0->锁定中，1->用户已支付

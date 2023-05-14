@@ -5,10 +5,7 @@ import neko.convenient.nekoconvenientcommonbase.utils.entity.QueryVo;
 import neko.convenient.nekoconvenientproduct8005.entity.MarketInfo;
 import neko.convenient.nekoconvenientproduct8005.entity.SkuInfo;
 import com.baomidou.mybatisplus.extension.service.IService;
-import neko.convenient.nekoconvenientproduct8005.vo.ProductInfoVo;
-import neko.convenient.nekoconvenientproduct8005.vo.SkuInfoVo;
-import neko.convenient.nekoconvenientproduct8005.vo.SpuAndSkuVo;
-import neko.convenient.nekoconvenientproduct8005.vo.UpdateSkuInfoVo;
+import neko.convenient.nekoconvenientproduct8005.vo.*;
 
 import java.io.IOException;
 import java.util.List;
@@ -34,4 +31,6 @@ public interface SkuInfoService extends IService<SkuInfo> {
     void updateSkuInfoBySkuId(UpdateSkuInfoVo vo) throws IOException;
 
     List<ProductInfoVo> getProductInfosBySkuIds(List<String> skuIds);
+
+    List<OrderDetailInfoVo> getOrderDetailInfosByOrderRecord(String orderRecord);
 }

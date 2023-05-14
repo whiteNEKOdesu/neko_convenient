@@ -16,4 +16,12 @@
             #{id}
         </foreach>
     </select>
+
+    <select id="getOrderDetailInfoBySkuId" resultType="neko.convenient.nekoconvenientproduct8005.vo.OrderDetailInfoVo">
+        select sku_info.sku_id, sku_info.spu_id, sku_info.market_id,
+                sku_info.sku_name, market_info.brand_id, market_info.brand_name, sku_info.sku_image from sku_info
+        join market_info
+        on sku_info.market_id = market_info.market_id
+        where sku_info.sku_id = #{skuId}
+    </select>
 </mapper>

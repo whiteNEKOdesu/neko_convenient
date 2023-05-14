@@ -2,8 +2,10 @@ package neko.convenient.nekoconvenientware8007.service;
 
 import neko.convenient.nekoconvenientware8007.entity.StockLockLog;
 import com.baomidou.mybatisplus.extension.service.IService;
+import neko.convenient.nekoconvenientware8007.vo.LockProductInfoVo;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * <p>
@@ -19,4 +21,6 @@ public interface StockLockLogService extends IService<StockLockLog> {
     void updateStockLockLogStatus(String stockLockLogId,
                                   Byte status,
                                   LocalDateTime updateTime);
+
+    List<LockProductInfoVo> getSkuIdsByOrderRecord(String orderRecord);
 }

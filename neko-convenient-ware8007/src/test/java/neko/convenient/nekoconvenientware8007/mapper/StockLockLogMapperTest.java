@@ -18,4 +18,9 @@ public class StockLockLogMapperTest {
                 StockStatus.CANCEL_LOCK,
                 LocalDateTime.now());
     }
+
+    @Test
+    public void getLockProductInfoByOrderRecord(){
+        System.out.println(stockLockLogMapper.getLockProductInfoByOrderRecord("202305091237533201655794192519102466"));
+    }
 }

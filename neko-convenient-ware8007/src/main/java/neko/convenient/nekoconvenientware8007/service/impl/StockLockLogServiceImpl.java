@@ -4,9 +4,11 @@ import neko.convenient.nekoconvenientware8007.entity.StockLockLog;
 import neko.convenient.nekoconvenientware8007.mapper.StockLockLogMapper;
 import neko.convenient.nekoconvenientware8007.service.StockLockLogService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import neko.convenient.nekoconvenientware8007.vo.LockProductInfoVo;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * <p>
@@ -37,5 +39,13 @@ public class StockLockLogServiceImpl extends ServiceImpl<StockLockLogMapper, Sto
     @Override
     public void updateStockLockLogStatus(String stockLockLogId, Byte status, LocalDateTime updateTime) {
         this.baseMapper.updateStockLockLogStatus(stockLockLogId, status, updateTime);
+    }
+
+    /**
+     * 根据orderRecord查询锁定商品信息
+     */
+    @Override
+    public List<LockProductInfoVo> getSkuIdsByOrderRecord(String orderRecord) {
+        return this.baseMapper.getLockProductInfoByOrderRecord(orderRecord);
     }
 }
