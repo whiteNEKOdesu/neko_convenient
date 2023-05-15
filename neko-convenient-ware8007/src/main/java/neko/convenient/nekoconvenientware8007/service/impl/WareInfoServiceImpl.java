@@ -156,6 +156,7 @@ public class WareInfoServiceImpl extends ServiceImpl<WareInfoMapper, WareInfo> i
                     .setWareId(wareInfo.getWareId())
                     .setSkuId(wareInfo.getSkuId())
                     .setLockNumber(lockInfo.getLockNumber())
+                    .setPrice(lockInfo.getPrice())
                     .setCreateTime(now)
                     .setUpdateTime(now);
             //将锁定库存记录加入到 List 中
@@ -180,6 +181,10 @@ public class WareInfoServiceImpl extends ServiceImpl<WareInfoMapper, WareInfo> i
         }
 
         OrderLogTo result = r.getResult();
+        if(result == null){
+            throw new NoSuchResultException("订单不存在");
+        }
+
         //订单未取消，不解锁库存
         if(!result.getStatus().equals(PreorderStatus.CANCEL)){
             throw new StockUnlockException("订单未取消，不解锁库存");

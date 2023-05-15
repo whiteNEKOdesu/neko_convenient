@@ -2,9 +2,11 @@ package neko.convenient.nekoconvenientorder8008.listener;
 
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
+import neko.convenient.nekoconvenientcommonbase.utils.entity.PreorderStatus;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.RabbitMqConstant;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
 import neko.convenient.nekoconvenientcommonbase.utils.exception.StockUnlockException;
+import neko.convenient.nekoconvenientorder8008.entity.OrderLog;
 import neko.convenient.nekoconvenientorder8008.feign.ware.WareInfoFeignService;
 import neko.convenient.nekoconvenientorder8008.service.OrderLogService;
 import org.springframework.amqp.core.Message;
@@ -27,9 +29,16 @@ public class OrderListener {
 
     @RabbitHandler
     public void StockUnlock(String orderRecord, Message message, Channel channel) throws IOException {
-        log.info("订单超时准备验证关闭，订单号: " + orderRecord);
-
         try {
+            OrderLog orderLog = orderLogService.getOrderLogByOrderRecord(orderRecord);
+            //订单不为未支付状态，无需取消订单
+            if(!orderLog.getStatus().equals(PreorderStatus.UNPAY)){
+                //单个确认消费消息
+                channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+                return;
+            }
+
+            log.info("订单超时准备验证关闭，订单号: " + orderRecord);
             //修改订单状态为取消状态
             orderLogService.updateOrderLogStatusToCancel(orderRecord);
 

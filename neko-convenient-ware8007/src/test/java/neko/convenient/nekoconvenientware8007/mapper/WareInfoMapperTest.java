@@ -31,4 +31,11 @@ public class WareInfoMapperTest {
                 "1655435506026135554",
                 LocalDateTime.now());
     }
+
+    @Test
+    public void decreaseStock(){
+        wareInfoMapper.decreaseStock("1650021793701879809",
+                5,
+                LocalDateTime.now());
+    }
 }

@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -29,5 +30,10 @@ public class LockStockTo implements Serializable {
          * 库存锁定数量
          */
         private Integer lockNumber;
+
+        /**
+         * 价格
+         */
+        private BigDecimal price;
     }
 }

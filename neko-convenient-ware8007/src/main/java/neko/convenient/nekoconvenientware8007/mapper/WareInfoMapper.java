@@ -27,4 +27,8 @@ public interface WareInfoMapper extends BaseMapper<WareInfo> {
     int unlockStock(String wareId,
                     String stockLockLogId,
                     LocalDateTime updateTime);
+
+    void decreaseStock(String wareId,
+                       Integer lockNumber,
+                       LocalDateTime updateTime);
 }

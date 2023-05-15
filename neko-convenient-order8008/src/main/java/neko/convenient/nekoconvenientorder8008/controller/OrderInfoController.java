@@ -4,12 +4,14 @@ import cn.dev33.satoken.annotation.SaCheckLogin;
 import com.alipay.api.AlipayApiException;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
 import neko.convenient.nekoconvenientorder8008.service.OrderInfoService;
+import neko.convenient.nekoconvenientorder8008.vo.AliPayAsyncVo;
 import neko.convenient.nekoconvenientorder8008.vo.NewOrderVo;
 import neko.convenient.nekoconvenientorder8008.vo.ProductInfoVo;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -61,5 +63,13 @@ public class OrderInfoController {
     @PostMapping("available_order_infos")
     public ResultObject<List<ProductInfoVo>> availableOrderInfos(@RequestParam String orderRecord){
         return ResultObject.ok(orderInfoService.getAvailableOrderInfos(orderRecord));
+    }
+
+    /**
+     * 支付宝异步支付通知处理
+     */
+    @PostMapping("alipay_listener")
+    public String alipayListener(AliPayAsyncVo vo, HttpServletRequest request) throws AlipayApiException {
+        return orderInfoService.alipayTradeCheck(vo, request);
     }
 }

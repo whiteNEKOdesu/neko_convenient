@@ -4,6 +4,8 @@ import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.json.JSONUtil;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.internal.util.AlipaySignature;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.Constant;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.PreorderStatus;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.RabbitMqConstant;
@@ -11,13 +13,16 @@ import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
 import neko.convenient.nekoconvenientcommonbase.utils.exception.NoSuchResultException;
 import neko.convenient.nekoconvenientcommonbase.utils.exception.OrderOverTimeException;
 import neko.convenient.nekoconvenientcommonbase.utils.exception.StockNotEnoughException;
+import neko.convenient.nekoconvenientcommonbase.utils.exception.WareServiceException;
 import neko.convenient.nekoconvenientorder8008.config.AliPayTemplate;
+import neko.convenient.nekoconvenientorder8008.entity.OrderDetailInfo;
 import neko.convenient.nekoconvenientorder8008.entity.OrderInfo;
 import neko.convenient.nekoconvenientorder8008.entity.OrderLog;
+import neko.convenient.nekoconvenientorder8008.feign.product.SkuInfoFeignService;
 import neko.convenient.nekoconvenientorder8008.feign.ware.WareInfoFeignService;
 import neko.convenient.nekoconvenientorder8008.mapper.OrderInfoMapper;
+import neko.convenient.nekoconvenientorder8008.service.OrderDetailInfoService;
 import neko.convenient.nekoconvenientorder8008.service.OrderInfoService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import neko.convenient.nekoconvenientorder8008.service.OrderLogService;
 import neko.convenient.nekoconvenientorder8008.to.AliPayTo;
 import neko.convenient.nekoconvenientorder8008.to.LockStockTo;
@@ -29,11 +34,13 @@ import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,6 +56,7 @@ import java.util.concurrent.TimeUnit;
  * @since 2023-05-02
  */
 @Service
+@Slf4j
 public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo> implements OrderInfoService {
     @Resource
     private StringRedisTemplate stringRedisTemplate;
@@ -60,7 +68,13 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     private OrderLogService orderLogService;
 
     @Resource
+    private OrderDetailInfoService orderDetailInfoService;
+
+    @Resource
     private WareInfoFeignService wareInfoFeignService;
+
+    @Resource
+    private SkuInfoFeignService skuInfoFeignService;
 
     @Resource
     private AliPayTemplate aliPayTemplate;
@@ -100,7 +114,8 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             LockStockTo.LockInfo lockInfo = new LockStockTo.LockInfo();
             lockInfo.setMarketId(productInfo.getMarketId())
                     .setSkuId(productInfo.getSkuId())
-                    .setLockNumber(productInfo.getSkuNumber());
+                    .setLockNumber(productInfo.getSkuNumber())
+                    .setPrice(productInfo.getPrice());
             lockInfos.add(lockInfo);
         }
 
@@ -191,7 +206,11 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         return JSONUtil.toBean(orderInfo, OrderRedisTo.class).getProductInfos();
     }
 
+    /**
+     * 支付宝异步支付通知处理
+     */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public String alipayTradeCheck(AliPayAsyncVo vo, HttpServletRequest request) throws AlipayApiException {
         //验签
         Map<String,String> params = new HashMap<>();
@@ -216,14 +235,49 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         if(signVerified){
             if(vo.getTrade_status().equals("TRADE_SUCCESS") || vo.getTrade_status().equals("TRADE_FINISHED")){
                 OrderLog orderLog = orderLogService.getOrderLogByOrderRecord(vo.getOut_trade_no());
+                if(orderLog == null){
+                    log.error("订单号:" + vo.getOut_trade_no() + "，支付宝流水号: " + vo.getTrade_no() + "，订单不存在");
+                    return "error";
+                }
 
+                //生成订单信息
                 OrderInfo orderInfo = new OrderInfo();
+                LocalDateTime now = LocalDateTime.now();
                 orderInfo.setOrderRecord(vo.getOut_trade_no())
                         .setAlipayTradeId(vo.getTrade_no())
                         .setUid(orderLog.getUid())
-                        .setReceiveAddressId(orderLog.getReceiveAddressId());
+                        .setReceiveAddressId(orderLog.getReceiveAddressId())
+                        .setCost(orderLog.getCost())
+                        .setActualCost(orderLog.getCost())
+                        .setPoint(0)
+                        .setCreateTime(now)
+                        .setUpdateTime(now);
 
+                OrderLog todoOrderLog = new OrderLog();
+                todoOrderLog.setOrderLogId(orderLog.getOrderLogId())
+                        .setStatus(PreorderStatus.PAY);
+                //更新订单生成记录为已支付状态
+                orderLogService.updateById(todoOrderLog);
+
+                //记录订单
                 this.baseMapper.insert(orderInfo);
+
+                //远程调用product微服务获取订单详情信息
+                ResultObject<List<OrderDetailInfo>> r = skuInfoFeignService.orderDetailInfos(vo.getOut_trade_no());
+                if(!r.getResponseCode().equals(200)){
+                    throw new WareServiceException("库存微服务远程调用异常");
+                }
+
+                List<OrderDetailInfo> result = r.getResult();
+                for(OrderDetailInfo orderDetailInfo : result){
+                    orderDetailInfo.setCreateTime(now)
+                            .setUpdateTime(now);
+                }
+
+                //记录订单详情信息
+                orderDetailInfoService.saveBatch(result);
+
+                log.info("订单号:" + vo.getOut_trade_no() + "，支付宝流水号: " + vo.getTrade_no() + "，订单支付确认完成");
             }
 
             return "success";

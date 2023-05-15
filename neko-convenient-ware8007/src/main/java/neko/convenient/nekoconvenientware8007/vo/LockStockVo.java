@@ -8,6 +8,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -39,5 +40,11 @@ public class LockStockVo implements Serializable {
          */
         @NotNull
         private Integer lockNumber;
+
+        /**
+         * 价格
+         */
+        @NotNull
+        private BigDecimal price;
     }
 }
