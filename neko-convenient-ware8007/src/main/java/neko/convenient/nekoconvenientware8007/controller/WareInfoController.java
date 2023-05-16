@@ -68,4 +68,14 @@ public class WareInfoController {
 
         return ResultObject.ok();
     }
+
+    /**
+     * 解锁指定订单号库存并扣除库存，用于确认支付后扣除库存，建议只提供给微服务远程调用
+     */
+    @PostMapping("confirm_lock_stock_pay")
+    public ResultObject<Object> confirmLockStockPay(@RequestParam String orderRecord){
+        wareInfoService.confirmLockStockPay(orderRecord);
+
+        return ResultObject.ok();
+    }
 }

@@ -1,6 +1,8 @@
 package neko.convenient.nekoconvenientorder8008.service;
 
 import com.alipay.api.AlipayApiException;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import neko.convenient.nekoconvenientcommonbase.utils.entity.QueryVo;
 import neko.convenient.nekoconvenientorder8008.entity.OrderInfo;
 import com.baomidou.mybatisplus.extension.service.IService;
 import neko.convenient.nekoconvenientorder8008.vo.AliPayAsyncVo;
@@ -28,4 +30,8 @@ public interface OrderInfoService extends IService<OrderInfo> {
     List<ProductInfoVo> getAvailableOrderInfos(String orderRecord);
 
     String alipayTradeCheck(AliPayAsyncVo vo, HttpServletRequest request) throws AlipayApiException;
+
+    OrderInfo getOrderInfoByOrderRecord(String orderRecord);
+
+    Page<OrderInfo> getUserSelfOrderInfoByQueryLimitedPage(QueryVo vo);
 }

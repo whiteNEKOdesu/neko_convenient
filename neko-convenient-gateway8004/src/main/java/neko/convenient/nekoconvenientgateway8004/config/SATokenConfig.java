@@ -25,6 +25,7 @@ public class SATokenConfig {
                 .addInclude("/ware/ware_info/unlock_stock")
                 .addInclude("/ware/stock_lock_log/order_record_sku_id_infos")
                 .addInclude("/product/sku_info/order_detail_infos")
+                .addInclude("/ware/ware_info/confirm_lock_stock_pay")
                 .setAuth(obj -> {
                     StpUtil.checkRole("*");
                 })

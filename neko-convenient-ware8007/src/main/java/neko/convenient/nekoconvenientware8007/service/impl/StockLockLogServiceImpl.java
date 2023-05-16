@@ -48,4 +48,12 @@ public class StockLockLogServiceImpl extends ServiceImpl<StockLockLogMapper, Sto
     public List<LockProductInfoVo> getSkuIdsByOrderRecord(String orderRecord) {
         return this.baseMapper.getLockProductInfoByOrderRecord(orderRecord);
     }
+
+    /**
+     * 根据orderRecord查询锁定商品详情信息
+     */
+    @Override
+    public List<StockLockLog> getLockStockLockLogByOrderRecord(String orderRecord) {
+        return this.baseMapper.getLockStockLockLogByOrderRecord(orderRecord);
+    }
 }

@@ -208,4 +208,38 @@ public class WareInfoServiceImpl extends ServiceImpl<WareInfoMapper, WareInfo> i
         }
         log.info("订单超时解锁库存完成，订单号: " + orderRecord);
     }
+
+    /**
+     * 解锁指定订单号库存并扣除库存，用于确认支付后扣除库存
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void confirmLockStockPay(String orderRecord) {
+        //获取订单号锁定库存信息
+        List<StockLockLog> stockLockLogs = stockLockLogService.getLockStockLockLogByOrderRecord(orderRecord);
+        if(stockLockLogs == null || stockLockLogs.isEmpty()){
+            throw new NoSuchResultException("无此订单号锁定中库存");
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        List<StockLockLog> todoStockLockLogs = new ArrayList<>();
+        //解锁库存并扣除库存
+        for(StockLockLog stockLockLog : stockLockLogs){
+            this.baseMapper.decreaseStock(stockLockLog.getWareId(),
+                    stockLockLog.getLockNumber(),
+                    now);
+
+            //将库存锁定状态设置为已支付，批量修改
+            StockLockLog todoStockLockLog = new StockLockLog();
+            todoStockLockLog.setStockLockLogId(stockLockLog.getStockLockLogId())
+                    .setStatus(StockStatus.PAY)
+                    .setUpdateTime(now);
+            todoStockLockLogs.add(todoStockLockLog);
+        }
+
+        //将库存锁定状态修改为已支付
+        stockLockLogService.updateBatchById(todoStockLockLogs);
+
+        log.info("订单号: " + orderRecord + " 支付确认完成，解锁指定订单号库存并扣除库存完成");
+    }
 }

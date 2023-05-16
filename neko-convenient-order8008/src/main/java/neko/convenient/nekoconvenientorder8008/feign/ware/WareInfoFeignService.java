@@ -15,4 +15,7 @@ public interface WareInfoFeignService {
 
     @PostMapping("ware_info/unlock_stock")
     ResultObject<Object> unlockStock(@RequestParam String orderRecord);
+
+    @PostMapping("ware_info/confirm_lock_stock_pay")
+    ResultObject<Object> confirmLockStockPay(@RequestParam String orderRecord);
 }

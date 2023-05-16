@@ -2,7 +2,10 @@ package neko.convenient.nekoconvenientorder8008.controller;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import com.alipay.api.AlipayApiException;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import neko.convenient.nekoconvenientcommonbase.utils.entity.QueryVo;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
+import neko.convenient.nekoconvenientorder8008.entity.OrderInfo;
 import neko.convenient.nekoconvenientorder8008.service.OrderInfoService;
 import neko.convenient.nekoconvenientorder8008.vo.AliPayAsyncVo;
 import neko.convenient.nekoconvenientorder8008.vo.NewOrderVo;
@@ -57,7 +60,7 @@ public class OrderInfoController {
     }
 
     /**
-     * 根据订单号查询已创建订单信息
+     * 根据订单号查询已创建订单商品详情信息
      */
     @SaCheckLogin
     @PostMapping("available_order_infos")
@@ -71,5 +74,23 @@ public class OrderInfoController {
     @PostMapping("alipay_listener")
     public String alipayListener(AliPayAsyncVo vo, HttpServletRequest request) throws AlipayApiException {
         return orderInfoService.alipayTradeCheck(vo, request);
+    }
+
+    /**
+     * 根据订单号获取订单信息
+     */
+    @SaCheckLogin
+    @PostMapping("order_info")
+    public ResultObject<OrderInfo> orderInfo(@RequestParam String orderRecord){
+        return ResultObject.ok(orderInfoService.getOrderInfoByOrderRecord(orderRecord));
+    }
+
+    /**
+     * 分页查询用户自身订单信息
+     */
+    @SaCheckLogin
+    @PostMapping("user_self_order_infos")
+    public ResultObject<Page<OrderInfo>> userSelfOrderInfos(@Validated @RequestBody QueryVo vo){
+        return ResultObject.ok(orderInfoService.getUserSelfOrderInfoByQueryLimitedPage(vo));
     }
 }

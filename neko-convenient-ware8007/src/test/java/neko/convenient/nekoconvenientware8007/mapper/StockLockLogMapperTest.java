@@ -23,4 +23,9 @@ public class StockLockLogMapperTest {
     public void getLockProductInfoByOrderRecord(){
         System.out.println(stockLockLogMapper.getLockProductInfoByOrderRecord("202305091237533201655794192519102466"));
     }
+
+    @Test
+    public void getLockStockLockLogByOrderRecord(){
+        System.out.println(stockLockLogMapper.getLockStockLockLogByOrderRecord("202305151645490681658030913113571330"));
+    }
 }

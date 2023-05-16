@@ -22,4 +22,6 @@ public interface WareInfoService extends IService<WareInfo> {
     void lockStock(LockStockVo vo);
 
     void unlockStock(String orderRecord);
+
+    void confirmLockStockPay(String orderRecord);
 }

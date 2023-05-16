@@ -23,4 +23,6 @@ public interface StockLockLogMapper extends BaseMapper<StockLockLog> {
                                   LocalDateTime updateTime);
 
     List<LockProductInfoVo> getLockProductInfoByOrderRecord(String orderRecord);
+
+    List<StockLockLog> getLockStockLockLogByOrderRecord(String orderRecord);
 }

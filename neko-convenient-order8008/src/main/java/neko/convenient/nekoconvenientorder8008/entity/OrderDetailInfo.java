@@ -29,6 +29,8 @@ public class OrderDetailInfo implements Serializable {
 
     private String orderRecord;
 
+    private String uid;
+
     private String skuId;
 
     private String skuName;

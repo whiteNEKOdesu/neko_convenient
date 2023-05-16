@@ -11,4 +11,10 @@
         select sku_id, lock_number, price from stock_lock_log
         where order_record = #{orderRecord}
     </select>
+
+    <select id="getLockStockLockLogByOrderRecord" resultType="neko.convenient.nekoconvenientware8007.entity.StockLockLog">
+        select stock_lock_log_id, order_record, ware_id,
+               sku_id, lock_number, price, status, create_time, update_time from stock_lock_log
+        where order_record = #{orderRecord} and status = 0
+    </select>
 </mapper>

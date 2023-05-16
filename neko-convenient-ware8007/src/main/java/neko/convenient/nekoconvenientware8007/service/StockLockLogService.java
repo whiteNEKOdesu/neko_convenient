@@ -23,4 +23,6 @@ public interface StockLockLogService extends IService<StockLockLog> {
                                   LocalDateTime updateTime);
 
     List<LockProductInfoVo> getSkuIdsByOrderRecord(String orderRecord);
+
+    List<StockLockLog> getLockStockLockLogByOrderRecord(String orderRecord);
 }

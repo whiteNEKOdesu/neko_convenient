@@ -1,19 +1,16 @@
 package neko.convenient.nekoconvenientorder8008.service.impl;
 
+import cn.dev33.satoken.exception.NotPermissionException;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.json.JSONUtil;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.internal.util.AlipaySignature;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
-import neko.convenient.nekoconvenientcommonbase.utils.entity.Constant;
-import neko.convenient.nekoconvenientcommonbase.utils.entity.PreorderStatus;
-import neko.convenient.nekoconvenientcommonbase.utils.entity.RabbitMqConstant;
-import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
-import neko.convenient.nekoconvenientcommonbase.utils.exception.NoSuchResultException;
-import neko.convenient.nekoconvenientcommonbase.utils.exception.OrderOverTimeException;
-import neko.convenient.nekoconvenientcommonbase.utils.exception.StockNotEnoughException;
-import neko.convenient.nekoconvenientcommonbase.utils.exception.WareServiceException;
+import neko.convenient.nekoconvenientcommonbase.utils.entity.*;
+import neko.convenient.nekoconvenientcommonbase.utils.exception.*;
 import neko.convenient.nekoconvenientorder8008.config.AliPayTemplate;
 import neko.convenient.nekoconvenientorder8008.entity.OrderDetailInfo;
 import neko.convenient.nekoconvenientorder8008.entity.OrderInfo;
@@ -193,7 +190,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     }
 
     /**
-     * 根据订单号查询已创建订单信息
+     * 根据订单号查询已创建订单商品详情信息
      */
     @Override
     public List<ProductInfoVo> getAvailableOrderInfos(String orderRecord) {
@@ -236,7 +233,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             if(vo.getTrade_status().equals("TRADE_SUCCESS") || vo.getTrade_status().equals("TRADE_FINISHED")){
                 OrderLog orderLog = orderLogService.getOrderLogByOrderRecord(vo.getOut_trade_no());
                 if(orderLog == null){
-                    log.error("订单号:" + vo.getOut_trade_no() + "，支付宝流水号: " + vo.getTrade_no() + "，订单不存在");
+                    log.error("订单号: " + vo.getOut_trade_no() + "，支付宝流水号: " + vo.getTrade_no() + "，订单不存在");
                     return "error";
                 }
 
@@ -265,7 +262,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
                 //远程调用product微服务获取订单详情信息
                 ResultObject<List<OrderDetailInfo>> r = skuInfoFeignService.orderDetailInfos(vo.getOut_trade_no());
                 if(!r.getResponseCode().equals(200)){
-                    throw new WareServiceException("库存微服务远程调用异常");
+                    throw new ProductServiceException("商品微服务远程调用异常");
                 }
 
                 List<OrderDetailInfo> result = r.getResult();
@@ -277,12 +274,51 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
                 //记录订单详情信息
                 orderDetailInfoService.saveBatch(result);
 
-                log.info("订单号:" + vo.getOut_trade_no() + "，支付宝流水号: " + vo.getTrade_no() + "，订单支付确认完成");
+                //远程调用ware微服务解锁指定订单号库存并扣除库存
+                ResultObject<Object> confirmLockStockPayResult = wareInfoFeignService.confirmLockStockPay(vo.getOut_trade_no());
+                if(!confirmLockStockPayResult.getResponseCode().equals(200)){
+                    throw new WareServiceException("库存微服务远程调用异常");
+                }
+
+                log.info("订单号: " + vo.getOut_trade_no() + "，支付宝流水号: " + vo.getTrade_no() + "，订单支付确认完成");
             }
 
             return "success";
         }else{
             return "error";
         }
+    }
+
+    /**
+     * 根据订单号获取订单信息
+     */
+    @Override
+    public OrderInfo getOrderInfoByOrderRecord(String orderRecord) {
+        OrderInfo orderInfo = this.baseMapper.selectOne(new QueryWrapper<OrderInfo>()
+                .lambda()
+                .eq(OrderInfo::getOrderRecord, orderRecord));
+        if(!orderInfo.getUid().equals(StpUtil.getLoginId().toString())){
+            throw new NotPermissionException("权限不足");
+        }
+
+        return orderInfo;
+    }
+
+    /**
+     * 分页查询用户自身订单信息
+     */
+    @Override
+    public Page<OrderInfo> getUserSelfOrderInfoByQueryLimitedPage(QueryVo vo) {
+        Page<OrderInfo> page = new Page<>(vo.getCurrentPage(), vo.getLimited());
+        QueryWrapper<OrderInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(OrderInfo::getUid, StpUtil.getLoginId().toString())
+                .orderByDesc(OrderInfo::getOrderId);
+        if(StringUtils.hasText(vo.getQueryWords())){
+            queryWrapper.lambda().eq(OrderInfo::getOrderRecord, vo.getQueryWords());
+        }
+
+        this.baseMapper.selectPage(page, queryWrapper);
+
+        return page;
     }
 }

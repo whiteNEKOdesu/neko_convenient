@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -18,8 +20,7 @@ import lombok.experimental.Accessors;
  * @author NEKO
  * @since 2023-04-22
  */
-@Getter
-@Setter
+@Data
 @Accessors(chain = true)
 @TableName("stock_lock_log")
 public class StockLockLog implements Serializable {
