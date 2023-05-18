@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="neko.convenient.nekoconvenientproduct8005.mapper.PointDictMapper">
+    <select id="getHighestMaxPrice" resultType="neko.convenient.nekoconvenientproduct8005.entity.PointDict">
+        select point_id, min_price, max_price, point from point_dict
+        order by max_price desc
+        limit 1
+    </select>
+</mapper>

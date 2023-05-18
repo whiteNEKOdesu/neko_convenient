@@ -51,4 +51,24 @@ public class OrderLogController {
     public ResultObject<OrderLog> preorderStatus(@RequestParam String orderRecord){
         return ResultObject.ok(orderLogService.getOrderLogByOrderRecord(orderRecord));
     }
+
+    /**
+     * 向购物车中添加商品
+     */
+    @SaCheckLogin
+    @PutMapping("add_purchase_list")
+    public ResultObject<Object> addPurchaseList(@Validated @RequestBody PreOrderVo vo){
+        orderLogService.addSkusIntoPurchaseList(vo);
+
+        return ResultObject.ok();
+    }
+
+    /**
+     * 获取购物车信息
+     */
+    @SaCheckLogin
+    @PostMapping("purchase_list_infos")
+    public ResultObject<List<ProductInfoVo>> purchaseListInfos(){
+        return ResultObject.ok(orderLogService.getPurchaseListInfo());
+    }
 }

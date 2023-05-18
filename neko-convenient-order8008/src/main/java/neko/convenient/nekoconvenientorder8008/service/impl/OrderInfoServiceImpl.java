@@ -43,6 +43,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -238,11 +239,12 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
                 }
 
                 //生成订单信息
+                String uid = orderLog.getUid();
                 OrderInfo orderInfo = new OrderInfo();
                 LocalDateTime now = LocalDateTime.now();
                 orderInfo.setOrderRecord(vo.getOut_trade_no())
                         .setAlipayTradeId(vo.getTrade_no())
-                        .setUid(orderLog.getUid())
+                        .setUid(uid)
                         .setReceiveAddressId(orderLog.getReceiveAddressId())
                         .setCost(orderLog.getCost())
                         .setActualCost(orderLog.getCost())
@@ -267,7 +269,8 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
 
                 List<OrderDetailInfo> result = r.getResult();
                 for(OrderDetailInfo orderDetailInfo : result){
-                    orderDetailInfo.setCreateTime(now)
+                    orderDetailInfo.setUid(uid)
+                            .setCreateTime(now)
                             .setUpdateTime(now);
                 }
 
@@ -278,6 +281,15 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
                 ResultObject<Object> confirmLockStockPayResult = wareInfoFeignService.confirmLockStockPay(vo.getOut_trade_no());
                 if(!confirmLockStockPayResult.getResponseCode().equals(200)){
                     throw new WareServiceException("库存微服务远程调用异常");
+                }
+                String key = Constant.ORDER_REDIS_PREFIX + "order_record:" + uid + orderInfo.getOrderRecord() + ":is_from_purchase_list";
+                String purchaseListKey = Constant.ORDER_REDIS_PREFIX + "purchase_list:" + uid;
+                String isFromPurchase = stringRedisTemplate.opsForValue().get(key);
+                //删除购物车以购买商品
+                if(isFromPurchase != null){
+                    List<String> skuIds = result.stream().map(OrderDetailInfo::getSkuId)
+                            .collect(Collectors.toList());
+                    orderLogService.deletePurchaseList(skuIds, purchaseListKey);
                 }
 
                 log.info("订单号: " + vo.getOut_trade_no() + "，支付宝流水号: " + vo.getTrade_no() + "，订单支付确认完成");

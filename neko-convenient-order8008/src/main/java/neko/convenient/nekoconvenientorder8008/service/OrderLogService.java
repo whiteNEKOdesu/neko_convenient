@@ -25,4 +25,10 @@ public interface OrderLogService extends IService<OrderLog> {
     OrderLog getOrderLogByOrderRecord(String orderRecord);
 
     void updateOrderLogStatusToCancel(String orderRecord);
+
+    void addSkusIntoPurchaseList(PreOrderVo vo);
+
+    List<ProductInfoVo> getPurchaseListInfo();
+
+    void deletePurchaseList(List<String> skuIds, String key);
 }
