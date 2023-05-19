@@ -2,6 +2,9 @@ package neko.convenient.nekoconvenientproduct8005.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import neko.convenient.nekoconvenientproduct8005.entity.PointDict;
+import neko.convenient.nekoconvenientproduct8005.vo.NewPointDictVo;
+
+import java.util.List;
 
 /**
  * <p>
@@ -12,5 +15,11 @@ import neko.convenient.nekoconvenientproduct8005.entity.PointDict;
  * @since 2023-04-01
  */
 public interface PointDictService extends IService<PointDict> {
+    void newPointDict(NewPointDictVo vo);
 
+    List<PointDict> getPointDictInfos();
+
+    void deleteHighestPricePointDict();
+
+    void updateHighestPricePointDict(NewPointDictVo vo);
 }

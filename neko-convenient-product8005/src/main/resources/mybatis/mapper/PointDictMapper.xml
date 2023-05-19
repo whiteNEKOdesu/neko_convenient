@@ -6,4 +6,32 @@
         order by max_price desc
         limit 1
     </select>
+
+    <insert id="newPointDict">
+        insert into point_dict(min_price, max_price, point, create_time, update_time)
+        values(#{minPrice}, #{maxPrice}, #{point}, #{createTime}, #{updateTime})
+    </insert>
+
+    <delete id="deleteHighestPricePointDict">
+        delete from point_dict
+        where point_id = (
+            select point_id from (
+                select point_id from point_dict
+                order by max_price desc
+                limit 1
+            ) child_point_id
+        )
+    </delete>
+
+    <update id="updateHighestPricePointDict">
+        update point_dict
+        set max_price = #{maxPrice}, point = #{point}, update_time = #{updateTime}
+        where point_id = (
+            select point_id from (
+                select point_id from point_dict
+                order by max_price desc
+                limit 1
+            ) child_point_id
+        )
+    </update>
 </mapper>
