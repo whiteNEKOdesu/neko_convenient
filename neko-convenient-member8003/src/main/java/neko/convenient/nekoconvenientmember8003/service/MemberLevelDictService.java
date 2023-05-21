@@ -21,4 +21,6 @@ public interface MemberLevelDictService extends IService<MemberLevelDict> {
     Page<MemberLevelDict> getMemberLevelDictByQueryLimitedPage(QueryVo vo);
 
     void updateMemberLevelDict(UpdateMemberLevelVo vo);
+
+    MemberLevelDict getMemberLevelDictByUid(String uid);
 }

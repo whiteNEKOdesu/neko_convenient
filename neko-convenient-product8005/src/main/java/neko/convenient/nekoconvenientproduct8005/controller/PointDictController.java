@@ -11,6 +11,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -71,5 +72,13 @@ public class PointDictController {
         pointDictService.updateHighestPricePointDict(vo);
 
         return ResultObject.ok();
+    }
+
+    /**
+     * 根据价格获取积分，建议只提供给微服务远程调用
+     */
+    @PostMapping("price_point")
+    public ResultObject<Integer> pricePoint(@RequestParam BigDecimal price){
+        return ResultObject.ok(pointDictService.getPointByPrice(price));
     }
 }

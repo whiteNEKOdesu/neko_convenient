@@ -15,6 +15,8 @@ import neko.convenient.nekoconvenientorder8008.config.AliPayTemplate;
 import neko.convenient.nekoconvenientorder8008.entity.OrderDetailInfo;
 import neko.convenient.nekoconvenientorder8008.entity.OrderInfo;
 import neko.convenient.nekoconvenientorder8008.entity.OrderLog;
+import neko.convenient.nekoconvenientorder8008.feign.member.MemberLevelDictFeignService;
+import neko.convenient.nekoconvenientorder8008.feign.product.PointDictFeignService;
 import neko.convenient.nekoconvenientorder8008.feign.product.SkuInfoFeignService;
 import neko.convenient.nekoconvenientorder8008.feign.ware.WareInfoFeignService;
 import neko.convenient.nekoconvenientorder8008.mapper.OrderInfoMapper;
@@ -23,6 +25,7 @@ import neko.convenient.nekoconvenientorder8008.service.OrderInfoService;
 import neko.convenient.nekoconvenientorder8008.service.OrderLogService;
 import neko.convenient.nekoconvenientorder8008.to.AliPayTo;
 import neko.convenient.nekoconvenientorder8008.to.LockStockTo;
+import neko.convenient.nekoconvenientorder8008.to.MemberLevelTo;
 import neko.convenient.nekoconvenientorder8008.to.OrderRedisTo;
 import neko.convenient.nekoconvenientorder8008.vo.AliPayAsyncVo;
 import neko.convenient.nekoconvenientorder8008.vo.NewOrderVo;
@@ -42,6 +45,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -75,13 +81,22 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     private SkuInfoFeignService skuInfoFeignService;
 
     @Resource
+    private MemberLevelDictFeignService memberLevelDictFeignService;
+
+    @Resource
+    private PointDictFeignService pointDictFeignService;
+
+    @Resource
     private AliPayTemplate aliPayTemplate;
+
+    @Resource
+    private Executor threadPool;
 
     /**
      * 新增订单
      */
     @Override
-    public void newOrder(NewOrderVo vo) throws AlipayApiException {
+    public void newOrder(NewOrderVo vo) throws ExecutionException, InterruptedException {
         String orderRecord = vo.getOrderRecord();
         String uid = StpUtil.getLoginId().toString();
         String key = Constant.ORDER_REDIS_PREFIX + "order_record:" + uid + orderRecord;
@@ -97,68 +112,97 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             throw new NoSuchResultException("无此预生成订单信息");
         }
 
-        //总价
-        BigDecimal totalPrice = new BigDecimal("0");
         //锁定库存 to
         LockStockTo lockStockTo = new LockStockTo();
         List<LockStockTo.LockInfo> lockInfos = new ArrayList<>();
         lockStockTo.setOrderRecord(orderRecord)
                 .setLockInfos(lockInfos);
-        for(ProductInfoVo productInfo : productInfos){
-            //计算总价
-            totalPrice = totalPrice.add(productInfo.getPrice());
 
-            //为锁定库存 to 设置信息
-            LockStockTo.LockInfo lockInfo = new LockStockTo.LockInfo();
-            lockInfo.setMarketId(productInfo.getMarketId())
-                    .setSkuId(productInfo.getSkuId())
-                    .setLockNumber(productInfo.getSkuNumber())
-                    .setPrice(productInfo.getPrice());
-            lockInfos.add(lockInfo);
-        }
+        CompletableFuture<BigDecimal> totalPriceTask = CompletableFuture.supplyAsync(() -> {
+            //总价
+            BigDecimal totalPrice = new BigDecimal("0");
+            for (ProductInfoVo productInfo : productInfos) {
+                //计算总价
+                totalPrice = totalPrice.add(productInfo.getPrice());
 
-        OrderLog orderLog = new OrderLog();
-        orderLog.setOrderRecord(orderRecord)
-                .setUid(uid)
-                .setReceiveAddressId(vo.getReceiveAddressId())
-                .setCost(totalPrice);
-        //向延迟队列发送订单号，用于超时解锁库存
-        rabbitTemplate.convertAndSend(RabbitMqConstant.STOCK_EXCHANGE_NAME,
-                RabbitMqConstant.STOCK_DEAD_LETTER_ROUTING_KEY_NAME,
-                orderRecord,
-                new CorrelationData(orderRecord));
+                //为锁定库存 to 设置信息
+                LockStockTo.LockInfo lockInfo = new LockStockTo.LockInfo();
+                lockInfo.setMarketId(productInfo.getMarketId())
+                        .setSkuId(productInfo.getSkuId())
+                        .setLockNumber(productInfo.getSkuNumber())
+                        .setPrice(productInfo.getPrice());
+                lockInfos.add(lockInfo);
+            }
 
-        //新增订单生成记录，用于超时解锁库存
-        orderLogService.newOrderLogService(orderLog);
+            return totalPrice;
+        }, threadPool);
 
-        OrderRedisTo orderRedisTo = new OrderRedisTo();
-        orderRedisTo.setReceiveAddressId(vo.getReceiveAddressId())
-                .setOrderRecord(orderRecord)
-                .setProductInfos(productInfos);
+        CompletableFuture<Void> orderLogTask = totalPriceTask.thenAcceptAsync((totalPrice) -> {
+            OrderLog orderLog = new OrderLog();
+            orderLog.setOrderRecord(orderRecord)
+                    .setUid(uid)
+                    .setReceiveAddressId(vo.getReceiveAddressId())
+                    .setCost(totalPrice);
+            //向延迟队列发送订单号，用于超时解锁库存
+            rabbitTemplate.convertAndSend(RabbitMqConstant.STOCK_EXCHANGE_NAME,
+                    RabbitMqConstant.STOCK_DEAD_LETTER_ROUTING_KEY_NAME,
+                    orderRecord,
+                    new CorrelationData(orderRecord));
+
+            //新增订单生成记录，用于超时解锁库存
+            orderLogService.newOrderLogService(orderLog);
+        }, threadPool);
+
         String orderKey = Constant.ORDER_REDIS_PREFIX + "order:" + uid + orderRecord;
-        //将订单详情信息存入 redis
-        stringRedisTemplate.opsForValue().setIfAbsent(orderKey,
-                JSONUtil.toJsonStr(orderRedisTo),
-                1000 * 60 * 4,
-                TimeUnit.MILLISECONDS);
+        CompletableFuture<Void> orderRedisTask = CompletableFuture.runAsync(() -> {
+            OrderRedisTo orderRedisTo = new OrderRedisTo();
+            orderRedisTo.setReceiveAddressId(vo.getReceiveAddressId())
+                    .setOrderRecord(orderRecord)
+                    .setProductInfos(productInfos);
+            //将订单详情信息存入 redis
+            stringRedisTemplate.opsForValue().setIfAbsent(orderKey,
+                    JSONUtil.toJsonStr(orderRedisTo),
+                    1000 * 60 * 4,
+                    TimeUnit.MILLISECONDS);
+        }, threadPool);
 
-        AliPayTo aliPayTo = new AliPayTo();
-        aliPayTo.setOut_trade_no(orderRecord)
-                .setSubject("NEKO_CONVENIENT")
-                .setTotal_amount(totalPrice.toString())
-                .setBody("NEKO_CONVENIENT");
-        String alipayPageKey = orderKey + ":pay_page";
-        //将支付宝支付页面信息存入 redis
-        stringRedisTemplate.opsForValue().setIfAbsent(alipayPageKey,
-                aliPayTemplate.pay(aliPayTo),
-                1000 * 60 * 4,
-                TimeUnit.MILLISECONDS);
+        CompletableFuture<Void> alipayTask = totalPriceTask.thenAcceptAsync((totalPrice) -> {
+            AliPayTo aliPayTo = new AliPayTo();
+            //远程调用member微服务获取会员等级折扣信息
+            ResultObject<MemberLevelTo> memberLevelDictResult = memberLevelDictFeignService.userLevelInfo(uid);
+            if (!memberLevelDictResult.getResponseCode().equals(200)) {
+                throw new MemberServiceException("member微服务远程调用异常");
+            }
+            MemberLevelTo memberLevelTo = memberLevelDictResult.getResult();
+            //为折扣价格设置精度
+            BigDecimal actualPrice = totalPrice.multiply(new BigDecimal(memberLevelTo.getDiscount() * 0.01 + ""))
+                    .setScale(2, BigDecimal.ROUND_DOWN);
+            aliPayTo.setOut_trade_no(orderRecord)
+                    .setSubject("NEKO_CONVENIENT")
+                    //设置折扣价格
+                    .setTotal_amount(actualPrice.toString())
+                    .setBody("NEKO_CONVENIENT");
+            String alipayPageKey = orderKey + ":pay_page";
+            //将支付宝支付页面信息存入 redis
+            try {
+                stringRedisTemplate.opsForValue().setIfAbsent(alipayPageKey,
+                        aliPayTemplate.pay(aliPayTo),
+                        1000 * 60 * 4,
+                        TimeUnit.MILLISECONDS);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }, threadPool);
 
-        //远程调用库存微服务锁定库存
-        ResultObject<Object> r = wareInfoFeignService.lockStock(lockStockTo);
-        if(!r.getResponseCode().equals(200)){
-            throw new StockNotEnoughException("库存不足");
-        }
+        CompletableFuture<Void> lockStockTask = totalPriceTask.thenRunAsync(() -> {
+            //远程调用库存微服务锁定库存
+            ResultObject<Object> r = wareInfoFeignService.lockStock(lockStockTo);
+            if (!r.getResponseCode().equals(200)) {
+                throw new StockNotEnoughException("库存不足");
+            }
+        }, threadPool);
+
+        CompletableFuture.allOf(orderLogTask, orderRedisTask, alipayTask, lockStockTask).get();
     }
 
     /**
@@ -238,6 +282,13 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
                     return "error";
                 }
 
+                //远程调用product微服务获取积分信息
+                ResultObject<Integer> pointDictResult = pointDictFeignService.pricePoint(orderLog.getCost());
+                if(!pointDictResult.getResponseCode().equals(200)){
+                    throw new ProductServiceException("product微服务远程调用异常");
+                }
+                Integer point = pointDictResult.getResult();
+
                 //生成订单信息
                 String uid = orderLog.getUid();
                 OrderInfo orderInfo = new OrderInfo();
@@ -247,8 +298,8 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
                         .setUid(uid)
                         .setReceiveAddressId(orderLog.getReceiveAddressId())
                         .setCost(orderLog.getCost())
-                        .setActualCost(orderLog.getCost())
-                        .setPoint(0)
+                        .setActualCost(new BigDecimal(vo.getInvoice_amount()))
+                        .setPoint(point)
                         .setCreateTime(now)
                         .setUpdateTime(now);
 
@@ -285,7 +336,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
                 String key = Constant.ORDER_REDIS_PREFIX + "order_record:" + uid + orderInfo.getOrderRecord() + ":is_from_purchase_list";
                 String purchaseListKey = Constant.ORDER_REDIS_PREFIX + "purchase_list:" + uid;
                 String isFromPurchase = stringRedisTemplate.opsForValue().get(key);
-                //删除购物车以购买商品
+                //删除购物车已购买商品
                 if(isFromPurchase != null){
                     List<String> skuIds = result.stream().map(OrderDetailInfo::getSkuId)
                             .collect(Collectors.toList());

@@ -15,5 +15,8 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface MemberLevelDictMapper extends BaseMapper<MemberLevelDict> {
     MemberLevelDict getHighestLevel();
+
     MemberLevelDict getSecondLevel();
+
+    MemberLevelDict getMemberLevelDictByUid(String uid);
 }

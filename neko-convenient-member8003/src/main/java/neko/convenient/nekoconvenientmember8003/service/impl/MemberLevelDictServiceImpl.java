@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.QueryVo;
+import neko.convenient.nekoconvenientcommonbase.utils.exception.NoSuchResultException;
 import neko.convenient.nekoconvenientmember8003.entity.MemberLevelDict;
 import neko.convenient.nekoconvenientmember8003.mapper.MemberLevelDictMapper;
 import neko.convenient.nekoconvenientmember8003.service.MemberLevelDictService;
@@ -82,5 +83,18 @@ public class MemberLevelDictServiceImpl extends ServiceImpl<MemberLevelDictMappe
         memberLevelDict.setUpdateTime(LocalDateTime.now());
 
         this.baseMapper.updateById(memberLevelDict);
+    }
+
+    /**
+     * 根据uid获取用户等级信息
+     */
+    @Override
+    public MemberLevelDict getMemberLevelDictByUid(String uid) {
+        MemberLevelDict memberLevelDict = this.baseMapper.getMemberLevelDictByUid(uid);
+        if(memberLevelDict == null){
+            throw new NoSuchResultException("无此用户等级信息");
+        }
+
+        return memberLevelDict;
     }
 }

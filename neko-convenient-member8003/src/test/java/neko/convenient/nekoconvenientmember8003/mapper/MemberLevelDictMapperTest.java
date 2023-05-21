@@ -19,4 +19,9 @@ public class MemberLevelDictMapperTest {
     public void getSecondLevel(){
         System.out.println(memberLevelDictMapper.getSecondLevel());
     }
+
+    @Test
+    public void getMemberLevelDictByUid(){
+        System.out.println(memberLevelDictMapper.getMemberLevelDictByUid("1642067605873348610"));
+    }
 }

@@ -30,4 +30,6 @@ public interface PointDictMapper extends BaseMapper<PointDict> {
     void updateHighestPricePointDict(BigDecimal maxPrice,
                                      Integer point,
                                      LocalDateTime updateTime);
+
+    Integer getPointByPrice(BigDecimal price);
 }

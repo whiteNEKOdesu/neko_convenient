@@ -34,4 +34,9 @@
             ) child_point_id
         )
     </update>
+
+    <select id="getPointByPrice" resultType="int">
+        select point from point_dict
+        where #{price} >= min_price and max_price > #{price}
+    </select>
 </mapper>

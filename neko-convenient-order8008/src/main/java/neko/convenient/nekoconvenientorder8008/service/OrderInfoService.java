@@ -11,6 +11,7 @@ import neko.convenient.nekoconvenientorder8008.vo.ProductInfoVo;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * <p>
@@ -21,7 +22,7 @@ import java.util.List;
  * @since 2023-05-02
  */
 public interface OrderInfoService extends IService<OrderInfo> {
-    void newOrder(NewOrderVo vo) throws AlipayApiException;
+    void newOrder(NewOrderVo vo) throws ExecutionException, InterruptedException;
 
     String getAlipayPayPage(String orderRecord, String token);
 

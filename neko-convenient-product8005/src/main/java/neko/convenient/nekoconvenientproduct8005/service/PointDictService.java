@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import neko.convenient.nekoconvenientproduct8005.entity.PointDict;
 import neko.convenient.nekoconvenientproduct8005.vo.NewPointDictVo;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -22,4 +23,6 @@ public interface PointDictService extends IService<PointDict> {
     void deleteHighestPricePointDict();
 
     void updateHighestPricePointDict(NewPointDictVo vo);
+
+    Integer getPointByPrice(BigDecimal price);
 }

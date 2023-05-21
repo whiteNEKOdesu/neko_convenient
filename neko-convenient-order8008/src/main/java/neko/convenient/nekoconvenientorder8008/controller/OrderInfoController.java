@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * <p>
@@ -36,7 +37,7 @@ public class OrderInfoController {
      */
     @SaCheckLogin
     @PutMapping("new_order")
-    public ResultObject<Object> newOrder(@Validated @RequestBody NewOrderVo vo) throws AlipayApiException {
+    public ResultObject<Object> newOrder(@Validated @RequestBody NewOrderVo vo) throws ExecutionException, InterruptedException {
         orderInfoService.newOrder(vo);
 
         return ResultObject.ok();

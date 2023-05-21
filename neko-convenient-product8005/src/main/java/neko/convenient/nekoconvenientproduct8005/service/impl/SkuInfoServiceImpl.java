@@ -31,6 +31,7 @@ import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -74,6 +75,8 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoMapper, SkuInfo> impl
             throw new NotPermissionException("权限不足");
         }
 
+        //为价格设置精度
+        vo.setPrice(vo.getPrice().setScale(2, BigDecimal.ROUND_DOWN));
         SkuInfo skuInfo = new SkuInfo();
         BeanUtil.copyProperties(vo, skuInfo);
         LocalDateTime now = LocalDateTime.now();
@@ -175,6 +178,10 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoMapper, SkuInfo> impl
             throw new NotPermissionException("权限不足");
         }
 
+        if(vo.getPrice() != null){
+            //为价格设置精度
+            vo.setPrice(vo.getPrice().setScale(2, BigDecimal.ROUND_DOWN));
+        }
         SkuInfo todoUpdate = new SkuInfo();
         BeanUtil.copyProperties(vo, todoUpdate);
 

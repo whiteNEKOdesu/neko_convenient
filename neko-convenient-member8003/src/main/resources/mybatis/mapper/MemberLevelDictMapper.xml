@@ -12,4 +12,13 @@
         order by member_level desc
         limit 1, 1
     </select>
+
+    <select id="getMemberLevelDictByUid" resultType="neko.convenient.nekoconvenientmember8003.entity.MemberLevelDict">
+        select member_level_dict.member_level_id, member_level_dict.member_level, member_level_dict.level_name,
+               member_level_dict.achieve_point, member_level_dict.grow_point, member_level_dict.discount,
+               member_level_dict.is_delete, member_level_dict.create_time, member_level_dict.update_time from member_level_dict
+        join member_info
+        on member_level_dict.member_level = member_info.level
+        where member_info.uid = #{uid}
+    </select>
 </mapper>

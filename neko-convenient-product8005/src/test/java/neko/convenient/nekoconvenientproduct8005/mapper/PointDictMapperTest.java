@@ -37,4 +37,9 @@ public class PointDictMapperTest {
                 15,
                 LocalDateTime.now());
     }
+
+    @Test
+    public void getPointByPrice(){
+        System.out.println(pointDictMapper.getPointByPrice(new BigDecimal("500")));
+    }
 }

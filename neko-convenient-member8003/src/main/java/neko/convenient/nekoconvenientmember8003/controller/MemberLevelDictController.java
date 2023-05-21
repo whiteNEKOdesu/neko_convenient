@@ -62,4 +62,12 @@ public class MemberLevelDictController {
 
         return ResultObject.ok();
     }
+
+    /**
+     * 根据uid获取用户等级信息
+     */
+    @PostMapping("user_level_info")
+    public ResultObject<MemberLevelDict> userLevelInfo(@RequestParam String uid){
+        return ResultObject.ok(memberLevelDictService.getMemberLevelDictByUid(uid));
+    }
 }
