@@ -3,6 +3,7 @@ package neko.convenient.nekoconvenientmember8003.service;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
 import neko.convenient.nekoconvenientmember8003.entity.MemberInfo;
 import com.baomidou.mybatisplus.extension.service.IService;
+import neko.convenient.nekoconvenientmember8003.vo.AddMemberPointVo;
 import neko.convenient.nekoconvenientmember8003.vo.LogInVo;
 import neko.convenient.nekoconvenientmember8003.vo.MemberInfoVo;
 
@@ -35,4 +36,6 @@ public interface MemberInfoService extends IService<MemberInfo> {
                                   String source,
                                   String sourceUid,
                                   HttpServletRequest request);
+
+    void addPoint(AddMemberPointVo vo);
 }

@@ -5,4 +5,26 @@
         select * from member_info
         where user_name = #{userName}
     </select>
+
+    <update id="updatePointByUid">
+        update member_info
+        set point = point + #{point}, update_time = #{updateTime}
+        where uid = #{uid}
+    </update>
+
+    <update id="updateLevelByUid">
+        update member_info
+        set level = (
+            select member_level from member_level_dict
+            where achieve_point <![CDATA[<=]]> (
+                select point from (
+                    select point from member_info
+                    where uid = #{uid}
+                ) child_point
+            )
+            order by member_level desc
+            limit 1
+        ), update_time = #{updateTime}
+        where uid = #{uid}
+    </update>
 </mapper>

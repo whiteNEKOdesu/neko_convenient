@@ -23,4 +23,6 @@ public interface MemberLevelDictService extends IService<MemberLevelDict> {
     void updateMemberLevelDict(UpdateMemberLevelVo vo);
 
     MemberLevelDict getMemberLevelDictByUid(String uid);
+
+    Integer getMemberLevelByPoint(Integer point);
 }

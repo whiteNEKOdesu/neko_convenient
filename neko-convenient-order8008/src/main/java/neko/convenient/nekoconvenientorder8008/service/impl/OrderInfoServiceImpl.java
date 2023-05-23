@@ -15,6 +15,7 @@ import neko.convenient.nekoconvenientorder8008.config.AliPayTemplate;
 import neko.convenient.nekoconvenientorder8008.entity.OrderDetailInfo;
 import neko.convenient.nekoconvenientorder8008.entity.OrderInfo;
 import neko.convenient.nekoconvenientorder8008.entity.OrderLog;
+import neko.convenient.nekoconvenientorder8008.feign.member.MemberInfoFeignService;
 import neko.convenient.nekoconvenientorder8008.feign.member.MemberLevelDictFeignService;
 import neko.convenient.nekoconvenientorder8008.feign.product.PointDictFeignService;
 import neko.convenient.nekoconvenientorder8008.feign.product.SkuInfoFeignService;
@@ -23,10 +24,7 @@ import neko.convenient.nekoconvenientorder8008.mapper.OrderInfoMapper;
 import neko.convenient.nekoconvenientorder8008.service.OrderDetailInfoService;
 import neko.convenient.nekoconvenientorder8008.service.OrderInfoService;
 import neko.convenient.nekoconvenientorder8008.service.OrderLogService;
-import neko.convenient.nekoconvenientorder8008.to.AliPayTo;
-import neko.convenient.nekoconvenientorder8008.to.LockStockTo;
-import neko.convenient.nekoconvenientorder8008.to.MemberLevelTo;
-import neko.convenient.nekoconvenientorder8008.to.OrderRedisTo;
+import neko.convenient.nekoconvenientorder8008.to.*;
 import neko.convenient.nekoconvenientorder8008.vo.AliPayAsyncVo;
 import neko.convenient.nekoconvenientorder8008.vo.NewOrderVo;
 import neko.convenient.nekoconvenientorder8008.vo.ProductInfoVo;
@@ -85,6 +83,9 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
 
     @Resource
     private PointDictFeignService pointDictFeignService;
+
+    @Resource
+    private MemberInfoFeignService memberInfoFeignService;
 
     @Resource
     private AliPayTemplate aliPayTemplate;
@@ -327,6 +328,13 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
 
                 //记录订单详情信息
                 orderDetailInfoService.saveBatch(result);
+
+                //远程调用member微服务添加积分
+                ResultObject<Object> addPointResult = memberInfoFeignService.addPoint(new AddMemberPointTo().setUid(uid)
+                        .setPoint(point));
+                if(!addPointResult.getResponseCode().equals(200)){
+                    throw new MemberServiceException("member微服务远程调用异常");
+                }
 
                 //远程调用ware微服务解锁指定订单号库存并扣除库存
                 ResultObject<Object> confirmLockStockPayResult = wareInfoFeignService.confirmLockStockPay(vo.getOut_trade_no());

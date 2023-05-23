@@ -97,4 +97,14 @@ public class MemberLevelDictServiceImpl extends ServiceImpl<MemberLevelDictMappe
 
         return memberLevelDict;
     }
+
+    /**
+     * 根据积分获取用户等级
+     */
+    @Override
+    public Integer getMemberLevelByPoint(Integer point) {
+        Integer level = this.baseMapper.getMemberLevelByPoint(point);
+
+        return level != null ? level : 0;
+    }
 }

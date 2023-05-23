@@ -19,4 +19,6 @@ public interface MemberLevelDictMapper extends BaseMapper<MemberLevelDict> {
     MemberLevelDict getSecondLevel();
 
     MemberLevelDict getMemberLevelDictByUid(String uid);
+
+    Integer getMemberLevelByPoint(Integer point);
 }

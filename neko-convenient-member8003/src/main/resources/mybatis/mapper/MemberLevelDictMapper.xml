@@ -21,4 +21,11 @@
         on member_level_dict.member_level = member_info.level
         where member_info.uid = #{uid}
     </select>
+
+    <select id="getMemberLevelByPoint" resultType="int">
+        select member_level from member_level_dict
+        where #{point} >= achieve_point
+        order by achieve_point
+        limit 1
+    </select>
 </mapper>

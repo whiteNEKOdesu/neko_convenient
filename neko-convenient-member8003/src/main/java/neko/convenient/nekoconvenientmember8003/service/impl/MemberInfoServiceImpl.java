@@ -12,19 +12,14 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.Constant;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.Response;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
-import neko.convenient.nekoconvenientcommonbase.utils.exception.CodeIllegalException;
-import neko.convenient.nekoconvenientcommonbase.utils.exception.EMailAlreadyExistException;
-import neko.convenient.nekoconvenientcommonbase.utils.exception.MailSendException;
-import neko.convenient.nekoconvenientcommonbase.utils.exception.UserNameRepeatException;
+import neko.convenient.nekoconvenientcommonbase.utils.exception.*;
 import neko.convenient.nekoconvenientmember8003.entity.MemberInfo;
 import neko.convenient.nekoconvenientmember8003.feign.thirdparty.MailFeignService;
 import neko.convenient.nekoconvenientmember8003.mapper.MemberInfoMapper;
-import neko.convenient.nekoconvenientmember8003.service.MemberInfoService;
+import neko.convenient.nekoconvenientmember8003.service.*;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import neko.convenient.nekoconvenientmember8003.service.MemberLogInLogService;
-import neko.convenient.nekoconvenientmember8003.service.UserRoleRelationService;
-import neko.convenient.nekoconvenientmember8003.service.WeightRoleRelationService;
 import neko.convenient.nekoconvenientmember8003.utils.ip.IPHandler;
+import neko.convenient.nekoconvenientmember8003.vo.AddMemberPointVo;
 import neko.convenient.nekoconvenientmember8003.vo.LogInVo;
 import neko.convenient.nekoconvenientmember8003.vo.MemberInfoVo;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -56,6 +51,9 @@ public class MemberInfoServiceImpl extends ServiceImpl<MemberInfoMapper, MemberI
 
     @Resource
     private WeightRoleRelationService weightRoleRelationService;
+
+    @Resource
+    private MemberLevelDictService memberLevelDictService;
 
     @Resource
     private MailFeignService mailFeignService;
@@ -220,5 +218,24 @@ public class MemberInfoServiceImpl extends ServiceImpl<MemberInfoMapper, MemberI
                 true);
 
         return memberInfoVo;
+    }
+
+    /**
+     * 添加用户积分
+     */
+    @Override
+    public void addPoint(AddMemberPointVo vo) {
+        MemberInfo memberInfo = this.baseMapper.selectById(vo.getUid());
+        if(memberInfo == null){
+            throw new NoSuchResultException("无此用户");
+        }
+
+        String uid = vo.getUid();
+        LocalDateTime now = LocalDateTime.now();
+        //添加用户积分s
+        this.baseMapper.updatePointByUid(uid, vo.getPoint(), now);
+
+        //修改用户等级
+        this.baseMapper.updateLevelByUid(uid, now);
     }
 }
