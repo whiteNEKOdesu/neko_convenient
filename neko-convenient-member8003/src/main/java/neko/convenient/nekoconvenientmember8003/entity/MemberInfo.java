@@ -55,6 +55,8 @@ public class MemberInfo implements Serializable {
 
     private String idCardNumber;
 
+    private String idCardImage;
+
     private String phone;
 
     private String mail;

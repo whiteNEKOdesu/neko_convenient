@@ -30,8 +30,6 @@ public class MarketInfoController {
     /**
      * 根据商店id获取商店信息
      */
-    @SaCheckRole(RoleType.ADMIN)
-    @SaCheckLogin
     @GetMapping("info")
     public ResultObject<MarketInfo> info(@RequestParam String marketId){
         return ResultObject.ok(marketInfoService.getMarketInfoByMarketId(marketId));
