@@ -279,4 +279,13 @@ public class ExceptionResponse {
                 .setResponseStatus(Response.ORDER_OVER_TIME_ERROR)
                 .compact();
     }
+
+    //快递员接单异常
+    @ExceptionHandler(value = OrderPickException.class)
+    public ResultObject<Object> orderPickExceptionHandler(OrderPickException e){
+        exceptionLogger(e);
+        return new ResultObject<Object>()
+                .setResponseStatus(Response.ORDER_PICK_ERROR)
+                .compact();
+    }
 }

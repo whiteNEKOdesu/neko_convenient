@@ -2,7 +2,11 @@ package neko.convenient.nekoconvenientorder8008.mapper;
 
 import neko.convenient.nekoconvenientorder8008.entity.OrderInfo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import neko.convenient.nekoconvenientorder8008.vo.CourierOrderInfoVo;
 import org.apache.ibatis.annotations.Mapper;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * <p>
@@ -14,5 +18,17 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface OrderInfoMapper extends BaseMapper<OrderInfo> {
+    List<CourierOrderInfoVo> getUnpickOrderInfoByQueryLimitedPage(Integer limited,
+                                                                  Integer start,
+                                                                  String queryWords);
 
+    int getUnpickOrderInfoByQueryLimitedPageNumber(String queryWords);
+
+    int updateCourierIdByOrderIds(String courierId,
+                                  List<String> orderIds,
+                                  LocalDateTime updateTime);
+
+    void updateStatusToCourierConfirmByOrderId(String orderId, LocalDateTime updateTime);
+
+    void updateStatusToUserConfirmByOrderId(String orderId, LocalDateTime updateTime);
 }

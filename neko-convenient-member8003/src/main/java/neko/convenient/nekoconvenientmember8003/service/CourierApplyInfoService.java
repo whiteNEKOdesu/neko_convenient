@@ -2,6 +2,7 @@ package neko.convenient.nekoconvenientmember8003.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import neko.convenient.nekoconvenientmember8003.entity.CourierApplyInfo;
+import neko.convenient.nekoconvenientmember8003.vo.AdminHandleCourierApplyVo;
 import neko.convenient.nekoconvenientmember8003.vo.ApplyCourierVo;
 
 /**
@@ -14,4 +15,6 @@ import neko.convenient.nekoconvenientmember8003.vo.ApplyCourierVo;
  */
 public interface CourierApplyInfoService extends IService<CourierApplyInfo> {
     void applyCourier(ApplyCourierVo vo);
+
+    void handleApply(AdminHandleCourierApplyVo vo);
 }

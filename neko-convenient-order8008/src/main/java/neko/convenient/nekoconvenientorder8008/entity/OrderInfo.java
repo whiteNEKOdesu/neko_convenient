@@ -64,7 +64,12 @@ public class OrderInfo implements Serializable {
     private Byte type;
 
     /**
-     * 0->已支付，1->配送中，2->完成
+     * 快递员id
+     */
+    private String courierId;
+
+    /**
+     * 0->已支付，1->配送中，2->快递员送达，3->完成
      */
     private Byte status;
 

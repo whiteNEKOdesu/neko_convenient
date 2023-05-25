@@ -5,9 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.QueryVo;
 import neko.convenient.nekoconvenientorder8008.entity.OrderInfo;
 import com.baomidou.mybatisplus.extension.service.IService;
-import neko.convenient.nekoconvenientorder8008.vo.AliPayAsyncVo;
-import neko.convenient.nekoconvenientorder8008.vo.NewOrderVo;
-import neko.convenient.nekoconvenientorder8008.vo.ProductInfoVo;
+import neko.convenient.nekoconvenientorder8008.vo.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -35,4 +33,12 @@ public interface OrderInfoService extends IService<OrderInfo> {
     OrderInfo getOrderInfoByOrderRecord(String orderRecord);
 
     Page<OrderInfo> getUserSelfOrderInfoByQueryLimitedPage(QueryVo vo);
+
+    Page<CourierOrderInfoVo> getUnpickOrderInfoByQueryLimitedPage(QueryVo vo);
+
+    void pickOrder(CourierPickOrderVo vo);
+
+    void courierConfirmDelivered(String orderId);
+
+    void userConfirmDelivered(String orderId);
 }

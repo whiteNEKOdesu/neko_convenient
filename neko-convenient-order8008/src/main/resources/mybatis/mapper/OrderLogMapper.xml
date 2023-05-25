@@ -4,6 +4,6 @@
     <update id="updateOrderLogStatusToCancel">
         update order_log
         set status = -1, update_time = #{updateTime}
-        where order_record= #{orderRecord} and status = 0
+        where order_record = #{orderRecord} and status = 0
     </update>
 </mapper>

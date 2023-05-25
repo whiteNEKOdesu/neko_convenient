@@ -66,4 +66,14 @@ public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> i
     public List<UserRole> getAdminRoles() {
         return this.lambdaQuery().eq(UserRole::getIsAdmin, true).list();
     }
+
+    /**
+     * 根据角色名获取角色信息
+     */
+    @Override
+    public UserRole getUserRoleByRoleType(String roleType) {
+        return this.baseMapper.selectOne(new QueryWrapper<UserRole>()
+                .lambda()
+                .eq(UserRole::getRoleType, roleType));
+    }
 }

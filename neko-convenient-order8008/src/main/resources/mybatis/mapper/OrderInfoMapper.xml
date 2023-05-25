@@ -1,5 +1,60 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="neko.convenient.nekoconvenientorder8008.mapper.OrderInfoMapper">
+    <select id="getUnpickOrderInfoByQueryLimitedPage" resultType="neko.convenient.nekoconvenientorder8008.vo.CourierOrderInfoVo">
+        select order_info.order_id, order_info.order_record, order_info.uid,
+               order_info.receive_address_id, order_info.type, order_info.status,
+               order_info.create_time, order_info.update_time, receive_address.address_id,
+               receive_address.address_name, number_count.number from order_info
+        join receive_address
+        on order_info.receive_address_id = receive_address.receive_address_id
+        join (
+            select order_record, count(order_detail_id) number from order_detail_info
+            group by order_record
+        ) number_count
+        on order_info.order_record = number_count.order_record
+        where order_info.status = 0
+        <if test="@org.springframework.util.StringUtils@hasText(queryWords)">
+            and order_info.order_record = #{queryWords}
+        </if>
+        order by order_info.order_id desc
+        limit #{start}, #{limited}
+    </select>
 
+    <select id="getUnpickOrderInfoByQueryLimitedPageNumber" resultType="int">
+        select count(order_info.order_id) from order_info
+        join receive_address
+        on order_info.receive_address_id = receive_address.receive_address_id
+        join (
+            select order_record, count(order_detail_id) number from order_detail_info
+            group by order_record
+        ) number_count
+        on order_info.order_record = number_count.order_record
+        where order_info.status = 0
+        <if test="@org.springframework.util.StringUtils@hasText(queryWords)">
+            and order_info.order_record = #{queryWords}
+        </if>
+    </select>
+
+    <update id="updateCourierIdByOrderIds">
+        update order_info
+        set courier_id = #{courierId}, status = 1, update_time = #{updateTime}
+        where order_id in
+        <foreach collection="orderIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        and courier_id is null and status = 0
+    </update>
+
+    <update id="updateStatusToCourierConfirmByOrderId">
+        update order_info
+        set status = 2, update_time = #{updateTime}
+        where order_id = #{orderId} and status = 1
+    </update>
+
+    <update id="updateStatusToUserConfirmByOrderId">
+        update order_info
+        set status = 3, update_time = #{updateTime}
+        where order_id = #{orderId} and status != 3
+    </update>
 </mapper>

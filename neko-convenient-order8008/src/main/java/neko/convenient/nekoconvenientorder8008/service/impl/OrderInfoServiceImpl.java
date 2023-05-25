@@ -25,9 +25,7 @@ import neko.convenient.nekoconvenientorder8008.service.OrderDetailInfoService;
 import neko.convenient.nekoconvenientorder8008.service.OrderInfoService;
 import neko.convenient.nekoconvenientorder8008.service.OrderLogService;
 import neko.convenient.nekoconvenientorder8008.to.*;
-import neko.convenient.nekoconvenientorder8008.vo.AliPayAsyncVo;
-import neko.convenient.nekoconvenientorder8008.vo.NewOrderVo;
-import neko.convenient.nekoconvenientorder8008.vo.ProductInfoVo;
+import neko.convenient.nekoconvenientorder8008.vo.*;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -391,5 +389,64 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         this.baseMapper.selectPage(page, queryWrapper);
 
         return page;
+    }
+
+    /**
+     * 分页查询未接单订单信息
+     */
+    @Override
+    public Page<CourierOrderInfoVo> getUnpickOrderInfoByQueryLimitedPage(QueryVo vo) {
+        Page<CourierOrderInfoVo> page = new Page<>(vo.getCurrentPage(), vo.getLimited());
+        page.setRecords(this.baseMapper.getUnpickOrderInfoByQueryLimitedPage(vo.getLimited(),
+                vo.daoPage(),
+                vo.getQueryWords()));
+        page.setTotal(this.baseMapper.getUnpickOrderInfoByQueryLimitedPageNumber(vo.getQueryWords()));
+
+        return page;
+    }
+
+    /**
+     * 快递员接单
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void pickOrder(CourierPickOrderVo vo) {
+        if(this.baseMapper.updateCourierIdByOrderIds(StpUtil.getLoginId().toString(),
+                vo.getOrderIds(),
+                LocalDateTime.now()) != vo.getOrderIds().size()){
+            throw new OrderPickException("快递员接单错误");
+        }
+    }
+
+    /**
+     * 快递员确认订单送达
+     */
+    @Override
+    public void courierConfirmDelivered(String orderId) {
+        OrderInfo orderInfo = this.baseMapper.selectById(orderId);
+
+        if(orderInfo == null || !orderInfo.getCourierId().equals(StpUtil.getLoginId().toString()) ||
+                !orderInfo.getStatus().equals(OrderStatus.DELIVERING)){
+            throw new NotPermissionException("权限不足");
+        }
+
+        //更新订单状态至快递员送达状态
+        this.baseMapper.updateStatusToCourierConfirmByOrderId(orderId, LocalDateTime.now());
+    }
+
+    /**
+     * 用户确认订单送达
+     */
+    @Override
+    public void userConfirmDelivered(String orderId) {
+        OrderInfo orderInfo = this.baseMapper.selectById(orderId);
+
+        if(orderInfo == null || !orderInfo.getUid().equals(StpUtil.getLoginId().toString()) ||
+                orderInfo.getStatus().equals(OrderStatus.USER_CONFIRM_DELIVERED)){
+            throw new NotPermissionException("权限不足");
+        }
+
+        //更新订单状态至完成状态
+        this.baseMapper.updateStatusToUserConfirmByOrderId(orderId, LocalDateTime.now());
     }
 }

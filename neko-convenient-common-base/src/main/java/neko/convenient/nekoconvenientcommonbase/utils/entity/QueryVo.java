@@ -29,6 +29,10 @@ public class QueryVo implements Serializable {
     @Max(value = 50)
     private Integer limited;
 
+    public Integer daoPage(){
+        return (currentPage - 1) * limited;
+    }
+
     public Integer pageOrLimitWhenOverFlow(){
         return currentPage <= 50 ? currentPage : 50;
     }

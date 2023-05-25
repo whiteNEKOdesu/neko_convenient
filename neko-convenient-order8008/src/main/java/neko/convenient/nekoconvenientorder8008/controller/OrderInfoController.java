@@ -1,15 +1,15 @@
 package neko.convenient.nekoconvenientorder8008.controller;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
+import cn.dev33.satoken.annotation.SaCheckRole;
 import com.alipay.api.AlipayApiException;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.QueryVo;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
+import neko.convenient.nekoconvenientcommonbase.utils.entity.RoleType;
 import neko.convenient.nekoconvenientorder8008.entity.OrderInfo;
 import neko.convenient.nekoconvenientorder8008.service.OrderInfoService;
-import neko.convenient.nekoconvenientorder8008.vo.AliPayAsyncVo;
-import neko.convenient.nekoconvenientorder8008.vo.NewOrderVo;
-import neko.convenient.nekoconvenientorder8008.vo.ProductInfoVo;
+import neko.convenient.nekoconvenientorder8008.vo.*;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -93,5 +93,50 @@ public class OrderInfoController {
     @PostMapping("user_self_order_infos")
     public ResultObject<Page<OrderInfo>> userSelfOrderInfos(@Validated @RequestBody QueryVo vo){
         return ResultObject.ok(orderInfoService.getUserSelfOrderInfoByQueryLimitedPage(vo));
+    }
+
+    /**
+     * 分页查询未接单订单信息
+     */
+    @SaCheckRole(RoleType.COURIER)
+    @SaCheckLogin
+    @PostMapping("unpick_order_infos")
+    public ResultObject<Page<CourierOrderInfoVo>> unpickOrderInfos(@Validated @RequestBody QueryVo vo){
+        return ResultObject.ok(orderInfoService.getUnpickOrderInfoByQueryLimitedPage(vo));
+    }
+
+    /**
+     * 快递员接单
+     */
+    @SaCheckRole(RoleType.COURIER)
+    @SaCheckLogin
+    @PostMapping("pick_order")
+    public ResultObject<Object> pickOrder(@Validated @RequestBody CourierPickOrderVo vo){
+        orderInfoService.pickOrder(vo);
+
+        return ResultObject.ok();
+    }
+
+    /**
+     * 快递员确认订单送达
+     */
+    @SaCheckRole(RoleType.COURIER)
+    @SaCheckLogin
+    @PostMapping("courier_confirm_delivered")
+    public ResultObject<Object> courierConfirmDelivered(@RequestParam String orderId){
+        orderInfoService.courierConfirmDelivered(orderId);
+
+        return ResultObject.ok();
+    }
+
+    /**
+     * 用户确认订单送达
+     */
+    @SaCheckLogin
+    @PostMapping("user_confirm_delivered")
+    public ResultObject<Object> userConfirmDelivered(@RequestParam String orderId){
+        orderInfoService.userConfirmDelivered(orderId);
+
+        return ResultObject.ok();
     }
 }

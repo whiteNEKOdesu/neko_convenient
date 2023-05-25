@@ -16,4 +16,6 @@ public class RoleType {
      * 微服务调用角色
      */
     public static final String NEKO_CONVENIENT_SERVICE = "neko_convenient_service";
+
+    public static final String COURIER = "courier";
 }
