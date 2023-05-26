@@ -1,6 +1,8 @@
 package neko.convenient.nekoconvenientmember8003.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import neko.convenient.nekoconvenientcommonbase.utils.entity.QueryVo;
 import neko.convenient.nekoconvenientmember8003.entity.CourierApplyInfo;
 import neko.convenient.nekoconvenientmember8003.vo.AdminHandleCourierApplyVo;
 import neko.convenient.nekoconvenientmember8003.vo.ApplyCourierVo;
@@ -17,4 +19,8 @@ public interface CourierApplyInfoService extends IService<CourierApplyInfo> {
     void applyCourier(ApplyCourierVo vo);
 
     void handleApply(AdminHandleCourierApplyVo vo);
+
+    Page<CourierApplyInfo> getCourierApplyInfoByQueryLimitedPage(QueryVo vo);
+
+    Page<CourierApplyInfo> getUserSelfCourierApplyInfoByQueryLimitedPage(QueryVo vo);
 }

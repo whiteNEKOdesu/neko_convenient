@@ -438,6 +438,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
      * 用户确认订单送达
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void userConfirmDelivered(String orderId) {
         OrderInfo orderInfo = this.baseMapper.selectById(orderId);
 
@@ -448,5 +449,24 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
 
         //更新订单状态至完成状态
         this.baseMapper.updateStatusToUserConfirmByOrderId(orderId, LocalDateTime.now());
+
+        //将订单详情状态修改为完成
+        orderDetailInfoService.userConfirmDelivered(orderInfo.getOrderRecord());
+    }
+
+    /**
+     * 分页查询快递员用户自身已接单订单信息
+     */
+    @Override
+    public Page<CourierOrderInfoVo> getUserSelfPickOrderInfoByQueryLimitedPage(QueryVo vo) {
+        Page<CourierOrderInfoVo> page = new Page<>(vo.getCurrentPage(), vo.getLimited());
+        String uid = StpUtil.getLoginId().toString();
+        page.setRecords(this.baseMapper.getUserSelfPickOrderInfoByQueryLimitedPage(vo.getLimited(),
+                vo.daoPage(),
+                vo.getQueryWords(),
+                uid));
+        page.setTotal(this.baseMapper.getUserSelfPickOrderInfoByQueryLimitedPageNumber(vo.getQueryWords(), uid));
+
+        return page;
     }
 }

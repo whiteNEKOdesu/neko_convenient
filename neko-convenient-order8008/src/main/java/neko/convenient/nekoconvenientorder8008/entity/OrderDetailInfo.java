@@ -58,12 +58,12 @@ public class OrderDetailInfo implements Serializable {
     /**
      * 快递员id
      */
-    private String deliverWorkerId;
+    private String courierId;
 
     /**
      * 快递员名
      */
-    private String deliverWorkerName;
+    private String courierName;
 
     /**
      * 0->揽货中，1->配送中，2->完成

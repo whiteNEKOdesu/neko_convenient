@@ -139,4 +139,14 @@ public class OrderInfoController {
 
         return ResultObject.ok();
     }
+
+    /**
+     * 分页查询快递员用户自身已接单订单信息
+     */
+    @SaCheckRole(RoleType.COURIER)
+    @SaCheckLogin
+    @PostMapping("courier_picked_order_infos")
+    public ResultObject<Page<CourierOrderInfoVo>> courierPickedOrderInfos(@Validated @RequestBody QueryVo vo){
+        return ResultObject.ok(orderInfoService.getUserSelfPickOrderInfoByQueryLimitedPage(vo));
+    }
 }

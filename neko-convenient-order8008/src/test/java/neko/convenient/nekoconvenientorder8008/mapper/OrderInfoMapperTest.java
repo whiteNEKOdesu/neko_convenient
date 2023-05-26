@@ -40,4 +40,17 @@ public class OrderInfoMapperTest {
     public void updateStatusToUserConfirmByOrderId(){
         orderInfoMapper.updateStatusToUserConfirmByOrderId("1658030998299885570", LocalDateTime.now());
     }
+
+    @Test
+    public void getUserSelfPickOrderInfoByQueryLimitedPage(){
+        System.out.println(orderInfoMapper.getUserSelfPickOrderInfoByQueryLimitedPage(8,
+                0,
+                null,
+                "1642067605873348610"));
+    }
+
+    @Test
+    public void getUserSelfPickOrderInfoByQueryLimitedPageNumber(){
+        System.out.println(orderInfoMapper.getUserSelfPickOrderInfoByQueryLimitedPageNumber(null, "1642067605873348610"));
+    }
 }

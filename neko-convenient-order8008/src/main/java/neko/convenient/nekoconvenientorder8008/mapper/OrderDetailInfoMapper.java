@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import neko.convenient.nekoconvenientorder8008.entity.OrderDetailInfo;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.time.LocalDateTime;
+
 /**
  * <p>
  * 订单详情表 Mapper 接口
@@ -14,5 +16,5 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface OrderDetailInfoMapper extends BaseMapper<OrderDetailInfo> {
-
+    void updateStatusToDeliveredByOrderRecord(String orderRecord, LocalDateTime updateTime);
 }

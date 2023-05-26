@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="neko.convenient.nekoconvenientorder8008.mapper.OrderDetailInfoMapper">
-
+    <update id="updateStatusToDeliveredByOrderRecord">
+        update order_detail_info
+        set status = 2, update_time = #{updateTime}
+        where order_record = #{orderRecord} and status != 2
+    </update>
 </mapper>

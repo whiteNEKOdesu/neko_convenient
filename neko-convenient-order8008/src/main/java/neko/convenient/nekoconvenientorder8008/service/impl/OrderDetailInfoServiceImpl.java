@@ -9,7 +9,10 @@ import neko.convenient.nekoconvenientorder8008.entity.OrderDetailInfo;
 import neko.convenient.nekoconvenientorder8008.mapper.OrderDetailInfoMapper;
 import neko.convenient.nekoconvenientorder8008.service.OrderDetailInfoService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -38,5 +41,14 @@ public class OrderDetailInfoServiceImpl extends ServiceImpl<OrderDetailInfoMappe
         this.baseMapper.selectPage(page, queryWrapper);
 
         return page;
+    }
+
+    /**
+     * 将订单详情状态修改为完成
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void userConfirmDelivered(String orderRecord) {
+        this.baseMapper.updateStatusToDeliveredByOrderRecord(orderRecord, LocalDateTime.now());
     }
 }

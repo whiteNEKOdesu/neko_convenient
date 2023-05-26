@@ -15,4 +15,6 @@ import neko.convenient.nekoconvenientorder8008.entity.OrderDetailInfo;
  */
 public interface OrderDetailInfoService extends IService<OrderDetailInfo> {
     Page<OrderDetailInfo> getUserSelfOrderDetailInfoByQueryLimitedPage(QueryVo vo);
+
+    void userConfirmDelivered(String orderRecord);
 }

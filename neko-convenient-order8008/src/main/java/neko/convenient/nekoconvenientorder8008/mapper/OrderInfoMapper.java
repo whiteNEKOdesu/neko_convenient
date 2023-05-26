@@ -31,4 +31,11 @@ public interface OrderInfoMapper extends BaseMapper<OrderInfo> {
     void updateStatusToCourierConfirmByOrderId(String orderId, LocalDateTime updateTime);
 
     void updateStatusToUserConfirmByOrderId(String orderId, LocalDateTime updateTime);
+
+    List<CourierOrderInfoVo> getUserSelfPickOrderInfoByQueryLimitedPage(Integer limited,
+                                                                  Integer start,
+                                                                  String queryWords,
+                                                                  String courierId);
+
+    int getUserSelfPickOrderInfoByQueryLimitedPageNumber(String queryWords, String courierId);
 }

@@ -17,7 +17,7 @@
         <if test="@org.springframework.util.StringUtils@hasText(queryWords)">
             and order_info.order_record = #{queryWords}
         </if>
-        order by order_info.order_id desc
+        order by order_info.order_id
         limit #{start}, #{limited}
     </select>
 
@@ -57,4 +57,39 @@
         set status = 3, update_time = #{updateTime}
         where order_id = #{orderId} and status != 3
     </update>
+
+    <select id="getUserSelfPickOrderInfoByQueryLimitedPage" resultType="neko.convenient.nekoconvenientorder8008.vo.CourierOrderInfoVo">
+        select order_info.order_id, order_info.order_record, order_info.uid,
+        order_info.receive_address_id, order_info.type, order_info.status,
+        order_info.create_time, order_info.update_time, receive_address.address_id,
+        receive_address.address_name, number_count.number from order_info
+        join receive_address
+        on order_info.receive_address_id = receive_address.receive_address_id
+        join (
+        select order_record, count(order_detail_id) number from order_detail_info
+        group by order_record
+        ) number_count
+        on order_info.order_record = number_count.order_record
+        where order_info.status = 1 and courier_id = #{courierId}
+        <if test="@org.springframework.util.StringUtils@hasText(queryWords)">
+            and order_info.order_record = #{queryWords}
+        </if>
+        order by order_info.order_id
+        limit #{start}, #{limited}
+    </select>
+
+    <select id="getUserSelfPickOrderInfoByQueryLimitedPageNumber" resultType="int">
+        select count(order_info.order_id) from order_info
+        join receive_address
+        on order_info.receive_address_id = receive_address.receive_address_id
+        join (
+        select order_record, count(order_detail_id) number from order_detail_info
+        group by order_record
+        ) number_count
+        on order_info.order_record = number_count.order_record
+        where order_info.status = 1 and courier_id = #{courierId}
+        <if test="@org.springframework.util.StringUtils@hasText(queryWords)">
+            and order_info.order_record = #{queryWords}
+        </if>
+    </select>
 </mapper>
