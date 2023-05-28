@@ -27,18 +27,18 @@ public class OrderInfoMapperTest {
     @Test
     public void updateCourierIdByOrderIds(){
         orderInfoMapper.updateCourierIdByOrderIds("1642067605873348610",
-                Arrays.asList("1658030998299885570", "1658036323581181954", "1658037062537961474"),
+                Arrays.asList("202305151645490681658030913113571330", "202305151706328041658036129724645377", "202305151709509231658036960696066049"),
                 LocalDateTime.now());
     }
 
     @Test
     public void updateStatusToCourierConfirmByOrderId(){
-        orderInfoMapper.updateStatusToCourierConfirmByOrderId("1658030998299885570", LocalDateTime.now());
+        orderInfoMapper.updateStatusToCourierConfirmByOrderId("202305151645490681658030913113571330", LocalDateTime.now());
     }
 
     @Test
     public void updateStatusToUserConfirmByOrderId(){
-        orderInfoMapper.updateStatusToUserConfirmByOrderId("1658030998299885570", LocalDateTime.now());
+        orderInfoMapper.updateStatusToUserConfirmByOrderId("202305151645490681658030913113571330", LocalDateTime.now());
     }
 
     @Test

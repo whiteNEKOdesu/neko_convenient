@@ -28,6 +28,7 @@ public class SATokenConfig {
                 .addInclude("/ware/ware_info/confirm_lock_stock_pay")
                 .addInclude("/product/point_dict/price_point")
                 .addInclude("/member/member_info/add_point")
+                .addInclude("/member/member_info/real_name_info")
                 .setAuth(obj -> {
                     StpUtil.checkRole("*");
                 })

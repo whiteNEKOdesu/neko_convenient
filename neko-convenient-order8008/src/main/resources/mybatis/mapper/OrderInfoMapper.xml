@@ -39,7 +39,7 @@
     <update id="updateCourierIdByOrderIds">
         update order_info
         set courier_id = #{courierId}, status = 1, update_time = #{updateTime}
-        where order_id in
+        where order_record in
         <foreach collection="orderIds" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>
@@ -49,13 +49,13 @@
     <update id="updateStatusToCourierConfirmByOrderId">
         update order_info
         set status = 2, update_time = #{updateTime}
-        where order_id = #{orderId} and status = 1
+        where order_record = #{orderRecord} and status = 1
     </update>
 
     <update id="updateStatusToUserConfirmByOrderId">
         update order_info
         set status = 3, update_time = #{updateTime}
-        where order_id = #{orderId} and status != 3
+        where order_record = #{orderRecord} and status != 3
     </update>
 
     <select id="getUserSelfPickOrderInfoByQueryLimitedPage" resultType="neko.convenient.nekoconvenientorder8008.vo.CourierOrderInfoVo">

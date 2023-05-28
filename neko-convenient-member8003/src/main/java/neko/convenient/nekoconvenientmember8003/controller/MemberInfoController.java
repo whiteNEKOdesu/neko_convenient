@@ -58,4 +58,12 @@ public class MemberInfoController {
 
         return ResultObject.ok();
     }
+
+    /**
+     * 根据uid获取真实姓名，建议只提供给微服务远程调用
+     */
+    @PostMapping("real_name_info")
+    public ResultObject<String> realNameInfo(@RequestParam String uid){
+        return ResultObject.ok(memberInfoService.getRealNameByUid(uid));
+    }
 }

@@ -38,4 +38,6 @@ public interface MemberInfoService extends IService<MemberInfo> {
                                   HttpServletRequest request);
 
     void addPoint(AddMemberPointVo vo);
+
+    String getRealNameByUid(String uid);
 }

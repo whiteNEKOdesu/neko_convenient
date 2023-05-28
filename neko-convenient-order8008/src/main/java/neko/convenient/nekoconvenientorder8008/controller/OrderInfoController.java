@@ -123,8 +123,8 @@ public class OrderInfoController {
     @SaCheckRole(RoleType.COURIER)
     @SaCheckLogin
     @PostMapping("courier_confirm_delivered")
-    public ResultObject<Object> courierConfirmDelivered(@RequestParam String orderId){
-        orderInfoService.courierConfirmDelivered(orderId);
+    public ResultObject<Object> courierConfirmDelivered(@RequestParam String orderRecord){
+        orderInfoService.courierConfirmDelivered(orderRecord);
 
         return ResultObject.ok();
     }
@@ -134,8 +134,8 @@ public class OrderInfoController {
      */
     @SaCheckLogin
     @PostMapping("user_confirm_delivered")
-    public ResultObject<Object> userConfirmDelivered(@RequestParam String orderId){
-        orderInfoService.userConfirmDelivered(orderId);
+    public ResultObject<Object> userConfirmDelivered(@RequestParam String orderRecord){
+        orderInfoService.userConfirmDelivered(orderRecord);
 
         return ResultObject.ok();
     }

@@ -13,5 +13,5 @@ public class CourierPickOrderVo implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @NotEmpty
-    private List<String> orderIds;
+    private List<String> orderRecords;
 }

@@ -6,4 +6,15 @@
         set status = 2, update_time = #{updateTime}
         where order_record = #{orderRecord} and status != 2
     </update>
+
+    <update id="updateCourierInfoByOrderRecords">
+        update order_detail_info
+        set courier_id = #{courierId}, courier_name = #{courierName},
+            status = 1, update_time = #{updateTime}
+        where order_record in
+        <foreach collection="orderRecords" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        and status = 0
+    </update>
 </mapper>

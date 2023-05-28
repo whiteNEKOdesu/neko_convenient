@@ -38,9 +38,9 @@ public interface OrderInfoService extends IService<OrderInfo> {
 
     void pickOrder(CourierPickOrderVo vo);
 
-    void courierConfirmDelivered(String orderId);
+    void courierConfirmDelivered(String orderRecord);
 
-    void userConfirmDelivered(String orderId);
+    void userConfirmDelivered(String orderRecord);
 
     Page<CourierOrderInfoVo> getUserSelfPickOrderInfoByQueryLimitedPage(QueryVo vo);
 }

@@ -412,18 +412,23 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     @Transactional(rollbackFor = Exception.class)
     public void pickOrder(CourierPickOrderVo vo) {
         if(this.baseMapper.updateCourierIdByOrderIds(StpUtil.getLoginId().toString(),
-                vo.getOrderIds(),
-                LocalDateTime.now()) != vo.getOrderIds().size()){
+                vo.getOrderRecords(),
+                LocalDateTime.now()) != vo.getOrderRecords().size()){
             throw new OrderPickException("快递员接单错误");
         }
+
+        //修改订单详情快递员信息
+        orderDetailInfoService.updateCourierInfoByOrderRecords(vo.getOrderRecords());
     }
 
     /**
      * 快递员确认订单送达
      */
     @Override
-    public void courierConfirmDelivered(String orderId) {
-        OrderInfo orderInfo = this.baseMapper.selectById(orderId);
+    public void courierConfirmDelivered(String orderRecord) {
+        OrderInfo orderInfo = this.baseMapper.selectOne(new QueryWrapper<OrderInfo>()
+                .lambda()
+                .eq(OrderInfo::getOrderRecord, orderRecord));
 
         if(orderInfo == null || !orderInfo.getCourierId().equals(StpUtil.getLoginId().toString()) ||
                 !orderInfo.getStatus().equals(OrderStatus.DELIVERING)){
@@ -431,7 +436,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         }
 
         //更新订单状态至快递员送达状态
-        this.baseMapper.updateStatusToCourierConfirmByOrderId(orderId, LocalDateTime.now());
+        this.baseMapper.updateStatusToCourierConfirmByOrderId(orderRecord, LocalDateTime.now());
     }
 
     /**
@@ -439,8 +444,10 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void userConfirmDelivered(String orderId) {
-        OrderInfo orderInfo = this.baseMapper.selectById(orderId);
+    public void userConfirmDelivered(String orderRecord) {
+        OrderInfo orderInfo = this.baseMapper.selectOne(new QueryWrapper<OrderInfo>()
+                .lambda()
+                .eq(OrderInfo::getOrderRecord, orderRecord));
 
         if(orderInfo == null || !orderInfo.getUid().equals(StpUtil.getLoginId().toString()) ||
                 orderInfo.getStatus().equals(OrderStatus.USER_CONFIRM_DELIVERED)){
@@ -448,10 +455,10 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         }
 
         //更新订单状态至完成状态
-        this.baseMapper.updateStatusToUserConfirmByOrderId(orderId, LocalDateTime.now());
+        this.baseMapper.updateStatusToUserConfirmByOrderId(orderRecord, LocalDateTime.now());
 
         //将订单详情状态修改为完成
-        orderDetailInfoService.userConfirmDelivered(orderInfo.getOrderRecord());
+        orderDetailInfoService.userConfirmDelivered(orderRecord);
     }
 
     /**

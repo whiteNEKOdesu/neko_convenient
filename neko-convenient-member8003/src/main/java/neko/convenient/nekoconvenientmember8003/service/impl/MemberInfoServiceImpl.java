@@ -238,4 +238,17 @@ public class MemberInfoServiceImpl extends ServiceImpl<MemberInfoMapper, MemberI
         //修改用户等级
         this.baseMapper.updateLevelByUid(uid, now);
     }
+
+    /**
+     * 根据uid获取真实姓名
+     */
+    @Override
+    public String getRealNameByUid(String uid) {
+        MemberInfo memberInfo = this.baseMapper.selectById(uid);
+        if(memberInfo == null || memberInfo.getRealName() == null){
+            throw new NoSuchResultException("没有此用户真实姓名");
+        }
+
+        return memberInfo.getRealName();
+    }
 }

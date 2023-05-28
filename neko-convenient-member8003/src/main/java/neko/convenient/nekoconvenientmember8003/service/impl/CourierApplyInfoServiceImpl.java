@@ -94,6 +94,7 @@ public class CourierApplyInfoServiceImpl extends ServiceImpl<CourierApplyInfoMap
 
             MemberInfo memberInfo = new MemberInfo();
             memberInfo.setUid(courierApplyInfo.getUid())
+                    .setRealName(courierApplyInfo.getRealName())
                     .setIdCardNumber(courierApplyInfo.getIdCardNumber())
                     .setIdCardImage(courierApplyInfo.getIdCardImage())
                     .setUpdateTime(now);

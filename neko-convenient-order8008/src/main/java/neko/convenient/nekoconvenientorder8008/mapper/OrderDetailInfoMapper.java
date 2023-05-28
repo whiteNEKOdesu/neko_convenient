@@ -5,6 +5,7 @@ import neko.convenient.nekoconvenientorder8008.entity.OrderDetailInfo;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * <p>
@@ -17,4 +18,9 @@ import java.time.LocalDateTime;
 @Mapper
 public interface OrderDetailInfoMapper extends BaseMapper<OrderDetailInfo> {
     void updateStatusToDeliveredByOrderRecord(String orderRecord, LocalDateTime updateTime);
+
+    int updateCourierInfoByOrderRecords(List<String> orderRecords,
+                                         String courierId,
+                                         String courierName,
+                                         LocalDateTime updateTime);
 }

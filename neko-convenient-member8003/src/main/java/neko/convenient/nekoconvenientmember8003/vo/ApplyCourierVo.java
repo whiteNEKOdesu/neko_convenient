@@ -18,4 +18,7 @@ public class ApplyCourierVo implements Serializable {
     @NotBlank
     @URL
     private String idCardImage;
+
+    @NotBlank
+    private String realName;
 }

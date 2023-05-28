@@ -35,6 +35,8 @@ public class CourierApplyInfo implements Serializable {
 
     private String idCardImage;
 
+    private String realName;
+
     /**
      * 审核管理员id
      */
