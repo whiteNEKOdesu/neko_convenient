@@ -54,11 +54,14 @@ public class OrderLogServiceImpl extends ServiceImpl<OrderLogMapper, OrderLog> i
         String orderRecord = IdWorker.getTimeId();
         String key = Constant.ORDER_REDIS_PREFIX + "order_record:" + StpUtil.getLoginId().toString() + orderRecord;
         List<PreOrderVo.PreOrderProductInfoVo> productInfos = vo.getProductInfos();
+        Map<String,Integer> skuCount = new HashMap<>();
 
         //获取所有skuId
         List<String> skuIds = productInfos.stream().filter(Objects::nonNull)
-                .map(PreOrderVo.PreOrderProductInfoVo::getSkuId)
-                .collect(Collectors.toList());
+                .map(preOrderProductInfoVo -> {
+                    skuCount.put(preOrderProductInfoVo.getSkuId(), preOrderProductInfoVo.getSkuNumber());
+                    return preOrderProductInfoVo.getSkuId();
+                }).collect(Collectors.toList());
 
         //远程调用product微服务获取 sku 信息
         ResultObject<List<ProductInfoVo>> r = skuInfoFeignService.productInfos(skuIds);
@@ -69,12 +72,9 @@ public class OrderLogServiceImpl extends ServiceImpl<OrderLogMapper, OrderLog> i
 
         //设置商品价格
         List<ProductInfoVo> productInfoVos = result.stream().peek(productInfoVo -> {
-            for (PreOrderVo.PreOrderProductInfoVo preOrderProductInfoVo : productInfos) {
-                if (preOrderProductInfoVo.getSkuId().equals(productInfoVo.getSkuId())) {
-                    productInfoVo.setSkuNumber(preOrderProductInfoVo.getSkuNumber());
-                    productInfoVo.setPrice(productInfoVo.getPrice().multiply(new BigDecimal(preOrderProductInfoVo.getSkuNumber() + "")));
-                }
-            }
+            productInfoVo.setSkuNumber(skuCount.get(productInfoVo.getSkuId()));
+            productInfoVo.setPrice(productInfoVo.getPrice().multiply(new BigDecimal(productInfoVo.getSkuNumber() + ""))
+                    .setScale(2, BigDecimal.ROUND_DOWN));
         }).collect(Collectors.toList());
 
         stringRedisTemplate.opsForValue().setIfAbsent(key,
@@ -148,11 +148,14 @@ public class OrderLogServiceImpl extends ServiceImpl<OrderLogMapper, OrderLog> i
             throw new NotPermissionException("权限不足");
         }
         List<PreOrderVo.PreOrderProductInfoVo> productInfos = vo.getProductInfos();
+        Map<String,Integer> skuCount = new HashMap<>();
 
         //获取所有skuId
         List<String> skuIds = productInfos.stream().filter(Objects::nonNull)
-                .map(PreOrderVo.PreOrderProductInfoVo::getSkuId)
-                .collect(Collectors.toList());
+                .map(preOrderProductInfoVo -> {
+                    skuCount.put(preOrderProductInfoVo.getSkuId(), preOrderProductInfoVo.getSkuNumber());
+                    return preOrderProductInfoVo.getSkuId();
+                }).collect(Collectors.toList());
 
         //远程调用product微服务获取 sku 信息
         ResultObject<List<ProductInfoVo>> r = skuInfoFeignService.productInfos(skuIds);
@@ -162,22 +165,18 @@ public class OrderLogServiceImpl extends ServiceImpl<OrderLogMapper, OrderLog> i
         List<ProductInfoVo> result = r.getResult();
 
         result.forEach(productInfoVo -> {
-            for (PreOrderVo.PreOrderProductInfoVo preOrderProductInfoVo : productInfos) {
-                if (preOrderProductInfoVo.getSkuId().equals(productInfoVo.getSkuId())) {
-                    Boolean isAppend = stringObjectObjectBoundHashOperations.hasKey(productInfoVo.getSkuId());
-                    //如果 key 存在，追加购物车商品数量
-                    if(isAppend != null && isAppend){
-                        String value = (String) stringObjectObjectBoundHashOperations.get(productInfoVo.getSkuId());
-                        ProductInfoVo todoProductInfo = JSONUtil.toBean(value, ProductInfoVo.class);
-                        productInfoVo.setSkuNumber(preOrderProductInfoVo.getSkuNumber() + todoProductInfo.getSkuNumber());
-                        productInfoVo.setPrice(productInfoVo.getPrice().multiply(new BigDecimal(productInfoVo.getSkuNumber() + "")));
-                    }else{
-                        productInfoVo.setSkuNumber(preOrderProductInfoVo.getSkuNumber());
-                        productInfoVo.setPrice(productInfoVo.getPrice().multiply(new BigDecimal(preOrderProductInfoVo.getSkuNumber() + "")));
-                    }
-                    stringObjectObjectBoundHashOperations.put(productInfoVo.getSkuId(), JSONUtil.toJsonStr(productInfoVo));
-                }
+            Boolean isAppend = stringObjectObjectBoundHashOperations.hasKey(productInfoVo.getSkuId());
+            //如果 key 存在，追加购物车商品数量
+            if(isAppend != null && isAppend){
+                String value = (String) stringObjectObjectBoundHashOperations.get(productInfoVo.getSkuId());
+                ProductInfoVo todoProductInfo = JSONUtil.toBean(value, ProductInfoVo.class);
+                productInfoVo.setSkuNumber(skuCount.get(productInfoVo.getSkuId()) + todoProductInfo.getSkuNumber());
+            }else{
+                productInfoVo.setSkuNumber(skuCount.get(productInfoVo.getSkuId()));
             }
+            productInfoVo.setPrice(productInfoVo.getPrice().multiply(new BigDecimal(productInfoVo.getSkuNumber() + ""))
+                    .setScale(2, BigDecimal.ROUND_DOWN));
+            stringObjectObjectBoundHashOperations.put(productInfoVo.getSkuId(), JSONUtil.toJsonStr(productInfoVo));
         });
     }
 
