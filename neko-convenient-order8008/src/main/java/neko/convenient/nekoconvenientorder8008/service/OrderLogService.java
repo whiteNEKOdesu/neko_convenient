@@ -2,6 +2,7 @@ package neko.convenient.nekoconvenientorder8008.service;
 
 import neko.convenient.nekoconvenientorder8008.entity.OrderLog;
 import com.baomidou.mybatisplus.extension.service.IService;
+import neko.convenient.nekoconvenientorder8008.vo.AddPurchaseListVo;
 import neko.convenient.nekoconvenientorder8008.vo.PreOrderVo;
 import neko.convenient.nekoconvenientorder8008.vo.ProductInfoVo;
 
@@ -18,15 +19,13 @@ import java.util.List;
 public interface OrderLogService extends IService<OrderLog> {
     String preOrder(PreOrderVo vo);
 
-    List<ProductInfoVo> getPreOrderProductInfos(String orderRecord);
-
     void newOrderLogService(OrderLog orderLog);
 
     OrderLog getOrderLogByOrderRecord(String orderRecord);
 
     void updateOrderLogStatusToCancel(String orderRecord);
 
-    void addSkusIntoPurchaseList(PreOrderVo vo);
+    void addSkusIntoPurchaseList(AddPurchaseListVo vo);
 
     List<ProductInfoVo> getPurchaseListInfo();
 

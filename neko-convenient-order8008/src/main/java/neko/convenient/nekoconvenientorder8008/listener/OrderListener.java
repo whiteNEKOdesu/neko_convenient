@@ -32,7 +32,7 @@ public class OrderListener {
         try {
             OrderLog orderLog = orderLogService.getOrderLogByOrderRecord(orderRecord);
             //订单不为未支付状态，无需取消订单
-            if(!orderLog.getStatus().equals(PreorderStatus.UNPAY)){
+            if(orderLog == null || !orderLog.getStatus().equals(PreorderStatus.UNPAY)){
                 //单个确认消费消息
                 channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
                 return;

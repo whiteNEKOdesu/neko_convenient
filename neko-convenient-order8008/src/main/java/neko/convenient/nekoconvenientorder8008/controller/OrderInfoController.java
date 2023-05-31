@@ -61,15 +61,6 @@ public class OrderInfoController {
     }
 
     /**
-     * 根据订单号查询已创建订单商品详情信息
-     */
-    @SaCheckLogin
-    @PostMapping("available_order_infos")
-    public ResultObject<List<ProductInfoVo>> availableOrderInfos(@RequestParam String orderRecord){
-        return ResultObject.ok(orderInfoService.getAvailableOrderInfos(orderRecord));
-    }
-
-    /**
      * 支付宝异步支付通知处理
      */
     @PostMapping("alipay_listener")

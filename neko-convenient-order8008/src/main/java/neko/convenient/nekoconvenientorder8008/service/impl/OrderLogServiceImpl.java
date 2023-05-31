@@ -5,6 +5,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.Constant;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
 import neko.convenient.nekoconvenientcommonbase.utils.exception.NoSuchResultException;
@@ -13,11 +14,10 @@ import neko.convenient.nekoconvenientorder8008.entity.OrderLog;
 import neko.convenient.nekoconvenientorder8008.feign.product.SkuInfoFeignService;
 import neko.convenient.nekoconvenientorder8008.mapper.OrderLogMapper;
 import neko.convenient.nekoconvenientorder8008.service.OrderLogService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import neko.convenient.nekoconvenientorder8008.vo.AddPurchaseListVo;
 import neko.convenient.nekoconvenientorder8008.vo.PreOrderVo;
 import neko.convenient.nekoconvenientorder8008.vo.ProductInfoVo;
 import org.springframework.data.redis.core.BoundHashOperations;
-import org.springframework.data.redis.core.BoundListOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -46,39 +46,16 @@ public class OrderLogServiceImpl extends ServiceImpl<OrderLogMapper, OrderLog> i
     private SkuInfoFeignService skuInfoFeignService;
 
     /**
-     * 预生成订单，生成 token 保证接口幂等性
+     * 生成 token 保证预生成订单接口幂等性
      */
     @Override
     public String preOrder(PreOrderVo vo) {
         //生成 token 保证接口幂等性，并可以用来作为订单号
         String orderRecord = IdWorker.getTimeId();
         String key = Constant.ORDER_REDIS_PREFIX + "order_record:" + StpUtil.getLoginId().toString() + orderRecord;
-        List<PreOrderVo.PreOrderProductInfoVo> productInfos = vo.getProductInfos();
-        Map<String,Integer> skuCount = new HashMap<>();
-
-        //获取所有skuId
-        List<String> skuIds = productInfos.stream().filter(Objects::nonNull)
-                .map(preOrderProductInfoVo -> {
-                    skuCount.put(preOrderProductInfoVo.getSkuId(), preOrderProductInfoVo.getSkuNumber());
-                    return preOrderProductInfoVo.getSkuId();
-                }).collect(Collectors.toList());
-
-        //远程调用product微服务获取 sku 信息
-        ResultObject<List<ProductInfoVo>> r = skuInfoFeignService.productInfos(skuIds);
-        if(!r.getResponseCode().equals(200)){
-            throw new ProductServiceException("product微服务远程调用异常");
-        }
-        List<ProductInfoVo> result = r.getResult();
-
-        //设置商品价格
-        List<ProductInfoVo> productInfoVos = result.stream().peek(productInfoVo -> {
-            productInfoVo.setSkuNumber(skuCount.get(productInfoVo.getSkuId()));
-            productInfoVo.setPrice(productInfoVo.getPrice().multiply(new BigDecimal(productInfoVo.getSkuNumber() + ""))
-                    .setScale(2, BigDecimal.ROUND_DOWN));
-        }).collect(Collectors.toList());
 
         stringRedisTemplate.opsForValue().setIfAbsent(key,
-                JSONUtil.toJsonStr(productInfoVos),
+                "neko_convenient",
                 1000 * 60 * 5,
                 TimeUnit.MILLISECONDS);
         //从购物车提交，记录保证在订单完成后删除购物车物品
@@ -90,20 +67,6 @@ public class OrderLogServiceImpl extends ServiceImpl<OrderLogMapper, OrderLog> i
         }
 
         return orderRecord;
-    }
-
-    /**
-     * 获取预生成订单信息
-     */
-    @Override
-    public List<ProductInfoVo> getPreOrderProductInfos(String orderRecord) {
-        String key = Constant.ORDER_REDIS_PREFIX + "order_record:" + StpUtil.getLoginId().toString() + orderRecord;
-        String preOrder = stringRedisTemplate.opsForValue().get(key);
-        if(!StringUtils.hasText(preOrder)){
-            throw new NoSuchResultException("无此预生成订单信息");
-        }
-
-        return JSONUtil.toList(JSONUtil.parseArray(preOrder), ProductInfoVo.class);
     }
 
     /**
@@ -139,7 +102,7 @@ public class OrderLogServiceImpl extends ServiceImpl<OrderLogMapper, OrderLog> i
      * 向购物车中添加商品
      */
     @Override
-    public void addSkusIntoPurchaseList(PreOrderVo vo) {
+    public void addSkusIntoPurchaseList(AddPurchaseListVo vo) {
         String key = Constant.ORDER_REDIS_PREFIX + "purchase_list:" + StpUtil.getLoginId().toString();
         BoundHashOperations<String, Object, Object> stringObjectObjectBoundHashOperations = stringRedisTemplate.boundHashOps(key);
         Long size = stringObjectObjectBoundHashOperations.size();
@@ -147,7 +110,7 @@ public class OrderLogServiceImpl extends ServiceImpl<OrderLogMapper, OrderLog> i
         if(size != null && size > 50){
             throw new NotPermissionException("权限不足");
         }
-        List<PreOrderVo.PreOrderProductInfoVo> productInfos = vo.getProductInfos();
+        List<AddPurchaseListVo.PreOrderProductInfoVo> productInfos = vo.getProductInfos();
         Map<String,Integer> skuCount = new HashMap<>();
 
         //获取所有skuId

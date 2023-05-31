@@ -4,6 +4,7 @@ import cn.dev33.satoken.annotation.SaCheckLogin;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
 import neko.convenient.nekoconvenientorder8008.entity.OrderLog;
 import neko.convenient.nekoconvenientorder8008.service.OrderLogService;
+import neko.convenient.nekoconvenientorder8008.vo.AddPurchaseListVo;
 import neko.convenient.nekoconvenientorder8008.vo.PreOrderVo;
 import neko.convenient.nekoconvenientorder8008.vo.ProductInfoVo;
 import org.springframework.validation.annotation.Validated;
@@ -27,21 +28,12 @@ public class OrderLogController {
     private OrderLogService orderLogService;
 
     /**
-     * 预生成订单，生成 token 保证接口幂等性
+     * 生成 token 保证预生成订单接口幂等性
      */
     @SaCheckLogin
     @PutMapping("preorder_token")
     public ResultObject<String> preorderToken(@Validated @RequestBody PreOrderVo vo){
         return ResultObject.ok(orderLogService.preOrder(vo));
-    }
-
-    /**
-     * 获取预生成订单信息
-     */
-    @SaCheckLogin
-    @PostMapping("preorder_info")
-    public ResultObject<List<ProductInfoVo>> preorderInfo(@RequestParam String orderRecord){
-        return ResultObject.ok(orderLogService.getPreOrderProductInfos(orderRecord));
     }
 
     /**
@@ -57,7 +49,7 @@ public class OrderLogController {
      */
     @SaCheckLogin
     @PutMapping("add_purchase_list")
-    public ResultObject<Object> addPurchaseList(@Validated @RequestBody PreOrderVo vo){
+    public ResultObject<Object> addPurchaseList(@Validated @RequestBody AddPurchaseListVo vo){
         orderLogService.addSkusIntoPurchaseList(vo);
 
         return ResultObject.ok();

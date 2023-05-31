@@ -12,8 +12,22 @@ import java.util.List;
 
 @Data
 @Accessors(chain = true)
-public class PreOrderVo implements Serializable {
+public class AddPurchaseListVo implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    @Valid
+    @NotEmpty
+    private List<AddPurchaseListVo.PreOrderProductInfoVo> productInfos;
+
     private Boolean isFromPurchaseList = false;
+
+    @Data
+    @Accessors(chain = true)
+    public static class PreOrderProductInfoVo{
+        @NotBlank
+        private String skuId;
+
+        @NotNull
+        private Integer skuNumber;
+    }
 }

@@ -2,7 +2,6 @@ package neko.convenient.nekoconvenientorder8008.service.impl;
 
 import cn.dev33.satoken.exception.NotPermissionException;
 import cn.dev33.satoken.stp.StpUtil;
-import cn.hutool.json.JSONUtil;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.internal.util.AlipaySignature;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -24,7 +23,10 @@ import neko.convenient.nekoconvenientorder8008.mapper.OrderInfoMapper;
 import neko.convenient.nekoconvenientorder8008.service.OrderDetailInfoService;
 import neko.convenient.nekoconvenientorder8008.service.OrderInfoService;
 import neko.convenient.nekoconvenientorder8008.service.OrderLogService;
-import neko.convenient.nekoconvenientorder8008.to.*;
+import neko.convenient.nekoconvenientorder8008.to.AddMemberPointTo;
+import neko.convenient.nekoconvenientorder8008.to.AliPayTo;
+import neko.convenient.nekoconvenientorder8008.to.LockStockTo;
+import neko.convenient.nekoconvenientorder8008.to.MemberLevelTo;
 import neko.convenient.nekoconvenientorder8008.vo.*;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -37,10 +39,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
@@ -106,10 +105,31 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             throw new NoSuchResultException("无此预生成订单信息");
         }
 
-        List<ProductInfoVo> productInfos = JSONUtil.toList(JSONUtil.parseArray(preOrder), ProductInfoVo.class);
+        List<NewOrderVo.PreOrderProductInfoVo> productInfosVo = vo.getProductInfos();
+        Map<String,Integer> skuCount = new HashMap<>();
+
+        //获取所有skuId
+        List<String> skuIds = productInfosVo.stream().filter(Objects::nonNull)
+                .map(preOrderProductInfoVo -> {
+                    skuCount.put(preOrderProductInfoVo.getSkuId(), preOrderProductInfoVo.getSkuNumber());
+                    return preOrderProductInfoVo.getSkuId();
+                }).collect(Collectors.toList());
+
+        //远程调用product微服务获取 sku 信息
+        ResultObject<List<ProductInfoVo>> skuInfoResult = skuInfoFeignService.productInfos(skuIds);
+        if(!skuInfoResult.getResponseCode().equals(200)){
+            throw new ProductServiceException("product微服务远程调用异常");
+        }
+        List<ProductInfoVo> productInfos = skuInfoResult.getResult();
         if(productInfos.isEmpty()){
             throw new NoSuchResultException("无此预生成订单信息");
         }
+        //设置商品价格
+        productInfos.forEach(productInfoVo -> {
+            productInfoVo.setSkuNumber(skuCount.get(productInfoVo.getSkuId()));
+            productInfoVo.setPrice(productInfoVo.getPrice().multiply(new BigDecimal(productInfoVo.getSkuNumber() + ""))
+                    .setScale(2, BigDecimal.ROUND_DOWN));
+        });
 
         //锁定库存 to
         LockStockTo lockStockTo = new LockStockTo();
@@ -146,23 +166,10 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             rabbitTemplate.convertAndSend(RabbitMqConstant.STOCK_EXCHANGE_NAME,
                     RabbitMqConstant.STOCK_DEAD_LETTER_ROUTING_KEY_NAME,
                     orderRecord,
-                    new CorrelationData(orderRecord));
+                    new CorrelationData(MQMessageType.UNLOCK_STOCK.toString()));
 
             //新增订单生成记录，用于超时解锁库存
             orderLogService.newOrderLogService(orderLog);
-        }, threadPool);
-
-        String orderKey = Constant.ORDER_REDIS_PREFIX + "order:" + uid + orderRecord;
-        CompletableFuture<Void> orderRedisTask = CompletableFuture.runAsync(() -> {
-            OrderRedisTo orderRedisTo = new OrderRedisTo();
-            orderRedisTo.setReceiveAddressId(vo.getReceiveAddressId())
-                    .setOrderRecord(orderRecord)
-                    .setProductInfos(productInfos);
-            //将订单详情信息存入 redis
-            stringRedisTemplate.opsForValue().setIfAbsent(orderKey,
-                    JSONUtil.toJsonStr(orderRedisTo),
-                    1000 * 60 * 4,
-                    TimeUnit.MILLISECONDS);
         }, threadPool);
 
         CompletableFuture<Void> alipayTask = totalPriceTask.thenAcceptAsync((totalPrice) -> {
@@ -181,7 +188,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
                     //设置折扣价格
                     .setTotal_amount(actualPrice.toString())
                     .setBody("NEKO_CONVENIENT");
-            String alipayPageKey = orderKey + ":pay_page";
+            String alipayPageKey = Constant.ORDER_REDIS_PREFIX + "order:" + uid + orderRecord + ":pay_page";
             //将支付宝支付页面信息存入 redis
             try {
                 stringRedisTemplate.opsForValue().setIfAbsent(alipayPageKey,
@@ -201,7 +208,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             }
         }, threadPool);
 
-        CompletableFuture.allOf(orderLogTask, orderRedisTask, alipayTask, lockStockTask).get();
+        CompletableFuture.allOf(orderLogTask, alipayTask, lockStockTask).get();
     }
 
     /**
@@ -231,20 +238,6 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         OrderLog orderLog = orderLogService.getOrderLogByOrderRecord(orderRecord);
         return orderLog != null && orderLog.getStatus().equals(PreorderStatus.UNPAY) &&
                 orderLog.getUid().equals(StpUtil.getLoginId().toString());
-    }
-
-    /**
-     * 根据订单号查询已创建订单商品详情信息
-     */
-    @Override
-    public List<ProductInfoVo> getAvailableOrderInfos(String orderRecord) {
-        String orderKey = Constant.ORDER_REDIS_PREFIX + "order:" + StpUtil.getLoginId().toString() + orderRecord;
-        String orderInfo = stringRedisTemplate.opsForValue().get(orderKey);
-        if(!StringUtils.hasText(orderInfo)){
-            throw new OrderOverTimeException("订单超时");
-        }
-
-        return JSONUtil.toBean(orderInfo, OrderRedisTo.class).getProductInfos();
     }
 
     /**
