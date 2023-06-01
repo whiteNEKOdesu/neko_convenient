@@ -2,6 +2,7 @@ package neko.convenient.nekoconvenientorder8008.service.impl;
 
 import cn.dev33.satoken.exception.NotPermissionException;
 import cn.dev33.satoken.stp.StpUtil;
+import cn.hutool.json.JSONUtil;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.internal.util.AlipaySignature;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -23,10 +24,7 @@ import neko.convenient.nekoconvenientorder8008.mapper.OrderInfoMapper;
 import neko.convenient.nekoconvenientorder8008.service.OrderDetailInfoService;
 import neko.convenient.nekoconvenientorder8008.service.OrderInfoService;
 import neko.convenient.nekoconvenientorder8008.service.OrderLogService;
-import neko.convenient.nekoconvenientorder8008.to.AddMemberPointTo;
-import neko.convenient.nekoconvenientorder8008.to.AliPayTo;
-import neko.convenient.nekoconvenientorder8008.to.LockStockTo;
-import neko.convenient.nekoconvenientorder8008.to.MemberLevelTo;
+import neko.convenient.nekoconvenientorder8008.to.*;
 import neko.convenient.nekoconvenientorder8008.vo.*;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -162,10 +160,13 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
                     .setUid(uid)
                     .setReceiveAddressId(vo.getReceiveAddressId())
                     .setCost(totalPrice);
+            RabbitMQOrderMessageTo rabbitMQOrderMessageTo = new RabbitMQOrderMessageTo();
+            rabbitMQOrderMessageTo.setOrderRecord(orderRecord)
+                    .setType(MQMessageType.UNLOCK_STOCK);
             //向延迟队列发送订单号，用于超时解锁库存
             rabbitTemplate.convertAndSend(RabbitMqConstant.STOCK_EXCHANGE_NAME,
                     RabbitMqConstant.STOCK_DEAD_LETTER_ROUTING_KEY_NAME,
-                    orderRecord,
+                    JSONUtil.toJsonStr(rabbitMQOrderMessageTo),
                     new CorrelationData(MQMessageType.UNLOCK_STOCK.toString()));
 
             //新增订单生成记录，用于超时解锁库存
@@ -327,11 +328,14 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
                     throw new MemberServiceException("member微服务远程调用异常");
                 }
 
-                //远程调用ware微服务解锁指定订单号库存并扣除库存
-                ResultObject<Object> confirmLockStockPayResult = wareInfoFeignService.confirmLockStockPay(vo.getOut_trade_no());
-                if(!confirmLockStockPayResult.getResponseCode().equals(200)){
-                    throw new WareServiceException("库存微服务远程调用异常");
-                }
+                RabbitMQOrderMessageTo rabbitMQOrderMessageTo = new RabbitMQOrderMessageTo();
+                rabbitMQOrderMessageTo.setOrderRecord(vo.getOut_trade_no())
+                        .setType(MQMessageType.DECREASE_STOCK);
+                //向库存扣减队列发送消息扣除库存
+                rabbitTemplate.convertAndSend(RabbitMqConstant.STOCK_EXCHANGE_NAME,
+                        RabbitMqConstant.STOCK_DECREASE_QUEUE_NAME,
+                        JSONUtil.toJsonStr(rabbitMQOrderMessageTo),
+                        new CorrelationData(MQMessageType.DECREASE_STOCK.toString()));
                 String key = Constant.ORDER_REDIS_PREFIX + "order_record:" + uid + orderInfo.getOrderRecord() + ":is_from_purchase_list";
                 String purchaseListKey = Constant.ORDER_REDIS_PREFIX + "purchase_list:" + uid;
                 String isFromPurchase = stringRedisTemplate.opsForValue().get(key);

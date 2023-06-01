@@ -1,5 +1,6 @@
 package neko.convenient.nekoconvenientorder8008.listener;
 
+import cn.hutool.json.JSONUtil;
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.PreorderStatus;
@@ -9,6 +10,7 @@ import neko.convenient.nekoconvenientcommonbase.utils.exception.StockUnlockExcep
 import neko.convenient.nekoconvenientorder8008.entity.OrderLog;
 import neko.convenient.nekoconvenientorder8008.feign.ware.WareInfoFeignService;
 import neko.convenient.nekoconvenientorder8008.service.OrderLogService;
+import neko.convenient.nekoconvenientorder8008.to.RabbitMQOrderMessageTo;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -28,7 +30,9 @@ public class OrderListener {
     private WareInfoFeignService wareInfoFeignService;
 
     @RabbitHandler
-    public void StockUnlock(String orderRecord, Message message, Channel channel) throws IOException {
+    public void StockUnlock(String jsonMessage, Message message, Channel channel) throws IOException {
+        RabbitMQOrderMessageTo rabbitMQOrderMessageTo = JSONUtil.toBean(jsonMessage, RabbitMQOrderMessageTo.class);
+        String orderRecord = rabbitMQOrderMessageTo.getOrderRecord();
         try {
             OrderLog orderLog = orderLogService.getOrderLogByOrderRecord(orderRecord);
             //订单不为未支付状态，无需取消订单

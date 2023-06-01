@@ -49,6 +49,15 @@ public class RabbitMqConfig {
     }
 
     /**
+     * 库存扣减队列
+     */
+    @Bean
+    public Queue stockDecreaseQueue(){
+        return QueueBuilder.durable(RabbitMqConstant.STOCK_DECREASE_QUEUE_NAME)
+                .build();
+    }
+
+    /**
      * 库存解锁队列跟库存交换机绑定
      */
     @Bean
@@ -67,5 +76,15 @@ public class RabbitMqConfig {
                 .to(stockExchange)
                 //此routingKey不会发送给任何消费者，只为实现延迟队列
                 .with(RabbitMqConstant.STOCK_DEAD_LETTER_ROUTING_KEY_NAME);
+    }
+
+    /**
+     * 库存扣减队列跟库存交换机绑定
+     */
+    @Bean
+    public Binding stockDecreaseBinding(Queue stockDecreaseQueue, TopicExchange stockExchange){
+        return BindingBuilder.bind(stockDecreaseQueue)
+                .to(stockExchange)
+                .with(RabbitMqConstant.STOCK_DECREASE_QUEUE_ROTING_KEY_NAME);
     }
 }

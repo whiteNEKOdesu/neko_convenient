@@ -10,9 +10,15 @@ public class RabbitMqConstant {
     //库存解锁延迟队列名
     public static final String STOCK_RELEASE_DELAY_QUEUE_NAME = "neko.convenient.stock.release.delay.queue";
 
+    //库存扣减队列名
+    public static final String STOCK_DECREASE_QUEUE_NAME = "neko.convenient.stock.decrease.queue";
+
     //库存解锁队列routingKey名
     public static final String STOCK_RELEASE_QUEUE_ROUTING_KEY_NAME = "neko.convenient.stock.release.#";
 
     //库存死信队列routingKey名
     public static final String STOCK_DEAD_LETTER_ROUTING_KEY_NAME = "neko.convenient.stock.delay";
+
+    //库存扣减队列名rotingKey名
+    public static final String STOCK_DECREASE_QUEUE_ROTING_KEY_NAME = "neko.convenient.stock.decrease";
 }

@@ -3,13 +3,11 @@ package neko.convenient.nekoconvenientware8007.service.impl;
 import cn.dev33.satoken.exception.NotPermissionException;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
-import neko.convenient.nekoconvenientcommonbase.utils.entity.PreorderStatus;
-import neko.convenient.nekoconvenientcommonbase.utils.entity.RabbitMqConstant;
-import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
-import neko.convenient.nekoconvenientcommonbase.utils.entity.StockStatus;
+import neko.convenient.nekoconvenientcommonbase.utils.entity.*;
 import neko.convenient.nekoconvenientcommonbase.utils.exception.*;
 import neko.convenient.nekoconvenientware8007.entity.StockLockLog;
 import neko.convenient.nekoconvenientware8007.entity.StockUpdateLog;
@@ -22,6 +20,7 @@ import neko.convenient.nekoconvenientware8007.service.StockUpdateLogService;
 import neko.convenient.nekoconvenientware8007.service.WareInfoService;
 import neko.convenient.nekoconvenientware8007.to.MarketInfoTo;
 import neko.convenient.nekoconvenientware8007.to.OrderLogTo;
+import neko.convenient.nekoconvenientware8007.to.RabbitMQOrderMessageTo;
 import neko.convenient.nekoconvenientware8007.vo.AddStockNumberVo;
 import neko.convenient.nekoconvenientware8007.vo.LockStockVo;
 import neko.convenient.nekoconvenientware8007.vo.WareInfoVo;
@@ -128,10 +127,13 @@ public class WareInfoServiceImpl extends ServiceImpl<WareInfoMapper, WareInfo> i
     @Transactional(rollbackFor = Exception.class)
     public void lockStock(LockStockVo vo) {
         String orderRecord = vo.getOrderRecord();
+        RabbitMQOrderMessageTo rabbitMQOrderMessageTo = new RabbitMQOrderMessageTo();
+        rabbitMQOrderMessageTo.setOrderRecord(orderRecord)
+                .setType(MQMessageType.UNLOCK_STOCK);
         //向延迟队列发送订单号，用于超时解锁库存
         rabbitTemplate.convertAndSend(RabbitMqConstant.STOCK_EXCHANGE_NAME,
                 RabbitMqConstant.STOCK_DEAD_LETTER_ROUTING_KEY_NAME,
-                orderRecord,
+                JSONUtil.toJsonStr(rabbitMQOrderMessageTo),
                 new CorrelationData(orderRecord));
 
         List<StockLockLog> stockLockLogs = new ArrayList<>();
