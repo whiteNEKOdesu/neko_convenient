@@ -26,7 +26,7 @@ public interface OrderInfoService extends IService<OrderInfo> {
 
     Boolean isOrderAvailable(String orderRecord);
 
-    String alipayTradeCheck(AliPayAsyncVo vo, HttpServletRequest request) throws AlipayApiException;
+    String alipayTradeCheck(AliPayAsyncVo vo, HttpServletRequest request) throws AlipayApiException, ExecutionException, InterruptedException;
 
     OrderInfo getOrderInfoByOrderRecord(String orderRecord);
 

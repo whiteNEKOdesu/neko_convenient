@@ -26,6 +26,8 @@ import neko.convenient.nekoconvenientorder8008.service.OrderInfoService;
 import neko.convenient.nekoconvenientorder8008.service.OrderLogService;
 import neko.convenient.nekoconvenientorder8008.to.*;
 import neko.convenient.nekoconvenientorder8008.vo.*;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.ReturnedMessage;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -36,6 +38,7 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -163,11 +166,20 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             RabbitMQOrderMessageTo rabbitMQOrderMessageTo = new RabbitMQOrderMessageTo();
             rabbitMQOrderMessageTo.setOrderRecord(orderRecord)
                     .setType(MQMessageType.UNLOCK_STOCK);
+            //在CorrelationData中设置回退消息
+            CorrelationData correlationData = new CorrelationData(MQMessageType.UNLOCK_STOCK.toString());
+            String jsonMessage = JSONUtil.toJsonStr(rabbitMQOrderMessageTo);
+            String notAvailable = "not available";
+            correlationData.setReturned(new ReturnedMessage(new Message(jsonMessage.getBytes(StandardCharsets.UTF_8)),
+                    0,
+                    notAvailable,
+                    notAvailable,
+                    notAvailable));
             //向延迟队列发送订单号，用于超时解锁库存
             rabbitTemplate.convertAndSend(RabbitMqConstant.STOCK_EXCHANGE_NAME,
                     RabbitMqConstant.STOCK_DEAD_LETTER_ROUTING_KEY_NAME,
-                    JSONUtil.toJsonStr(rabbitMQOrderMessageTo),
-                    new CorrelationData(MQMessageType.UNLOCK_STOCK.toString()));
+                    jsonMessage,
+                    correlationData);
 
             //新增订单生成记录，用于超时解锁库存
             orderLogService.newOrderLogService(orderLog);
@@ -246,7 +258,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public String alipayTradeCheck(AliPayAsyncVo vo, HttpServletRequest request) throws AlipayApiException {
+    public String alipayTradeCheck(AliPayAsyncVo vo, HttpServletRequest request) throws AlipayApiException, ExecutionException, InterruptedException {
         //验签
         Map<String,String> params = new HashMap<>();
         Map<String,String[]> requestParams = request.getParameterMap();
@@ -269,9 +281,10 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
 
         if(signVerified){
             if(vo.getTrade_status().equals("TRADE_SUCCESS") || vo.getTrade_status().equals("TRADE_FINISHED")){
-                OrderLog orderLog = orderLogService.getOrderLogByOrderRecord(vo.getOut_trade_no());
+                String orderRecord = vo.getOut_trade_no();
+                OrderLog orderLog = orderLogService.getOrderLogByOrderRecord(orderRecord);
                 if(orderLog == null){
-                    log.error("订单号: " + vo.getOut_trade_no() + "，支付宝流水号: " + vo.getTrade_no() + "，订单不存在");
+                    log.error("订单号: " + orderRecord + "，支付宝流水号: " + vo.getTrade_no() + "，订单不存在");
                     return "error";
                 }
 
@@ -284,69 +297,94 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
 
                 //生成订单信息
                 String uid = orderLog.getUid();
-                OrderInfo orderInfo = new OrderInfo();
                 LocalDateTime now = LocalDateTime.now();
-                orderInfo.setOrderRecord(vo.getOut_trade_no())
-                        .setAlipayTradeId(vo.getTrade_no())
-                        .setUid(uid)
-                        .setReceiveAddressId(orderLog.getReceiveAddressId())
-                        .setCost(orderLog.getCost())
-                        .setActualCost(new BigDecimal(vo.getInvoice_amount()))
-                        .setPoint(point)
-                        .setCreateTime(now)
-                        .setUpdateTime(now);
 
-                OrderLog todoOrderLog = new OrderLog();
-                todoOrderLog.setOrderLogId(orderLog.getOrderLogId())
-                        .setStatus(PreorderStatus.PAY);
-                //更新订单生成记录为已支付状态
-                orderLogService.updateById(todoOrderLog);
-
-                //记录订单
-                this.baseMapper.insert(orderInfo);
-
-                //远程调用product微服务获取订单详情信息
-                ResultObject<List<OrderDetailInfo>> r = skuInfoFeignService.orderDetailInfos(vo.getOut_trade_no());
-                if(!r.getResponseCode().equals(200)){
-                    throw new ProductServiceException("商品微服务远程调用异常");
-                }
-
-                List<OrderDetailInfo> result = r.getResult();
-                for(OrderDetailInfo orderDetailInfo : result){
-                    orderDetailInfo.setUid(uid)
+                CompletableFuture<Void> orderInfoTask = CompletableFuture.runAsync(() -> {
+                    OrderInfo orderInfo = new OrderInfo();
+                    orderInfo.setOrderRecord(orderRecord)
+                            .setAlipayTradeId(vo.getTrade_no())
+                            .setUid(uid)
+                            .setReceiveAddressId(orderLog.getReceiveAddressId())
+                            .setCost(orderLog.getCost())
+                            .setActualCost(new BigDecimal(vo.getInvoice_amount()))
+                            .setPoint(point)
                             .setCreateTime(now)
                             .setUpdateTime(now);
-                }
 
-                //记录订单详情信息
-                orderDetailInfoService.saveBatch(result);
+                    //记录订单
+                    this.baseMapper.insert(orderInfo);
+                }, threadPool);
 
-                //远程调用member微服务添加积分
-                ResultObject<Object> addPointResult = memberInfoFeignService.addPoint(new AddMemberPointTo().setUid(uid)
-                        .setPoint(point));
-                if(!addPointResult.getResponseCode().equals(200)){
-                    throw new MemberServiceException("member微服务远程调用异常");
-                }
+                CompletableFuture<Void> updateOrderLogTask = CompletableFuture.runAsync(() -> {
+                    OrderLog todoOrderLog = new OrderLog();
+                    todoOrderLog.setOrderLogId(orderLog.getOrderLogId())
+                            .setStatus(PreorderStatus.PAY);
+                    //更新订单生成记录为已支付状态
+                    orderLogService.updateById(todoOrderLog);
+                }, threadPool);
+
+                CompletableFuture<List<OrderDetailInfo>> orderDetailInfoTask = CompletableFuture.supplyAsync(() -> {
+                    //远程调用product微服务获取订单详情信息
+                    ResultObject<List<OrderDetailInfo>> r = skuInfoFeignService.orderDetailInfos(orderRecord);
+                    if (!r.getResponseCode().equals(200)) {
+                        throw new ProductServiceException("商品微服务远程调用异常");
+                    }
+
+                    List<OrderDetailInfo> result = r.getResult();
+                    for (OrderDetailInfo orderDetailInfo : result) {
+                        orderDetailInfo.setUid(uid)
+                                .setCreateTime(now)
+                                .setUpdateTime(now);
+                    }
+
+                    //记录订单详情信息
+                    orderDetailInfoService.saveBatch(result);
+
+                    return result;
+                }, threadPool);
+
+                CompletableFuture<Void> addPointTask = CompletableFuture.runAsync(() -> {
+                    //远程调用member微服务添加积分
+                    ResultObject<Object> addPointResult = memberInfoFeignService.addPoint(new AddMemberPointTo().setUid(uid)
+                            .setPoint(point));
+                    if (!addPointResult.getResponseCode().equals(200)) {
+                        throw new MemberServiceException("member微服务远程调用异常");
+                    }
+                }, threadPool);
+
+                CompletableFuture<Void> deletePurchaseListTask = orderDetailInfoTask.thenAcceptAsync((result) -> {
+                    String key = Constant.ORDER_REDIS_PREFIX + "order_record:" + uid + orderRecord + ":is_from_purchase_list";
+                    String purchaseListKey = Constant.ORDER_REDIS_PREFIX + "purchase_list:" + uid;
+                    String isFromPurchase = stringRedisTemplate.opsForValue().get(key);
+                    //删除购物车已购买商品
+                    if (isFromPurchase != null) {
+                        List<String> skuIds = result.stream().map(OrderDetailInfo::getSkuId)
+                                .collect(Collectors.toList());
+                        orderLogService.deletePurchaseList(skuIds, purchaseListKey);
+                    }
+                }, threadPool);
+
+                CompletableFuture.allOf(orderInfoTask, updateOrderLogTask, addPointTask, deletePurchaseListTask).get();
 
                 RabbitMQOrderMessageTo rabbitMQOrderMessageTo = new RabbitMQOrderMessageTo();
-                rabbitMQOrderMessageTo.setOrderRecord(vo.getOut_trade_no())
+                rabbitMQOrderMessageTo.setOrderRecord(orderRecord)
                         .setType(MQMessageType.DECREASE_STOCK);
+                //在CorrelationData中设置回退消息
+                CorrelationData correlationData = new CorrelationData(MQMessageType.DECREASE_STOCK.toString());
+                String jsonMessage = JSONUtil.toJsonStr(rabbitMQOrderMessageTo);
+                String notAvailable = "not available";
+                correlationData.setReturned(new ReturnedMessage(new Message(jsonMessage.getBytes(StandardCharsets.UTF_8)),
+                        0,
+                        notAvailable,
+                        notAvailable,
+                        notAvailable));
                 //向库存扣减队列发送消息扣除库存
                 rabbitTemplate.convertAndSend(RabbitMqConstant.STOCK_EXCHANGE_NAME,
-                        RabbitMqConstant.STOCK_DECREASE_QUEUE_NAME,
-                        JSONUtil.toJsonStr(rabbitMQOrderMessageTo),
-                        new CorrelationData(MQMessageType.DECREASE_STOCK.toString()));
-                String key = Constant.ORDER_REDIS_PREFIX + "order_record:" + uid + orderInfo.getOrderRecord() + ":is_from_purchase_list";
-                String purchaseListKey = Constant.ORDER_REDIS_PREFIX + "purchase_list:" + uid;
-                String isFromPurchase = stringRedisTemplate.opsForValue().get(key);
-                //删除购物车已购买商品
-                if(isFromPurchase != null){
-                    List<String> skuIds = result.stream().map(OrderDetailInfo::getSkuId)
-                            .collect(Collectors.toList());
-                    orderLogService.deletePurchaseList(skuIds, purchaseListKey);
-                }
+                        RabbitMqConstant.STOCK_DECREASE_QUEUE_ROTING_KEY_NAME,
+                        jsonMessage,
+                        correlationData);
 
-                log.info("订单号: " + vo.getOut_trade_no() + "，支付宝流水号: " + vo.getTrade_no() + "，订单支付确认完成");
+                log.info("订单号: " + orderRecord + "，支付宝流水号: " + vo.getTrade_no() + "，订单支付确认完成");
             }
 
             return "success";

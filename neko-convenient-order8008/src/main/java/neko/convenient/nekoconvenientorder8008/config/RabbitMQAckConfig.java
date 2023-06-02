@@ -28,6 +28,7 @@ public class RabbitMQAckConfig {
     public void init(){
         rabbitTemplate.setConfirmCallback((correlationData, ack, cause) -> {
             if(!ack){
+                //ConfirmCallback中回退消息需要在发送消息设置在 CorrelationData 中，如果不设置，需要判断是否为空
                 if(correlationData != null && correlationData.getReturned() != null){
                     String message = new String(correlationData.getReturned().getMessage().getBody(), StandardCharsets.UTF_8);
                     RabbitMQOrderMessageTo rabbitMQOrderMessageTo = JSONUtil.toBean(message, RabbitMQOrderMessageTo.class);
@@ -61,6 +62,9 @@ public class RabbitMQAckConfig {
 
         rabbitTemplate.setReturnsCallback(returnedMessage -> {
             String message = new String(returnedMessage.getMessage().getBody(), StandardCharsets.UTF_8);
+            //rabbitmq中ReturnsCallback回退 json 数据在 "" 中，需要去掉 ""，并且需要替换转义字符 \
+            message = message.substring(1)
+                    .replaceAll("\\\\", "");
             RabbitMQOrderMessageTo rabbitMQOrderMessageTo = JSONUtil.toBean(message, RabbitMQOrderMessageTo.class);
             String orderRecord = rabbitMQOrderMessageTo.getOrderRecord();
             MQReturnMessage mqReturnMessage = new MQReturnMessage();

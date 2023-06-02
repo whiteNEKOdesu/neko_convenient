@@ -64,7 +64,7 @@ public class OrderInfoController {
      * 支付宝异步支付通知处理
      */
     @PostMapping("alipay_listener")
-    public String alipayListener(AliPayAsyncVo vo, HttpServletRequest request) throws AlipayApiException {
+    public String alipayListener(AliPayAsyncVo vo, HttpServletRequest request) throws AlipayApiException, ExecutionException, InterruptedException {
         return orderInfoService.alipayTradeCheck(vo, request);
     }
 
