@@ -33,6 +33,7 @@ public enum Response {
     STOCK_UNLOCK_ERROR(20, "库存解锁错误"),
     ORDER_OVER_TIME_ERROR(21, "订单超时错误"),
     ORDER_PICK_ERROR(22, "快递员接单错误"),
+    OUT_OF_LIMITATION_ERROR(23, "超出数量限制错误"),
 
     MEMBER_SERVICE_ERROR(1000, "member微服务远程调用错误"),
     PRODUCT_SERVICE_ERROR(1001, "product微服务远程调用错误"),

@@ -1,0 +1,48 @@
+spring:
+  banner:
+    image:
+      location: classpath:img/IMG_6588.jpg
+      bitdepth: 8
+      pixelmode: block
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true #开启从注册中心动态创建路由的功能，利用微服务名进行路由
+      routes:
+        - id: neko_convenient_product_route  #商品服务统一路由
+          uri: lb://neko-convenient-product #lb代表loadbalance负载均衡，后面配置上服务名
+          predicates:
+            - Path=/product/**  #代表任何前缀为/product请求都会被路由到lb://neko-convenient-product
+          filters:
+            - RewritePath=/product/?(?<segment>.*), /$\{segment}
+
+        - id: neko_convenient_member_route  #用户服务统一路由
+          uri: lb://neko-convenient-member #lb代表loadbalance负载均衡，后面配置上服务名
+          predicates:
+            - Path=/member/**  #代表任何前缀为/member请求都会被路由到lb://neko-convenient-member
+          filters:
+            - RewritePath=/member/?(?<segment>.*), /$\{segment}
+
+        - id: neko_convenient_third_party_route  #第三方服务统一路由
+          uri: lb://neko-convenient-third-party #lb代表loadbalance负载均衡，后面配置上服务名
+          predicates:
+            - Path=/third_party/**  #代表任何前缀为/third_party请求都会被路由到lb://neko-convenient-third-party
+          filters:
+            - RewritePath=/third_party/?(?<segment>.*), /$\{segment}
+
+        - id: neko_convenient_ware_route  #库存服务统一路由
+          uri: lb://neko-convenient-ware #lb代表loadbalance负载均衡，后面配置上服务名
+          predicates:
+            - Path=/ware/**  #代表任何前缀为/ware请求都会被路由到lb://neko-convenient-ware
+          filters:
+            - RewritePath=/ware/?(?<segment>.*), /$\{segment}
+
+        - id: neko_convenient_order_route  #订单服务统一路由
+          uri: lb://neko-convenient-order #lb代表loadbalance负载均衡，后面配置上服务名
+          predicates:
+            - Path=/order/**  #代表任何前缀为/ware请求都会被路由到lb://neko-convenient-order
+          filters:
+            - RewritePath=/order/?(?<segment>.*), /$\{segment}
+server:
+  port: 8004

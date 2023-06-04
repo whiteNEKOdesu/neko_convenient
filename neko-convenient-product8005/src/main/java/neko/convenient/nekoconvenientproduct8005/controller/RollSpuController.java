@@ -1,11 +1,14 @@
 package neko.convenient.nekoconvenientproduct8005.controller;
 
+import cn.dev33.satoken.annotation.SaCheckLogin;
+import cn.dev33.satoken.annotation.SaCheckRole;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
+import neko.convenient.nekoconvenientcommonbase.utils.entity.RoleType;
 import neko.convenient.nekoconvenientproduct8005.entity.RollSpu;
 import neko.convenient.nekoconvenientproduct8005.service.RollSpuService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import neko.convenient.nekoconvenientproduct8005.vo.NewRollSpuVo;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -30,5 +33,29 @@ public class RollSpuController {
     @GetMapping("roll_spu_info")
     public ResultObject<List<RollSpu>> rollSpuInfo(){
         return ResultObject.ok(rollSpuService.getRollSpuInfo());
+    }
+
+    /**
+     * 管理员添加商品轮播图信息
+     */
+    @SaCheckRole(RoleType.ADMIN)
+    @SaCheckLogin
+    @PutMapping("new_roll_spu")
+    public ResultObject<Object> newRollSpu(@Validated @RequestBody NewRollSpuVo vo){
+        rollSpuService.newRollSpu(vo);
+
+        return ResultObject.ok();
+    }
+
+    /**
+     * 管理员根据rollId删除商品轮播图信息
+     */
+    @SaCheckRole(RoleType.ADMIN)
+    @SaCheckLogin
+    @DeleteMapping("delete_roll_spu")
+    public ResultObject<Object> deleteRollSpu(@RequestParam Integer rollId){
+        rollSpuService.deleteRollSpuByRollId(rollId);
+
+        return ResultObject.ok();
     }
 }

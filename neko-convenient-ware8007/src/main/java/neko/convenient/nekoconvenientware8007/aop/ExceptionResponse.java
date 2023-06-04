@@ -4,9 +4,11 @@ import cn.dev33.satoken.exception.NotLoginException;
 import cn.dev33.satoken.exception.NotPermissionException;
 import cn.dev33.satoken.exception.NotRoleException;
 import lombok.extern.slf4j.Slf4j;
+import neko.convenient.nekoconvenientcommonbase.utils.entity.ProfilesActive;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.Response;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
 import neko.convenient.nekoconvenientcommonbase.utils.exception.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -16,14 +18,35 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
+import javax.annotation.PostConstruct;
 import java.io.FileNotFoundException;
 
 @RestControllerAdvice
 @Slf4j
 public class ExceptionResponse {
+    @Value("${spring.profiles.active}")
+    private String active;
+
+    private Boolean isDebug = true;
+
+    @PostConstruct
+    public void init(){
+        if(ProfilesActive.PROP.equals(active)){
+            isDebug = false;
+        }
+    }
+
     //日志方法
-    public static void exceptionLogger(Exception e){
-        log.error(e.getMessage());
+    public void exceptionLogger(Exception e){
+        if(isDebug){
+            debugExceptionLogger(e);
+        }else{
+            log.error(e.toString());
+        }
+    }
+
+    public void debugExceptionLogger(Exception e){
+        log.error(e.toString());
         for(StackTraceElement trace : e.getStackTrace()){
             log.error(trace.toString());
         }
@@ -32,7 +55,7 @@ public class ExceptionResponse {
     //顶级异常处理
     @ExceptionHandler(value = Exception.class)
     public ResultObject<Object> exceptionHandler(Exception e){
-        exceptionLogger(e);
+        debugExceptionLogger(e);
         return ResultObject.unknownError();
     }
 
@@ -276,6 +299,15 @@ public class ExceptionResponse {
         exceptionLogger(e);
         return new ResultObject<Object>()
                 .setResponseStatus(Response.ORDER_PICK_ERROR)
+                .compact();
+    }
+
+    //超出数量限制异常
+    @ExceptionHandler(value = OutOfLimitationException.class)
+    public ResultObject<Object> outOfLimitationExceptionHandler(OutOfLimitationException e){
+        exceptionLogger(e);
+        return new ResultObject<>()
+                .setResponseStatus(Response.OUT_OF_LIMITATION_ERROR)
                 .compact();
     }
 }

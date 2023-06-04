@@ -88,7 +88,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     @Resource
     private AliPayTemplate aliPayTemplate;
 
-    @Resource
+    @Resource(name = "threadPoolExecutor")
     private Executor threadPool;
 
     /**

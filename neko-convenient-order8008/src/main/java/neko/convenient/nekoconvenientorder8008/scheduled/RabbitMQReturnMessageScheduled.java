@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @EnableScheduling
@@ -34,16 +35,17 @@ public class RabbitMQReturnMessageScheduled {
     private RabbitTemplate rabbitTemplate;
 
     @Transactional(rollbackFor = Exception.class)
-    @Scheduled(cron = "* 0 * * * ?")
+    @Scheduled(cron = "0 0 */1 * * ?")
     @Async
     public void resendMessage(){
+        log.info("rabbitmq回退消息重新发送定时任务启动");
+
         List<MQReturnMessage> list = mqReturnMessageService.lambdaQuery()
                 .eq(MQReturnMessage::getIsDelete, false)
                 .list();
-        int size = list.size();
 
-        for(MQReturnMessage mqReturnMessage : list){
-            if(mqReturnMessage.getType().equals(MQMessageType.UNLOCK_STOCK)){
+        List<String> returnOrderIds = list.stream().map(mqReturnMessage -> {
+            if (mqReturnMessage.getType().equals(MQMessageType.UNLOCK_STOCK)) {
                 RabbitMQOrderMessageTo rabbitMQOrderMessageTo = new RabbitMQOrderMessageTo();
                 rabbitMQOrderMessageTo.setOrderRecord(mqReturnMessage.getOrderRecord())
                         .setType(MQMessageType.UNLOCK_STOCK);
@@ -61,7 +63,7 @@ public class RabbitMQReturnMessageScheduled {
                         RabbitMqConstant.STOCK_DEAD_LETTER_ROUTING_KEY_NAME,
                         jsonMessage,
                         correlationData);
-            }else if(mqReturnMessage.getType().equals(MQMessageType.DECREASE_STOCK)){
+            } else if (mqReturnMessage.getType().equals(MQMessageType.DECREASE_STOCK)) {
                 RabbitMQOrderMessageTo rabbitMQOrderMessageTo = new RabbitMQOrderMessageTo();
                 rabbitMQOrderMessageTo.setOrderRecord(mqReturnMessage.getOrderRecord())
                         .setType(MQMessageType.DECREASE_STOCK);
@@ -80,6 +82,15 @@ public class RabbitMQReturnMessageScheduled {
                         jsonMessage,
                         correlationData);
             }
+
+            return mqReturnMessage.getReturnOrderId();
+        }).collect(Collectors.toList());
+
+        if(!returnOrderIds.isEmpty()){
+            //删除订单rabbitmq消息发送失败记录
+            mqReturnMessageService.deleteMQReturnMessageByReturnOrderIds(returnOrderIds);
         }
+
+        log.info("rabbitmq回退消息重新发送定时任务完成，发送消息 " + list.size() + " 条");
     }
 }

@@ -24,4 +24,6 @@ public interface SpuInfoService extends IService<SpuInfo> {
     void upSpu(String spuId) throws IOException;
 
     void downSpu(String spuId) throws IOException;
+
+    SpuInfo getSpuInfoBySpuId(String spuId);
 }

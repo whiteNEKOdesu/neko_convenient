@@ -30,8 +30,6 @@ public class RollSpu implements Serializable {
 
     private String spuId;
 
-    private String spuName;
-
     private String spuImage;
 
     /**

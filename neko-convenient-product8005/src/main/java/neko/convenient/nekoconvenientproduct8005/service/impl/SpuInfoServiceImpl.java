@@ -194,6 +194,14 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoMapper, SpuInfo> impl
     }
 
     /**
+     * 根据spuId获取spu信息
+     */
+    @Override
+    public SpuInfo getSpuInfoBySpuId(String spuId) {
+        return this.baseMapper.selectById(spuId);
+    }
+
+    /**
      * 下架商品，本类内部调用
      */
     private void innerDownSpu(String spuId) throws IOException {

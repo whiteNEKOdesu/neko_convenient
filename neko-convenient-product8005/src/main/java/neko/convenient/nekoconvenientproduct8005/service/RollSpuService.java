@@ -2,6 +2,7 @@ package neko.convenient.nekoconvenientproduct8005.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import neko.convenient.nekoconvenientproduct8005.entity.RollSpu;
+import neko.convenient.nekoconvenientproduct8005.vo.NewRollSpuVo;
 
 import java.util.List;
 
@@ -15,4 +16,8 @@ import java.util.List;
  */
 public interface RollSpuService extends IService<RollSpu> {
     List<RollSpu> getRollSpuInfo();
+
+    void newRollSpu(NewRollSpuVo vo);
+
+    void deleteRollSpuByRollId(Integer rollId);
 }

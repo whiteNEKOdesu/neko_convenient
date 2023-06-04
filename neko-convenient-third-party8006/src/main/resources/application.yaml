@@ -4,10 +4,6 @@ spring:
       location: classpath:img/IMG_6588.jpg
       bitdepth: 8
       pixelmode: block
-  servlet:
-    multipart:
-      max-file-size: 1024MB
-      max-request-size: 1024MB
   profiles:
     active: dev # 表示开发环境
 # 激活Sentinel对Feign的支持
@@ -19,5 +15,3 @@ management:
     web:
       exposure:
         include: '*'
-server:
-  port: 8006
