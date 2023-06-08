@@ -96,5 +96,9 @@ public class RollSpuServiceImpl extends ServiceImpl<RollSpuMapper, RollSpu> impl
     @Override
     public void deleteRollSpuByRollId(Integer rollId) {
         this.baseMapper.deleteById(rollId);
+
+        String key = Constant.PRODUCT_REDIS_PREFIX + "roll_spu";
+        //删除缓存
+        stringRedisTemplate.delete(key);
     }
 }

@@ -16,6 +16,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import javax.annotation.PostConstruct;
@@ -255,6 +256,15 @@ public class ExceptionResponse {
         exceptionLogger(e);
         return new ResultObject<>()
                 .setResponseStatus(Response.OUT_OF_LIMITATION_ERROR)
+                .compact();
+    }
+
+    //参数格式错误异常
+    @ExceptionHandler(value = MethodArgumentTypeMismatchException.class)
+    public ResultObject<Object> methodArgumentTypeMismatchExceptionHandler(MethodArgumentTypeMismatchException e){
+        exceptionLogger(e);
+        return new ResultObject<>()
+                .setResponseStatus(Response.ARGUMENT_ILLEGAL_FORMAT_ERROR)
                 .compact();
     }
 }
