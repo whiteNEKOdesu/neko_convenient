@@ -16,6 +16,12 @@
         <java.version>8</java.version>
     </properties>
     <dependencies>
+        <!--开启自定义配置提示 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
         <!--由于aliyun-oss-spring-boot-starter依赖aliyun-java-sdk-oss模块有问题，需要在引入中排除，手动引入aliyun-java-sdk-core依赖-->
         <dependency>
             <groupId>com.aliyun</groupId>

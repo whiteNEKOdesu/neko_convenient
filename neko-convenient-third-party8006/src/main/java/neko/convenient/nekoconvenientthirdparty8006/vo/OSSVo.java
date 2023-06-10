@@ -26,4 +26,6 @@ public class OSSVo implements Serializable {
     private Long expire;
 
     private String callbackUrl;
+
+    private String callback;
 }
