@@ -35,8 +35,18 @@ public class OrderListener {
         String orderRecord = rabbitMQOrderMessageTo.getOrderRecord();
         try {
             OrderLog orderLog = orderLogService.getOrderLogByOrderRecord(orderRecord);
+            if(orderLog == null){
+                log.warn("解锁库存订单号: " + orderRecord + "，订单不存在，尝试解锁库存");
+                ResultObject<Object> r = wareInfoFeignService.unlockStock(orderRecord);
+                if(!r.getResponseCode().equals(200)){
+                    throw new StockUnlockException("库存解锁异常");
+                }
+                //单个确认消费消息
+                channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+                return;
+            }
             //订单不为未支付状态，无需取消订单
-            if(orderLog == null || !orderLog.getStatus().equals(PreorderStatus.UNPAY)){
+            if(!orderLog.getStatus().equals(PreorderStatus.UNPAY)){
                 //单个确认消费消息
                 channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
                 return;

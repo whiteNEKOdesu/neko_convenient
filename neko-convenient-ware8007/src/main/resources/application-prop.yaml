@@ -6,9 +6,9 @@ spring:
       pixelmode: block
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://192.168.30.131:3308/neko_convenient_ware?characterEncoding=utf8&useSSL=false&rewriteBatchedStatements=true&autoReConnect=true
-    username: root
-    password: 123456
+    url: jdbc:mysql://${MYSQL_URL:192.168.30.131:3308}/neko_convenient_ware?characterEncoding=utf8&useSSL=false&rewriteBatchedStatements=true&autoReConnect=true
+    username: ${MYSQL_USERNAME:root}
+    password: ${MYSQL_PASSWORD:123456}
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
       #自动提交
@@ -37,8 +37,8 @@ spring:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
   redis:
-    host: 192.168.30.131
-    port: 6379
+    host: ${REDIS_HOST:192.168.30.131}
+    port: ${REDIS_PORT:6379}
     #redis数据库
     database: 0
     #连接超时时间，单位ms
@@ -54,10 +54,10 @@ spring:
         #最小空闲连接数
         min-idle: 5
   rabbitmq:
-    host: 192.168.30.131
-    port: 5672
-    username: guest
-    password: guest
+    host: ${RABBITMQ_HOST:192.168.30.131}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
     #将发布确认模式改为发布消息成功到交换机后会触发回调方法
     publisher-confirm-type: correlated
     #开启消息回退，将交换机中无法路由到队列消息回退给生产者
@@ -70,7 +70,7 @@ spring:
     #允许出现beanName一样的BeanDefinition
     allow-bean-definition-overriding: true
 mybatis-plus:
-  config-location: classpath:mybatis/mybatis-config.xml
+  config-location: classpath:mybatis/mybatis-config-prop.xml
   mapper-locations: classpath:mybatis/mapper/*.xml
   global-config:
     db-config:

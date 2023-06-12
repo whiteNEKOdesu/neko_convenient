@@ -184,7 +184,10 @@ public class WareInfoServiceImpl extends ServiceImpl<WareInfoMapper, WareInfo> i
 
         OrderLogTo result = r.getResult();
         if(result == null){
-            throw new NoSuchResultException("订单不存在");
+            log.warn("解锁库存订单号: " + orderRecord + "，订单不存在，尝试解锁库存");
+            //解锁库存
+            unlockStockTask(orderRecord);
+            return;
         }
 
         //订单未取消，不解锁库存
@@ -192,23 +195,8 @@ public class WareInfoServiceImpl extends ServiceImpl<WareInfoMapper, WareInfo> i
             throw new StockUnlockException("订单未取消，不解锁库存");
         }
 
-        //获取订单锁定库存记录信息
-        List<StockLockLog> stockLockLogs = stockLockLogService.lambdaQuery().eq(StockLockLog::getOrderRecord, orderRecord)
-                .eq(StockLockLog::getStatus, StockStatus.LOCKING)
-                .list();
-        LocalDateTime now = LocalDateTime.now();
-        for(StockLockLog stockLockLog : stockLockLogs){
-            //解锁库存
-            this.baseMapper.unlockStock(stockLockLog.getWareId(),
-                    stockLockLog.getStockLockLogId(),
-                    now);
-
-            //修改库存锁定记录状态为已解锁
-            stockLockLogService.updateStockLockLogStatus(stockLockLog.getStockLockLogId(),
-                    StockStatus.CANCEL_LOCK,
-                    now);
-        }
-        log.info("订单超时解锁库存完成，订单号: " + orderRecord);
+        //解锁库存
+        unlockStockTask(orderRecord);
     }
 
     /**
@@ -243,5 +231,25 @@ public class WareInfoServiceImpl extends ServiceImpl<WareInfoMapper, WareInfo> i
         stockLockLogService.updateBatchById(todoStockLockLogs);
 
         log.info("订单号: " + orderRecord + " 支付确认完成，解锁指定订单号库存并扣除库存完成");
+    }
+
+    private void unlockStockTask(String orderRecord){
+        //获取订单锁定库存记录信息
+        List<StockLockLog> stockLockLogs = stockLockLogService.lambdaQuery().eq(StockLockLog::getOrderRecord, orderRecord)
+                .eq(StockLockLog::getStatus, StockStatus.LOCKING)
+                .list();
+        LocalDateTime now = LocalDateTime.now();
+        for(StockLockLog stockLockLog : stockLockLogs){
+            //解锁库存
+            this.baseMapper.unlockStock(stockLockLog.getWareId(),
+                    stockLockLog.getStockLockLogId(),
+                    now);
+
+            //修改库存锁定记录状态为已解锁
+            stockLockLogService.updateStockLockLogStatus(stockLockLog.getStockLockLogId(),
+                    StockStatus.CANCEL_LOCK,
+                    now);
+        }
+        log.info("订单超时解锁库存完成，订单号: " + orderRecord);
     }
 }
