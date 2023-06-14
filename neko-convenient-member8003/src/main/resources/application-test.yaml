@@ -39,6 +39,7 @@ spring:
   redis:
     host: ${REDIS_HOST:192.168.30.131}
     port: ${REDIS_PORT:6379}
+    password: ${REDIS_PASSWORD:}
     #redis数据库
     database: 0
     #连接超时时间，单位ms

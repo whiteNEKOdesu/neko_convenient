@@ -299,29 +299,25 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
                 String uid = orderLog.getUid();
                 LocalDateTime now = LocalDateTime.now();
 
-                CompletableFuture<Void> orderInfoTask = CompletableFuture.runAsync(() -> {
-                    OrderInfo orderInfo = new OrderInfo();
-                    orderInfo.setOrderRecord(orderRecord)
-                            .setAlipayTradeId(vo.getTrade_no())
-                            .setUid(uid)
-                            .setReceiveAddressId(orderLog.getReceiveAddressId())
-                            .setCost(orderLog.getCost())
-                            .setActualCost(new BigDecimal(vo.getInvoice_amount()))
-                            .setPoint(point)
-                            .setCreateTime(now)
-                            .setUpdateTime(now);
+                OrderInfo orderInfo = new OrderInfo();
+                orderInfo.setOrderRecord(orderRecord)
+                        .setAlipayTradeId(vo.getTrade_no())
+                        .setUid(uid)
+                        .setReceiveAddressId(orderLog.getReceiveAddressId())
+                        .setCost(orderLog.getCost())
+                        .setActualCost(new BigDecimal(vo.getInvoice_amount()))
+                        .setPoint(point)
+                        .setCreateTime(now)
+                        .setUpdateTime(now);
 
-                    //记录订单
-                    this.baseMapper.insert(orderInfo);
-                }, threadPool);
+                //记录订单
+                this.baseMapper.insert(orderInfo);
 
-                CompletableFuture<Void> updateOrderLogTask = CompletableFuture.runAsync(() -> {
-                    OrderLog todoOrderLog = new OrderLog();
-                    todoOrderLog.setOrderLogId(orderLog.getOrderLogId())
-                            .setStatus(PreorderStatus.PAY);
-                    //更新订单生成记录为已支付状态
-                    orderLogService.updateById(todoOrderLog);
-                }, threadPool);
+                OrderLog todoOrderLog = new OrderLog();
+                todoOrderLog.setOrderLogId(orderLog.getOrderLogId())
+                        .setStatus(PreorderStatus.PAY);
+                //更新订单生成记录为已支付状态
+                orderLogService.updateById(todoOrderLog);
 
                 CompletableFuture<List<OrderDetailInfo>> orderDetailInfoTask = CompletableFuture.supplyAsync(() -> {
                     //远程调用product微服务获取订单详情信息
@@ -336,9 +332,6 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
                                 .setCreateTime(now)
                                 .setUpdateTime(now);
                     }
-
-                    //记录订单详情信息
-                    orderDetailInfoService.saveBatch(result);
 
                     return result;
                 }, threadPool);
@@ -364,7 +357,10 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
                     }
                 }, threadPool);
 
-                CompletableFuture.allOf(orderInfoTask, updateOrderLogTask, addPointTask, deletePurchaseListTask).get();
+                //记录订单详情信息
+                orderDetailInfoService.saveBatch(orderDetailInfoTask.get());
+
+                CompletableFuture.allOf(addPointTask, deletePurchaseListTask).get();
 
                 RabbitMQOrderMessageTo rabbitMQOrderMessageTo = new RabbitMQOrderMessageTo();
                 rabbitMQOrderMessageTo.setOrderRecord(orderRecord)
