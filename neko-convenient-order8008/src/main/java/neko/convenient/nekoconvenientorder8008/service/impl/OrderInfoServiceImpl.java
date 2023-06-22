@@ -213,15 +213,17 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             }
         }, threadPool);
 
-        CompletableFuture<Void> lockStockTask = totalPriceTask.thenRunAsync(() -> {
+        CompletableFuture<Boolean> lockStockTask = totalPriceTask.thenApplyAsync((voidResult) -> {
             //远程调用库存微服务锁定库存
             ResultObject<Object> r = wareInfoFeignService.lockStock(lockStockTo);
-            if (!r.getResponseCode().equals(200)) {
-                throw new StockNotEnoughException("库存不足");
-            }
+
+            return r.getResponseCode().equals(200);
         }, threadPool);
 
         CompletableFuture.allOf(orderLogTask, alipayTask, lockStockTask).get();
+        if(!lockStockTask.getNow(false)){
+            throw new StockNotEnoughException("库存不足");
+        }
     }
 
     /**

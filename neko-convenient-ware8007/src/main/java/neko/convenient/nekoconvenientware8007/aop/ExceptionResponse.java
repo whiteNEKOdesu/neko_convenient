@@ -320,4 +320,13 @@ public class ExceptionResponse {
                 .setResponseStatus(Response.ARGUMENT_ILLEGAL_FORMAT_ERROR)
                 .compact();
     }
+
+    //登录错误异常
+    @ExceptionHandler(value = LoginException.class)
+    public ResultObject<Object> loginExceptionHandler(LoginException e){
+        exceptionLogger(e);
+        return new ResultObject<>()
+                .setResponseStatus(Response.USER_LOG_IN_ERROR)
+                .compact();
+    }
 }

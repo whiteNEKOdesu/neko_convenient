@@ -1,10 +1,12 @@
 package neko.convenient.nekoconvenientmember8003.controller;
 
+import cn.dev33.satoken.annotation.SaCheckLogin;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
 import neko.convenient.nekoconvenientmember8003.service.MemberInfoService;
 import neko.convenient.nekoconvenientmember8003.vo.AddMemberPointVo;
 import neko.convenient.nekoconvenientmember8003.vo.LogInVo;
 import neko.convenient.nekoconvenientmember8003.vo.MemberInfoVo;
+import neko.convenient.nekoconvenientmember8003.vo.UpdateUserPasswordVo;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,6 +48,22 @@ public class MemberInfoController {
     @PostMapping("send_register_mail")
     public ResultObject<Object> sendRegisterMail(@RequestParam String mail){
         memberInfoService.sendRegisterCode(mail);
+        return ResultObject.ok();
+    }
+
+    @SaCheckLogin
+    @PostMapping("update_user_password")
+    public ResultObject<Object> updateUserPassword(@Validated @RequestBody UpdateUserPasswordVo vo){
+        memberInfoService.updateUserPassword(vo);
+
+        return ResultObject.ok();
+    }
+
+    @SaCheckLogin
+    @PostMapping("update_user_name")
+    public ResultObject<Object> updateUserName(@RequestParam String userName){
+        memberInfoService.updateUserName(userName);
+
         return ResultObject.ok();
     }
 

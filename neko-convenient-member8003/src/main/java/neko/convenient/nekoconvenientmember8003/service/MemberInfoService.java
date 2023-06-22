@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import neko.convenient.nekoconvenientmember8003.vo.AddMemberPointVo;
 import neko.convenient.nekoconvenientmember8003.vo.LogInVo;
 import neko.convenient.nekoconvenientmember8003.vo.MemberInfoVo;
+import neko.convenient.nekoconvenientmember8003.vo.UpdateUserPasswordVo;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -26,9 +27,9 @@ public interface MemberInfoService extends IService<MemberInfo> {
 
     void sendRegisterCode(String email);
 
-    int updateUserPassword(String userName, String userPassword, String todoPassword);
+    void updateUserPassword(UpdateUserPasswordVo vo);
 
-    int updateUserName(String userName);
+    void updateUserName(String userName);
 
     int updateUserImagePath(String userImagePath);
 

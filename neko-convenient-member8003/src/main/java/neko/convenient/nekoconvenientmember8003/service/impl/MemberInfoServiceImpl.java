@@ -9,6 +9,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.asymmetric.KeyType;
 import cn.hutool.crypto.asymmetric.RSA;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.Constant;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.Response;
 import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
@@ -22,10 +23,12 @@ import neko.convenient.nekoconvenientmember8003.utils.ip.IPHandler;
 import neko.convenient.nekoconvenientmember8003.vo.AddMemberPointVo;
 import neko.convenient.nekoconvenientmember8003.vo.LogInVo;
 import neko.convenient.nekoconvenientmember8003.vo.MemberInfoVo;
+import neko.convenient.nekoconvenientmember8003.vo.UpdateUserPasswordVo;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -152,13 +155,40 @@ public class MemberInfoServiceImpl extends ServiceImpl<MemberInfoMapper, MemberI
     }
 
     @Override
-    public int updateUserPassword(String userName, String userPassword, String todoPassword) {
-        return 0;
+    public void updateUserPassword(UpdateUserPasswordVo vo) {
+        String uid = StpUtil.getLoginId().toString();
+        MemberInfo memberInfo = this.baseMapper.selectById(uid);
+        if(memberInfo == null){
+            throw new NoSuchResultException("无此用户");
+        }
+
+        String userPassword = StrUtil.str(rsa.decrypt(Base64.decode(vo.getUserPassword()), KeyType.PrivateKey), CharsetUtil.CHARSET_UTF_8);
+        if(DigestUtils.md5DigestAsHex((userPassword + memberInfo.getSalt()).getBytes()).equals(memberInfo.getUserPassword())){
+            String todoPassword = StrUtil.str(rsa.decrypt(Base64.decode(vo.getTodoPassword()), KeyType.PrivateKey), CharsetUtil.CHARSET_UTF_8);
+            MemberInfo todoMemberInfo = new MemberInfo();
+            todoPassword = DigestUtils.md5DigestAsHex((todoPassword + memberInfo.getSalt()).getBytes());
+            todoMemberInfo.setUid(uid)
+                    .setUserPassword(todoPassword)
+                    .setUpdateTime(LocalDateTime.now());
+
+            this.baseMapper.updateById(todoMemberInfo);
+        }else{
+            throw new LoginException("密码错误");
+        }
     }
 
     @Override
-    public int updateUserName(String userName) {
-        return 0;
+    public void updateUserName(String userName) {
+        if(!StringUtils.hasText(userName)){
+            throw new IllegalArgumentException("用户名为空");
+        }
+
+        MemberInfo memberInfo = new MemberInfo();
+        memberInfo.setUid(StpUtil.getLoginId().toString())
+                .setUserName(userName)
+                .setUpdateTime(LocalDateTime.now());
+
+        this.baseMapper.updateById(memberInfo);
     }
 
     @Override
@@ -192,7 +222,8 @@ public class MemberInfoServiceImpl extends ServiceImpl<MemberInfoMapper, MemberI
         //社交用户未注册开始注册
         MemberInfo memberInfo = new MemberInfo();
         LocalDateTime now = LocalDateTime.now();
-        memberInfo.setSourceName(sourceName)
+        memberInfo.setUserName(sourceName + IdWorker.getTimeId())
+                .setSourceName(sourceName)
                 .setSource(source)
                 .setSourceUid(sourceUid)
                 .setCreateTime(now)
