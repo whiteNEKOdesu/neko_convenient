@@ -29,6 +29,8 @@ public class SATokenConfig {
                 .addInclude("/product/point_dict/price_point")
                 .addInclude("/member/member_info/add_point")
                 .addInclude("/member/member_info/real_name_info")
+                .addInclude("/third_party/oss/upload_image")
+                .addInclude("/third_party/oss/delete_file")
                 .setAuth(obj -> {
                     StpUtil.checkRole("*");
                 })

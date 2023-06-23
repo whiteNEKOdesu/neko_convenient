@@ -1,11 +1,14 @@
 package neko.convenient.nekoconvenientthirdparty8006.service.impl;
 
 import cn.hutool.core.codec.Base64;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.json.JSONUtil;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.common.utils.BinaryUtil;
 import com.aliyun.oss.model.MatchMode;
 import com.aliyun.oss.model.PolicyConditions;
+import com.aliyun.oss.model.PutObjectRequest;
+import com.aliyun.oss.model.PutObjectResult;
 import lombok.extern.slf4j.Slf4j;
 import neko.convenient.nekoconvenientthirdparty8006.config.OSSCallbackConfig;
 import neko.convenient.nekoconvenientthirdparty8006.config.OSSConfigProperties;
@@ -14,12 +17,16 @@ import neko.convenient.nekoconvenientthirdparty8006.vo.OSSCallbackVo;
 import neko.convenient.nekoconvenientthirdparty8006.vo.OSSVo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -35,6 +42,8 @@ public class OSSServiceImpl implements OSSService {
 
     @Value("${alibaba.cloud.oss.endpoint}")
     private String endpoint;
+
+    private static final Set<String> imageType = new HashSet<>(Arrays.asList("jpg", "jpeg", "gif", "tiff", "webp", "png"));
 
     /**
      * 获取oss上传信息
@@ -84,5 +93,46 @@ public class OSSServiceImpl implements OSSService {
     @Override
     public void handleCallback(OSSCallbackVo vo) {
         log.info(vo.toString());
+    }
+
+    /**
+     * oss图片上传
+     */
+    @Override
+    public String uploadImage(MultipartFile file) throws IOException {
+        String fileName = file.getOriginalFilename();
+        if(!StringUtils.hasText(fileName) || !imageType.contains(fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase(Locale.ROOT))){
+            throw new IllegalArgumentException("图片类型错误");
+        }
+
+        // 填写Bucket名称，例如examplebucket。
+        String bucket = ossConfigProperties.getBucket();
+        String filePath = ossConfigProperties.getDir() + "/" + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE) +
+                "/" + IdUtil.randomUUID() + "_" + file.getOriginalFilename();
+        String url = "https://" + bucket + "." + endpoint + "/" + filePath;
+
+        try(InputStream inputStream = file.getInputStream()) {
+            // 创建PutObjectRequest对象。
+            PutObjectRequest putObjectRequest = new PutObjectRequest(bucket, filePath, inputStream);
+            // 创建PutObject请求。
+            PutObjectResult result = ossClient.putObject(putObjectRequest);
+            log.info("图片上传成功，url: " + url + "，eTag: " + result.getETag());
+        }
+
+        return url;
+    }
+
+    /**
+     * 删除oss文件
+     */
+    @Override
+    public void deleteFile(String ossFilePath) {
+        // 填写Bucket名称，例如examplebucket。
+        String bucketName = ossConfigProperties.getBucket();
+        String objectName = ossFilePath.replace("https://" + bucketName + "." + endpoint + "/", "");
+
+        // 删除文件。
+        ossClient.deleteObject(bucketName, objectName);
+        log.info("文件删除成功，url: " + ossFilePath);
     }
 }

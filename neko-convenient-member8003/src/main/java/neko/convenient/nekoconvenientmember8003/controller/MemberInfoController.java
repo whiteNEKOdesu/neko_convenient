@@ -9,6 +9,7 @@ import neko.convenient.nekoconvenientmember8003.vo.MemberInfoVo;
 import neko.convenient.nekoconvenientmember8003.vo.UpdateUserPasswordVo;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -65,6 +66,11 @@ public class MemberInfoController {
         memberInfoService.updateUserName(userName);
 
         return ResultObject.ok();
+    }
+
+    @PostMapping("update_user_image_path")
+    public ResultObject<String> updateUserImagePath(@RequestPart MultipartFile file){
+        return ResultObject.ok(memberInfoService.updateUserImagePath(file));
     }
 
     /**

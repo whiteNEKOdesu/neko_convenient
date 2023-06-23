@@ -16,6 +16,7 @@ import neko.convenient.nekoconvenientcommonbase.utils.entity.ResultObject;
 import neko.convenient.nekoconvenientcommonbase.utils.exception.*;
 import neko.convenient.nekoconvenientmember8003.entity.MemberInfo;
 import neko.convenient.nekoconvenientmember8003.feign.thirdparty.MailFeignService;
+import neko.convenient.nekoconvenientmember8003.feign.thirdparty.OSSFeignService;
 import neko.convenient.nekoconvenientmember8003.mapper.MemberInfoMapper;
 import neko.convenient.nekoconvenientmember8003.service.*;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -29,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -60,6 +62,9 @@ public class MemberInfoServiceImpl extends ServiceImpl<MemberInfoMapper, MemberI
 
     @Resource
     private MailFeignService mailFeignService;
+
+    @Resource
+    private OSSFeignService ossFeignService;
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
@@ -192,8 +197,30 @@ public class MemberInfoServiceImpl extends ServiceImpl<MemberInfoMapper, MemberI
     }
 
     @Override
-    public int updateUserImagePath(String userImagePath) {
-        return 0;
+    public String updateUserImagePath(MultipartFile file) {
+        //上传图片到oss
+        ResultObject<String> r = ossFeignService.uploadImage(file);
+        if(!r.getResponseCode().equals(200)){
+            throw new ThirdPartyServiceException("thirdparty微服务远程调用异常");
+        }
+
+        String url = r.getResult();
+        String uid = StpUtil.getLoginId().toString();
+        MemberInfo memberInfo = this.baseMapper.selectById(uid);
+        //删除原图片
+        ResultObject<Object> deleteResult = ossFeignService.deleteFile(memberInfo.getUserImagePath());
+        if(!deleteResult.getResponseCode().equals(200)){
+            throw new ThirdPartyServiceException("thirdparty微服务远程调用异常");
+        }
+
+        MemberInfo todoUpdateMemberInfo = new MemberInfo();
+        todoUpdateMemberInfo.setUid(uid)
+                .setUserImagePath(url)
+                .setUpdateTime(LocalDateTime.now());
+
+        this.baseMapper.updateById(todoUpdateMemberInfo);
+
+        return url;
     }
 
     /**

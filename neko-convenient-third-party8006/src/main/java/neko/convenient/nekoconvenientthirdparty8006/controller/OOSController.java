@@ -12,8 +12,10 @@ import neko.convenient.nekoconvenientthirdparty8006.vo.OSSVo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -40,6 +42,24 @@ public class OOSController {
     @PostMapping("callback")
     public ResultObject<Object> callback(@Validated @RequestBody OSSCallbackVo vo){
         ossService.handleCallback(vo);
+
+        return ResultObject.ok();
+    }
+
+    /**
+     * oss图片上传，建议只提供给微服务远程调用
+     */
+    @PostMapping("upload_image")
+    public ResultObject<String> uploadImage(@RequestPart MultipartFile file) throws IOException {
+        return ResultObject.ok(ossService.uploadImage(file));
+    }
+
+    /**
+     * 删除oss文件，建议只提供给微服务远程调用
+     */
+    @DeleteMapping("delete_file")
+    public ResultObject<Object> deleteFile(@RequestParam String ossFilePath){
+        ossService.deleteFile(ossFilePath);
 
         return ResultObject.ok();
     }

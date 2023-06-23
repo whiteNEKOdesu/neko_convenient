@@ -7,6 +7,7 @@ import neko.convenient.nekoconvenientmember8003.vo.AddMemberPointVo;
 import neko.convenient.nekoconvenientmember8003.vo.LogInVo;
 import neko.convenient.nekoconvenientmember8003.vo.MemberInfoVo;
 import neko.convenient.nekoconvenientmember8003.vo.UpdateUserPasswordVo;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -31,7 +32,7 @@ public interface MemberInfoService extends IService<MemberInfo> {
 
     void updateUserName(String userName);
 
-    int updateUserImagePath(String userImagePath);
+    String updateUserImagePath(MultipartFile file);
 
     MemberInfoVo oAuthMemberLogIn(String sourceName,
                                   String source,
