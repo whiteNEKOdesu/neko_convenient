@@ -10,6 +10,7 @@ import com.aliyun.oss.model.PolicyConditions;
 import com.aliyun.oss.model.PutObjectRequest;
 import com.aliyun.oss.model.PutObjectResult;
 import lombok.extern.slf4j.Slf4j;
+import neko.convenient.nekoconvenientcommonbase.utils.exception.FileTypeNotSupportException;
 import neko.convenient.nekoconvenientthirdparty8006.config.OSSCallbackConfig;
 import neko.convenient.nekoconvenientthirdparty8006.config.OSSConfigProperties;
 import neko.convenient.nekoconvenientthirdparty8006.service.OSSService;
@@ -102,7 +103,7 @@ public class OSSServiceImpl implements OSSService {
     public String uploadImage(MultipartFile file) throws IOException {
         String fileName = file.getOriginalFilename();
         if(!StringUtils.hasText(fileName) || !imageType.contains(fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase(Locale.ROOT))){
-            throw new IllegalArgumentException("图片类型错误");
+            throw new FileTypeNotSupportException("图片类型错误");
         }
 
         // 填写Bucket名称，例如examplebucket。

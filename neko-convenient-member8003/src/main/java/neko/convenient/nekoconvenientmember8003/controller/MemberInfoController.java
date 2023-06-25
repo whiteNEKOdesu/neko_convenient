@@ -68,6 +68,7 @@ public class MemberInfoController {
         return ResultObject.ok();
     }
 
+    @SaCheckLogin
     @PostMapping("update_user_image_path")
     public ResultObject<String> updateUserImagePath(@RequestPart MultipartFile file){
         return ResultObject.ok(memberInfoService.updateUserImagePath(file));

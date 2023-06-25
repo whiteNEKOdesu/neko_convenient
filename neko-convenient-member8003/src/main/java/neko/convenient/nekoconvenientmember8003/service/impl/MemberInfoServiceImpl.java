@@ -208,9 +208,11 @@ public class MemberInfoServiceImpl extends ServiceImpl<MemberInfoMapper, MemberI
         String uid = StpUtil.getLoginId().toString();
         MemberInfo memberInfo = this.baseMapper.selectById(uid);
         //删除原图片
-        ResultObject<Object> deleteResult = ossFeignService.deleteFile(memberInfo.getUserImagePath());
-        if(!deleteResult.getResponseCode().equals(200)){
-            throw new ThirdPartyServiceException("thirdparty微服务远程调用异常");
+        if(memberInfo.getUserImagePath() != null){
+            ResultObject<Object> deleteResult = ossFeignService.deleteFile(memberInfo.getUserImagePath());
+            if(!deleteResult.getResponseCode().equals(200)){
+                throw new ThirdPartyServiceException("thirdparty微服务远程调用异常");
+            }
         }
 
         MemberInfo todoUpdateMemberInfo = new MemberInfo();

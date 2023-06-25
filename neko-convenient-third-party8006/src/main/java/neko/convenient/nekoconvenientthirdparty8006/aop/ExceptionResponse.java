@@ -276,4 +276,13 @@ public class ExceptionResponse {
                 .setResponseStatus(Response.USER_LOG_IN_ERROR)
                 .compact();
     }
+
+    //文件类型不支持异常
+    @ExceptionHandler(value = FileTypeNotSupportException.class)
+    public ResultObject<Object> fileTypeNotSupportExceptionHandler(FileTypeNotSupportException e){
+        exceptionLogger(e);
+        return new ResultObject<>()
+                .setResponseStatus(Response.FILE_TYPE_NOT_SUPPORT_ERROR)
+                .compact();
+    }
 }
