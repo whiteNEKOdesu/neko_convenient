@@ -66,7 +66,7 @@ public class OrderListener {
             //单个确认消费消息
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
         }catch (Exception e){
-            log.error("订单关闭发生异常，订单号: " + orderRecord);
+            log.error("订单关闭发生异常，订单号: " + orderRecord + "，cause: " + e);
             //拒收消息，并让消息重新入队
             channel.basicReject(message.getMessageProperties().getDeliveryTag(), true);
         }

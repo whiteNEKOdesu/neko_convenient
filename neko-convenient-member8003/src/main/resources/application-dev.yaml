@@ -57,6 +57,13 @@ spring:
   main:
     #允许出现beanName一样的BeanDefinition
     allow-bean-definition-overriding: true
+feign:
+  client:
+    config:
+      #为 contextId 为 OSS feign调用设置连接超时信息
+      OSS:
+        connectionTimeout: 2000
+        readTimeout: 600000
 mybatis-plus:
   config-location: classpath:mybatis/mybatis-config-dev.xml
   mapper-locations: classpath:mybatis/mapper/*.xml

@@ -65,6 +65,13 @@ mybatis-plus:
       id-type: auto
       logic-delete-value: 1
       logic-not-delete-value: 0
+feign:
+  client:
+    config:
+      #为 contextId 为 OSS feign调用设置连接超时信息
+      OSS:
+        connectionTimeout: 2000
+        readTimeout: 600000
 sa-token:
   #token名称 (同时也是cookie名称)
   token-name: neko_convenient
